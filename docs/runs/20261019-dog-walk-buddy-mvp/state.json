@@ -2,7 +2,7 @@
   "run_id": "20261019-dog-walk-buddy-mvp",
   "idea": "Dog Walk Buddy: an Android app that helps UK dog owners decide when it's safe and pleasant to walk their dog, and keeps a simple record of their walks.\n\nUsers: everyday dog owners in the UK, using the app quickly before heading out, often one-handed.\n\nFirst release (MVP):\n1. \"Good time to walk?\" check for the user's current location:\n   - Combines temperature, rain, wind, a hot-pavement warning (estimated from air temperature and sunshine) and pollen level.\n   - Shows one clear result: Go / Caution / Avoid, with the main reason in plain words.\n   - Shows the best walking window in the next 12 hours.\n2. One-tap walk logging:\n   - Start/stop a walk; records duration, distance and route via GPS.\n   - Walk history list and weekly totals (walks, time, distance).\n   - Walk logging must work offline.\n3. Dog profile: name, breed, photo, and a heat-sensitivity setting (normal / sensitive) that makes heat warnings stricter.\n\nConstraints:\n- Android only, phones only.\n- Only free data sources that need no paid API keys.\n- Location and walk data stay on the device; no accounts, no backend, no analytics or tracking.\n- Accessible: large touch targets, readable in bright sunlight, works with TalkBack.\n- Safety advice is framed as guidance, not veterinary advice.\n\nLater releases (not this one): dog-friendly routes nearby, multiple dogs, walk reminders, sharing walks, Wear OS.\n",
   "status": "in_progress",
-  "stage": "design",
+  "stage": "build",
   "created_at": "2026-10-19T12:17:05Z",
   "epic_issue": 7,
   "feature_branch": "feature/20261019-dog-walk-buddy-mvp",
@@ -31,8 +31,8 @@
     },
     "G2": {
       "result": "PASS",
-      "at": "2026-10-19T14:11:55Z",
-      "evidence": "gatekeeper G2: G2.1-G2.6 and bootstrap B1-B4 met; failing: []"
+      "at": "2026-10-19T14:39:22Z",
+      "evidence": "gatekeeper G2 on wind amendment: G2.1-G2.6, B3, B4, consistency checks met; tasks unchanged; failing: []"
     },
     "G4": null,
     "G5": null,
@@ -62,7 +62,7 @@
       "depends": [],
       "branch": "task/20261019-dog-walk-buddy-mvp-1-walking-skeleton",
       "pr": null,
-      "status": "blocked",
+      "status": "pending",
       "attempts": 1,
       "G3": null
     },
@@ -238,7 +238,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 15,
+    "agent_invocations": 16,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -288,7 +288,12 @@
     "2026-10-19T14:33:26Z gatekeeper G1 (wind amendment): PASS",
     "2026-10-19T14:33:26Z orchestrator: Gate A (amendment) presented to owner",
     "2026-10-19T14:34:19Z owner Gate A (wind amendment): APPROVED (\"Approve spec\")",
-    "2026-10-19T14:34:19Z orchestrator: invoking architect (design amendment: drop gust)"
+    "2026-10-19T14:34:19Z orchestrator: invoking architect (design amendment: drop gust)",
+    "2026-10-19T14:38:10Z architect design amendment: DONE, gust removed from design + ADR 0002 (amended in place), tasks unchanged",
+    "2026-10-19T14:38:10Z orchestrator: issues #8, #9 bodies updated to amended spec",
+    "2026-10-19T14:38:10Z orchestrator: invoking gatekeeper G2 (design amendment)",
+    "2026-10-19T14:39:22Z gatekeeper G2 (design amendment): PASS; stack unchanged so stack approval stands",
+    "2026-10-19T14:39:22Z orchestrator: T1 waiting for owner to install JDK 17 + Python"
   ],
   "bootstrap": true,
   "owner_answers": {

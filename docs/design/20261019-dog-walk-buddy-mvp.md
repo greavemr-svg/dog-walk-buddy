@@ -2,6 +2,7 @@
 
 - Run: `20261019-dog-walk-buddy-mvp`
 - Spec: `docs/specs/20261019-dog-walk-buddy-mvp.md`
+- Amended 2026-10-19: wind is rated on mean speed only, following the re-approved spec (commit 0d6637f) and the 2026-10-19 amendment in ADR 0002. Tasks, sizes, dependencies and the AC mapping are unchanged.
 - ADRs (all Accepted):
   - `docs/adr/0001-technology-stack.md`
   - `docs/adr/0002-weather-source-and-client.md`
@@ -56,17 +57,17 @@ This is a single-module native Android app (`:app`), written in Kotlin with Jetp
    - call `RatingEngine.rate(hour, sensitivity, isDaylight)`
    - The current hour gives the headline result, and `BestWindowFinder` runs over the 12 results.
    - **Sensitivity** comes from `ProfileRepository.observeSensitivity()`. With no profile it is `NORMAL`, and the screen shows the "Using normal heat sensitivity…" note (AC45). The ViewModel **combines** the sensitivity Flow with the loaded hours, so a profile change re-rates with no network request (AC44).
-   - If temperature, precipitation and wind (mean and gust) are all missing for the current hour, the state is `CantCheck` (AC15).
+   - If temperature, precipitation and mean wind are all missing for the current hour, the state is `CantCheck` (AC15).
 
 ### Rating engine (binding rules from the spec)
 - `s = 0` for Normal and `s = 4` for Sensitive.
 - The heat and pavement factors use `T < 20−s` for Go, `T < 25−s` for Caution, and Avoid otherwise.
 - **Pavement** applies only when `isDaylight && cloud != null && cloud < 50`.
 - **Rain:** `P < 0.5` is Go, `P ≤ 4` is Caution, and `P > 4` is Avoid.
-- **Wind:** `G ≥ 39` is Avoid. `M ≥ 25 || G ≥ 25` is Caution. Otherwise Go. If M or G is missing, the available one is rated, and the hour is flagged missing.
+- **Wind (mean speed M, mph):** `M ≥ 39` is Avoid (`DANGEROUS_WINDS`, "Dangerous winds"). `M ≥ 25` is Caution (`WINDY`, "Windy"). Otherwise Go. If M is missing, wind is not rated and the hour is flagged missing.
 - **Cold:** `T ≤ 0` is Caution.
 - **Overall:** the worst factor. Ties are broken by the precedence list `[PAVEMENT, HEAT, WIND, RAIN, COLD]`.
-- **Missing data:** if any of T, P, M or G is missing and the result would be Go, the result is Caution with reason `DATA_MISSING`.
+- **Missing data:** if any of T, P or M is missing and the result would be Go, the result is Caution with reason `DATA_MISSING`. Missing cloud cover only means "not sunny" for the pavement rule and does not count as missing data.
 - **Reasons:** the domain returns a `Reason` enum. `strings.xml` holds the exact spec texts, and a Robolectric test pins each mapping.
 - **Best window:**
   - Find the best rating among the 12 hours.
@@ -115,10 +116,10 @@ Everything is new. The package root is `io.github.greavemrsvg.dogwalkbuddy` (the
   - Times are UTC epoch ms. Distances are in metres.
   - There is no migration in v1. Destructive migration is forbidden.
 - **Domain types** (pure Kotlin):
-  - `HourlyConditions(startUtc: Instant, temperatureC: Double?, precipitationMmPerHour: Double?, windMeanMph: Double?, windGustMph: Double?, cloudCoverPercent: Double?)`
+  - `HourlyConditions(startUtc: Instant, temperatureC: Double?, precipitationMmPerHour: Double?, windMeanMph: Double?, cloudCoverPercent: Double?)`
   - `HeatSensitivity { NORMAL, SENSITIVE }`
   - `Rating { GO, CAUTION, AVOID }` (ordered)
-  - `Reason { GOOD, WARM, TOO_HOT, PAVEMENT_WARM, PAVEMENT_TOO_HOT, RAIN, HEAVY_RAIN, WINDY, DANGEROUS_GUSTS, FREEZING, DATA_MISSING }`
+  - `Reason { GOOD, WARM, TOO_HOT, PAVEMENT_WARM, PAVEMENT_TOO_HOT, RAIN, HEAVY_RAIN, WINDY, DANGEROUS_WINDS, FREEZING, DATA_MISSING }`
   - `HourRating(startUtc, rating, reason)`
   - `CheckOutcome = Rated(current: HourRating, window: BestWindow, fetchedAt: Instant, isCached: Boolean) | CantCheck`
   - `BestWindow = Window(startUtc, endUtc, rating, startsNow) | NoGoodTime`
@@ -165,7 +166,7 @@ Everything is new. The package root is `io.github.greavemrsvg.dogwalkbuddy` (the
 ## Risks and mitigations
 | Risk | Mitigation |
 |---|---|
-| MET `complete` lacks gust or cloud for UK points, or is not hourly for 12 h (Assumption 1) | Task 1 captures a live London response as a fixture, and a test asserts the fields. If they are missing, task 1 reports BLOCKED for an owner decision before task 2 starts (ADR 0002). |
+| MET `complete` lacks temperature, precipitation, mean wind or cloud cover for UK points, or is not hourly for 12 h (Assumption 1) | Task 1 captures a live London response as a fixture, and a test asserts the fields. If they are missing, task 1 reports BLOCKED for an owner decision before task 2 starts (ADR 0002). The 2026-10-19 finding and owner decision are recorded in the ADR 0002 amendment. |
 | MET throttles direct mobile calls ("should use a proxy") | Identifying UA, 2-decimal rounding (shared cache cells), HTTP cache, on-demand only. Graceful `CantCheck` and the 3 h cache. The owner revisits "no backend" if usage grows (spec risk). |
 | OpenFreeMap changes or disappears (no SLA) | AC39 fallback message. Single `MapConfig` constant to swap the host (ADR 0003). |
 | OpenFreeMap requests pass through Cloudflare (ToS) | Disclosed as additive wording in the Privacy text (task 8). The owner approved this wording at the stack checkpoint on 2026-10-19. |
@@ -332,9 +333,9 @@ The owner confirmed the Samsung Galaxy A35 5G as the reference phone at the stac
     - `bash scripts/ci.sh` passes in GitHub Actions on the task PR.
   - **Assumption 1 check:**
     - Capture the MET `complete` response for 51.51, −0.13 with the app User-Agent and commit it as a fixture.
-    - Add `Assumption1_met_complete_has_hourly_gust_and_cloud_for_uk_point`.
+    - Add `Assumption1_met_complete_has_hourly_temp_precip_wind_cloud_for_uk_point` in `MetFixtureContractTest`. It asserts that the first 12 timeseries entries are 1 hour apart and each has `air_temperature`, `wind_speed` and `cloud_area_fraction` in `instant.details`, and `precipitation_amount` in `next_1_hours.details` (ADR 0002).
     - Record the capture UTC time and the HTTP status in the PR.
-    - **If gust or cloud cover is absent, or the data is not hourly for 12 h, stop and report BLOCKED for the owner** (spec Assumption 1).
+    - **If temperature, precipitation, mean wind or cloud cover is absent, or the data is not hourly for 12 h, stop and report BLOCKED for the owner** (spec Assumption 1).
   - **Repository housekeeping:**
     - `gradlew` is committed executable.
     - `.gitignore` adds `build/`, `.gradle/`, `local.properties`, `.venv-ci/` and `*.apk`/`*.aab`.
