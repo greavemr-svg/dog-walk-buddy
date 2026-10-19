@@ -3,6 +3,7 @@
 - Run: `20261019-dog-walk-buddy-mvp`
 - Spec: `docs/specs/20261019-dog-walk-buddy-mvp.md`
 - Amended 2026-10-19: wind is rated on mean speed only, following the re-approved spec (commit 0d6637f) and the 2026-10-19 amendment in ADR 0002. Tasks, sizes, dependencies and the AC mapping are unchanged.
+- Amended 2026-10-19: compileSdk raised from 36 to 37 (T1 finding, owner decision; ADR 0001 amendment). targetSdk 36 and minSdk 29 are unchanged. Tasks, sizes, dependencies and the AC mapping are unchanged.
 - ADRs (all Accepted):
   - `docs/adr/0001-technology-stack.md`
   - `docs/adr/0002-weather-source-and-client.md`
@@ -93,7 +94,7 @@ Everything is new. The package root is `io.github.greavemrsvg.dogwalkbuddy` (the
 | Component / module | Change |
 |---|---|
 | Root build: `settings.gradle.kts`, `build.gradle.kts`, `gradle/libs.versions.toml`, `gradle/wrapper/*`, `gradlew`, `gradlew.bat`, `gradle.properties`, `version.properties` | New Gradle 9.4.1 / AGP 9.2.1 project, version catalog, `ktlintCheck` and `ktlintFormat` tasks |
-| `app/build.gradle.kts`, `app/proguard-rules.pro` | Android app module (minSdk 29, target and compile 36), Compose, KSP/Room, JaCoCo unit-test coverage, R8 for release, optional signing from environment variables |
+| `app/build.gradle.kts`, `app/proguard-rules.pro` | Android app module (minSdk 29, targetSdk 36, compileSdk 37 per the ADR 0001 amendment), Compose, KSP/Room, JaCoCo unit-test coverage, R8 for release, optional signing from environment variables |
 | `app/src/main/AndroidManifest.xml`, `res/xml/network_security_config.xml`, `res/xml/data_extraction_rules.xml`, `res/xml/backup_rules.xml` | Hardened manifest: no cleartext, backup excluded, only `MainActivity` exported, profileinstaller receiver removed |
 | `.../domain/rating/*`, `.../domain/window/*`, `.../domain/sun/*` | Rating engine, best window, sunrise and sunset |
 | `.../domain/walk/*`, `.../domain/profile/*` | Distance calculator, weekly totals, profile validation |
@@ -170,7 +171,8 @@ Everything is new. The package root is `io.github.greavemrsvg.dogwalkbuddy` (the
 | MET throttles direct mobile calls ("should use a proxy") | Identifying UA, 2-decimal rounding (shared cache cells), HTTP cache, on-demand only. Graceful `CantCheck` and the 3 h cache. The owner revisits "no backend" if usage grows (spec risk). |
 | OpenFreeMap changes or disappears (no SLA) | AC39 fallback message. Single `MapConfig` constant to swap the host (ADR 0003). |
 | OpenFreeMap requests pass through Cloudflare (ToS) | Disclosed as additive wording in the Privacy text (task 8). The owner approved this wording at the stack checkpoint on 2026-10-19. |
-| AGP 9 / Kotlin 2.3 / pinned versions fail to resolve or interoperate | Third-party Gradle plugins avoided (ktlint CLI, JaCoCo built in). Task 1 proves the whole dependency set, including MapLibre packaging and R8. If a version fails, BLOCKED and an ADR amendment, with no silent substitution. |
+| AGP 9 / Kotlin 2.3 / pinned versions fail to resolve or interoperate | Third-party Gradle plugins avoided (ktlint CLI, JaCoCo built in). Task 1 proves the whole dependency set, including MapLibre packaging and R8. If a version fails, BLOCKED and an ADR amendment, with no silent substitution. The 2026-10-19 finding (Compose 1.12.0 needs compileSdk 37) and owner decision are recorded in the ADR 0001 amendment. |
+| CI runner must provide Android platform 37; verified on the T1 PR | compileSdk 37 was verified locally only. The T1 PR's CI run on `ubuntu-latest` is the evidence that the runner's preinstalled SDK has `platforms;android-37*` (or that AGP can install it). If that run fails because platform 37 is missing, the developer reports BLOCKED with the CI log; the agents do not edit `.github/`. **Owner action in that case:** add an SDK platform install step (for example `sdkmanager "platforms;android-37.0"` after the JDK setup) to `.github/workflows/ci.yml` through a `governance/*` PR, then re-run the T1 PR's CI. |
 | Robolectric cannot run SDK 36 on CI's JDK 17 | `robolectric.properties` `sdk=34`. SDK 35/36 behaviour (edge-to-edge, foreground-service rules) is checked manually on the reference phone. The owner may move CI to JDK 21. |
 | MapLibre native renderer cannot be tested in CI, and Vulkan issues on some devices | Thin adapter excluded from coverage and verified manually (AC38). Fallback to the OpenGL artifact through an ADR 0003 amendment. |
 | Battery over 8 %/h | 3 s GPS interval, no wake locks beyond the foreground service, UI ticker only while visible. If the manual result is over 8 %, raise the interval to 5 s. |

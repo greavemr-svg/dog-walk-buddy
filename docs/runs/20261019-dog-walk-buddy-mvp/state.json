@@ -31,8 +31,8 @@
     },
     "G2": {
       "result": "PASS",
-      "at": "2026-10-19T14:39:22Z",
-      "evidence": "gatekeeper G2 on wind amendment: G2.1-G2.6, B3, B4, consistency checks met; tasks unchanged; failing: []"
+      "at": "2026-10-19T15:23:20Z",
+      "evidence": "gatekeeper G2 on compileSdk 37 amendment: all criteria met; lint config judged not a weakening, G3 must verify code matches ADR 0001 lint config; failing: []"
     },
     "G4": null,
     "G5": null,
@@ -48,6 +48,13 @@
         "at": "2026-10-19T13:56:30Z",
         "evidence": "Owner answered Gate A question \"Do you approve the spec at docs/specs/20261019-dog-walk-buddy-mvp.md, including its 15 assumptions and the new Later item for suggested routes, for design?\" with: \"Approve spec\""
       }
+    ],
+    "stack_amendments": [
+      {
+        "at": "2026-10-19T15:18:10Z",
+        "change": "compileSdk 36 -> 37 (targetSdk 36, minSdk 29 unchanged)",
+        "evidence": "Owner answered \"The approved Compose version needs compileSdk 37, but ADR 0001 says 36. How should the stack be amended?\" with: \"compileSdk 37 (Recommended)\""
+      }
     ]
   },
   "tasks": [
@@ -62,7 +69,7 @@
       "depends": [],
       "branch": "task/20261019-dog-walk-buddy-mvp-1-walking-skeleton",
       "pr": null,
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 1,
       "G3": null
     },
@@ -238,7 +245,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 16,
+    "agent_invocations": 20,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -293,7 +300,17 @@
     "2026-10-19T14:38:10Z orchestrator: issues #8, #9 bodies updated to amended spec",
     "2026-10-19T14:38:10Z orchestrator: invoking gatekeeper G2 (design amendment)",
     "2026-10-19T14:39:22Z gatekeeper G2 (design amendment): PASS; stack unchanged so stack approval stands",
-    "2026-10-19T14:39:22Z orchestrator: T1 waiting for owner to install JDK 17 + Python"
+    "2026-10-19T14:39:22Z orchestrator: T1 waiting for owner to install JDK 17 + Python",
+    "2026-10-19T14:52:19Z owner: \"tools instLLED\"; verified JDK 17.0.20.1 and Python 3.12.5 (not on PATH, exported explicitly)",
+    "2026-10-19T14:52:19Z orchestrator: invoking developer T1 attempt 1 (resume after BLOCKED)",
+    "2026-10-19T15:14:05Z developer T1 attempt 1: BLOCKED - Compose BOM 2026.08.00 (Compose 1.12.0) requires compileSdk 37, ADR 0001 says 36; local commit only (with 37: ci.sh green, 14 tests, MET 4 fields OK). Security note: MapLibre adds ACCESS_WIFI_STATE",
+    "2026-10-19T15:14:05Z orchestrator: escalating compileSdk decision to owner",
+    "2026-10-19T15:18:10Z owner: stack amendment approved - compileSdk 37 (Recommended)",
+    "2026-10-19T15:18:10Z orchestrator: invoking architect (ADR 0001 amendment: compileSdk 37)",
+    "2026-10-19T15:22:06Z architect: DONE, ADR 0001 compileSdk 37 amendment + lint/format config recorded; design risk row added; tasks unchanged",
+    "2026-10-19T15:22:06Z orchestrator: invoking gatekeeper G2 (compileSdk amendment)",
+    "2026-10-19T15:23:20Z gatekeeper G2 (compileSdk amendment): PASS",
+    "2026-10-19T15:23:20Z orchestrator: invoking developer T1 attempt 1 (finish: compileSdk 37, push, PR)"
   ],
   "bootstrap": true,
   "owner_answers": {
@@ -320,5 +337,11 @@
       "local_tools": "I'll install JDK 17 + Python"
     }
   },
-  "current_task": 1
+  "current_task": 1,
+  "toolchain": {
+    "JAVA_HOME": "/c/Program Files/Eclipse Adoptium/jdk-17.0.20.101-hotspot",
+    "python": "/c/Users/greav/AppData/Local/Programs/Python/Python312",
+    "ANDROID_HOME": "/c/Users/greav/AppData/Local/Android/Sdk",
+    "note": "not on PATH in agent shells; export explicitly"
+  }
 }

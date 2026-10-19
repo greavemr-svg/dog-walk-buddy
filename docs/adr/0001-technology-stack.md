@@ -3,6 +3,7 @@
 - Status: Accepted
 - Date: 2026-10-19
 - Run: `20261019-dog-walk-buddy-mvp`
+- Amended: 2026-10-19 (compileSdk 37 and T1 lint/format configuration; see "Amendments")
 
 ## Context
 The spec (`docs/specs/20261019-dog-walk-buddy-mvp.md`) asks for an Android phone app, English (UK) only, with:
@@ -60,9 +61,9 @@ It also runs fully on the JVM in the existing CI job.
 ### Platform levels
 | Setting | Value | Why |
 |---|---|---|
-| `minSdk` | **29** (Android 10) | `foregroundServiceType="location"` exists from 29. Covers the large majority of UK phones in use in 2026. |
-| `targetSdk` | **36** (Android 16) | The Google Play requirement for new apps and updates from 31 Aug 2026. |
-| `compileSdk` | **36** | Matches target. AGP 9.2 supports up to 36.1. |
+| `minSdk` | **29** (Android 10) | `foregroundServiceType="location"` exists from 29. Covers the large majority of UK phones in use in 2026. Unchanged by the 2026-10-19 amendment. |
+| `targetSdk` | **36** (Android 16) | The Google Play requirement for new apps and updates from 31 Aug 2026. Unchanged by the 2026-10-19 amendment, so runtime behaviour is still that of API 36. |
+| `compileSdk` | **37** (amended 2026-10-19, was 36) | Required by the pinned Compose BOM 2026.08.00 (Compose 1.12.0): its AAR metadata demands compileSdk 37 or later, and `:app:checkDebugAarMetadata` fails at 36. compileSdk only sets the API surface the code compiles against; it does not change runtime behaviour or the Play target. Verified locally in T1 with AGP 9.2.1: `ktlintCheck`, `lintDebug`, unit tests, `assembleDebug` and R8-minified `assembleRelease` all pass. The earlier note "AGP 9.2 supports up to 36.1" was not verified and is withdrawn. AGP may print a warning that compileSdk 37 is above the highest API level it was tested with; that warning is accepted and must not be silenced with `android.suppressUnsupportedCompileSdk` without a further amendment. The build needs the Android SDK platform 37 installed (locally `platforms/android-37.0`; on CI see "Amendments"). |
 | JVM target / toolchain | **17** | The minimum for AGP 9.2 and Gradle 9.4.1. Matches the JDK 17 that CI installs. |
 
 ### Architecture choices without a new library
@@ -129,14 +130,25 @@ Gradle's conflict resolution may raise a transitive AndroidX version, for exampl
 #### Lint, format and coverage tooling
 | Tool | Version | Licence | Maintenance | Alternatives considered | Why |
 |---|---|---|---|---|---|
-| Android Lint | bundled with AGP 9.2.1 | Apache-2.0 | Google | none | Android correctness, security and accessibility lint (`lintDebug`) with `warningsAsErrors` for security categories |
-| `com.pinterest.ktlint:ktlint-cli` | 1.7.1 | MIT | Pinterest and community, active | ktlint-gradle, Spotless, detekt formatting | Kotlin official style, as required by the standards |
+| Android Lint | bundled with AGP 9.2.1 | Apache-2.0 | Google | none | Android correctness, security and accessibility lint (`lintDebug`) with `warningsAsErrors = true` for all enabled checks. Four online version-currency checks are disabled; see "Lint and format configuration". |
+| `com.pinterest.ktlint:ktlint-cli` | 1.7.1 | MIT | Pinterest and community, active | ktlint-gradle, Spotless, detekt formatting | Kotlin official style, as required by the standards. Configured by a root `.editorconfig`; see "Lint and format configuration". |
 | JaCoCo | 0.8.13 (set through `android.testCoverage.jacocoVersion`) | EPL-2.0 | Eclipse, active | Kover | Bundled. AGP's `enableUnitTestCoverage` produces XML. |
 | `diff-cover` (Python, CI and local only, not shipped) | 10.2.0 | Apache-2.0 | Bachmann1234 and community, active (10.2.0 Jan 2026) | A custom script | Mainstream changed-lines coverage gate against the base branch |
 
 None of these libraries contains analytics, advertising or crash-reporting SDKs. Task 1 verifies this on the merged release manifest and the dependency tree.
 
 There were no known High or Critical CVEs for these versions at design time. The security review re-checks this at G4 with Dependabot and the dependency tree. After the stack checkpoint, the owner adds the `gradle` ecosystem to `.github/dependabot.yml` through a `governance/*` PR.
+
+#### Lint and format configuration (added 2026-10-19, T1)
+- **Android Lint, `warningsAsErrors = true`.** Every enabled lint warning fails `lintDebug`, which is stricter than the original "security categories" scope.
+- **Disabled lint checks (exhaustive): `GradleDependency`, `NewerVersionAvailable`, `AndroidGradlePluginVersion`, `OldTargetApi`.**
+  - These checks report that a newer library, AGP or target API level exists. Their result depends on what Google Maven and the SDK index publish on a given day, not on the code. With `warningsAsErrors = true` they would make an unchanged commit fail on a later day, and they would ask for changes that this ADR forbids without an amendment (versions are pinned here; targetSdk 36 is a decision in "Platform levels", and with compileSdk 37 `OldTargetApi` fires on it).
+  - Version currency is handled instead by the pinned catalog, ADR amendments, Dependabot (`gradle` ecosystem, owner follow-up) and the G4 security review. The Play targetSdk deadline is tracked by the owner, not by lint.
+  - No other lint check may be disabled, and no lint baseline may be added, without a further amendment.
+- **ktlint `.editorconfig` (repository root).**
+  - `ktlint_code_style = ktlint_official`, matching the standards.
+  - The `function-naming` rule ignores functions annotated with `Composable` or `Test` (`ktlint_function_naming_ignore_when_annotated_with = Composable, Test`). Composables are PascalCase by Compose convention, and tests use the AC-prefixed names this design requires (for example `AC48_...`, `Assumption1_...`). All other functions keep the standard camelCase rule.
+  - No other ktlint rule is disabled without a further amendment.
 
 ### Commands (also in `docs/project.md`)
 | Purpose | Command |
@@ -184,6 +196,7 @@ No other exclusions are allowed without an ADR amendment.
   - Add `gradle` to Dependabot (governance PR).
   - Optionally move CI to JDK 21.
   - Provide release signing keys outside the repo (`DWB_KEYSTORE_PATH`, `DWB_KEYSTORE_PASSWORD`, `DWB_KEY_ALIAS`, `DWB_KEY_PASSWORD` as environment variables or GitHub secrets). Release signing is skipped when they are absent, which gives an unsigned `assembleRelease` in CI.
+  - Only if the T1 PR's CI shows Android platform 37 is missing on the runner: add an SDK install step to `.github/workflows/ci.yml` through a `governance/*` PR (see "Amendments").
 - Reversal: the UI and platform layer would need a rewrite. Domain logic (rating, best window, sunrise, weekly totals, distance) is pure Kotlin with no Android types, so it could move to Kotlin Multiplatform if iOS is ever in scope.
 
 ## For new dependencies
@@ -193,3 +206,14 @@ No other exclusions are allowed without an ADR amendment.
 - Size / performance impact:
   - MapLibre native libraries add roughly 10-15 MB per ABI. Mitigated by publishing an Android App Bundle (per-ABI splits) and R8 minification.
   - The other libraries are small.
+
+## Amendments
+### 2026-10-19: compileSdk 36 to 37 (T1 finding, owner decision)
+- **Finding (task 1, issue #8).** The pinned `androidx.compose:compose-bom:2026.08.00` resolves to Compose 1.12.0. With `compileSdk = 36`, `:app:checkDebugAarMetadata` fails with 11 errors of the form "Dependency 'androidx.compose.ui:ui-android:1.12.0' requires libraries and applications that depend on it to compile against version 37 or later of the Android APIs." Material3 resolved to 1.4.0 and activity-compose to 1.11.0, as pinned.
+- **Verification.** With only `compileSdk = 37` changed, the developer ran `ktlintCheck`, `lintDebug`, 14 unit tests, `assembleDebug` and the R8-minified `assembleRelease` locally with AGP 9.2.1 and the SDK platform `android-37.0`. All passed.
+- **Owner decision (2026-10-19).** "compileSdk 37 (Recommended)": raise only compileSdk to 37. `targetSdk` 36 and `minSdk` 29 are unchanged. No pinned library version changes.
+- **Correction.** The original rationale "Matches target. AGP 9.2 supports up to 36.1." is withdrawn. What is known: AGP 9.2.1 builds this project at compileSdk 37 locally; AGP may warn that the level is above the one it was tested with.
+- **Open point.** It is not yet verified that the `ubuntu-latest` CI runner provides Android platform 37. The T1 PR's CI run is the evidence. If it is missing, the build fails at that step, and the owner must add an SDK platform install step (for example `sdkmanager "platforms;android-37.0"`) to `.github/workflows/ci.yml` through a `governance/*` PR. Agents do not edit `.github/`.
+
+### 2026-10-19: lint and ktlint configuration (T1)
+- Recorded in "Lint and format configuration": `warningsAsErrors = true`, the four disabled online version-currency checks, and the root `.editorconfig` (ktlint_official, `function-naming` ignores `Composable` and `Test` functions).
