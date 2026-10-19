@@ -1,0 +1,88 @@
+{
+  "run_id": "20261019-dog-walk-buddy-mvp",
+  "idea": "Dog Walk Buddy: an Android app that helps UK dog owners decide when it's safe and pleasant to walk their dog, and keeps a simple record of their walks.\n\nUsers: everyday dog owners in the UK, using the app quickly before heading out, often one-handed.\n\nFirst release (MVP):\n1. \"Good time to walk?\" check for the user's current location:\n   - Combines temperature, rain, wind, a hot-pavement warning (estimated from air temperature and sunshine) and pollen level.\n   - Shows one clear result: Go / Caution / Avoid, with the main reason in plain words.\n   - Shows the best walking window in the next 12 hours.\n2. One-tap walk logging:\n   - Start/stop a walk; records duration, distance and route via GPS.\n   - Walk history list and weekly totals (walks, time, distance).\n   - Walk logging must work offline.\n3. Dog profile: name, breed, photo, and a heat-sensitivity setting (normal / sensitive) that makes heat warnings stricter.\n\nConstraints:\n- Android only, phones only.\n- Only free data sources that need no paid API keys.\n- Location and walk data stay on the device; no accounts, no backend, no analytics or tracking.\n- Accessible: large touch targets, readable in bright sunlight, works with TalkBack.\n- Safety advice is framed as guidance, not veterinary advice.\n\nLater releases (not this one): dog-friendly routes nearby, multiple dogs, walk reminders, sharing walks, Wear OS.\n",
+  "status": "in_progress",
+  "stage": "design",
+  "created_at": "2026-10-19T12:17:05Z",
+  "epic_issue": 7,
+  "feature_branch": "feature/20261019-dog-walk-buddy-mvp",
+  "artifacts": {
+    "spec": "docs/specs/20261019-dog-walk-buddy-mvp.md",
+    "design": "",
+    "adrs": [],
+    "audit": ""
+  },
+  "gates": {
+    "G1": {
+      "result": "PASS",
+      "at": "2026-10-19T13:55:16Z",
+      "evidence": "gatekeeper G1 after Gate A change: all G1.1-G1.7, DoR.1-10, consistency checks met; failing: []"
+    },
+    "spec_approval": {
+      "result": "APPROVED",
+      "at": "2026-10-19T13:56:30Z",
+      "evidence": "Owner answered Gate A question \"Do you approve the spec at docs/specs/20261019-dog-walk-buddy-mvp.md, including its 15 assumptions and the new Later item for suggested routes, for design?\" with: \"Approve spec\""
+    },
+    "G2": null,
+    "G4": null,
+    "G5": null,
+    "release_approval": null,
+    "stack_approval": null
+  },
+  "tasks": [],
+  "release": {
+    "version": "",
+    "pr": null,
+    "tag": "",
+    "url": ""
+  },
+  "counters": {
+    "agent_invocations": 8,
+    "plan_attempts": 2,
+    "g1_fail_attempts": 1
+  },
+  "log": [
+    "2026-10-19T12:17:05Z orchestrator: run created (bootstrap), epic #7, branch feature/20261019-dog-walk-buddy-mvp",
+    "2026-10-19T12:17:05Z orchestrator: invoking planner (plan, attempt 1)",
+    "2026-10-19T12:19:29Z planner attempt 1: BLOCKED, 6 questions (Q1-Q6) for owner; 12 assumptions proposed",
+    "2026-10-19T12:21:39Z orchestrator: owner answered Q1-Q6 + pollen fallback",
+    "2026-10-19T12:21:39Z orchestrator: invoking planner (plan, attempt 2, with owner answers)",
+    "2026-10-19T13:41:34Z planner attempt 2: INTERRUPTED (API usage limit) while fixing AC44; partial spec on disk, no report",
+    "2026-10-19T13:41:34Z orchestrator: invoking planner (plan, attempt 2 continuation: finish and verify spec)",
+    "2026-10-19T13:44:25Z planner attempt 2 continuation: DONE, spec written, 53 ACs, pollen dropped (owner fallback), weather MET Norway, tiles OpenFreeMap",
+    "2026-10-19T13:44:25Z orchestrator: invoking gatekeeper G1",
+    "2026-10-19T13:45:20Z gatekeeper G1: FAIL (AC36 calendar error only; all other criteria met)",
+    "2026-10-19T13:45:20Z orchestrator: invoking planner to fix G1 failures (spec attempt 1 of 3 after G1 fail)",
+    "2026-10-19T13:47:25Z planner G1-fix attempt 1: DONE, AC36 dates corrected (Mon 12/Sun 18/Mon 19 Oct 2026), 53 ACs",
+    "2026-10-19T13:47:25Z orchestrator: invoking gatekeeper G1 (re-check)",
+    "2026-10-19T13:48:22Z gatekeeper G1 re-check: PASS",
+    "2026-10-19T13:48:22Z orchestrator: Gate A presented to owner",
+    "2026-10-19T13:51:21Z orchestrator: Gate A question declined by owner, owner wants to clarify; Gate A still pending",
+    "2026-10-19T13:52:22Z owner Gate A: request changes - add generated-loop suggested route to Later (not MVP)",
+    "2026-10-19T13:52:22Z orchestrator: invoking planner (Gate A change request)",
+    "2026-10-19T13:54:27Z planner Gate A change: DONE, generated-loop route added to Later + Out of scope; 53 ACs unchanged",
+    "2026-10-19T13:54:27Z orchestrator: invoking gatekeeper G1 (after Gate A change)",
+    "2026-10-19T13:55:16Z gatekeeper G1 (after Gate A change): PASS",
+    "2026-10-19T13:55:16Z orchestrator: Gate A re-presented to owner",
+    "2026-10-19T13:56:30Z owner Gate A: APPROVED (\"Approve spec\")"
+  ],
+  "bootstrap": true,
+  "owner_answers": {
+    "plan_round1": {
+      "at": "2026-10-19T12:21:39Z",
+      "Q1": "Accept as proposed (Recommended)",
+      "Q2": "Accept as proposed (Recommended)",
+      "Q3": "Coarse coordinates (Recommended)",
+      "Q4": "Commercial",
+      "Q5": "Street map",
+      "Q6": "Cache <3h, safe (Recommended)",
+      "pollen_fallback": "Drop pollen from MVP"
+    },
+    "gate_a_round1": {
+      "at": "2026-10-19T13:52:22Z",
+      "request": "can we include a suggested route for walk",
+      "route_type": "Generated loop",
+      "fit": "Keep it in Later"
+    }
+  }
+}
