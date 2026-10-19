@@ -2,14 +2,20 @@
   "run_id": "20261019-dog-walk-buddy-mvp",
   "idea": "Dog Walk Buddy: an Android app that helps UK dog owners decide when it's safe and pleasant to walk their dog, and keeps a simple record of their walks.\n\nUsers: everyday dog owners in the UK, using the app quickly before heading out, often one-handed.\n\nFirst release (MVP):\n1. \"Good time to walk?\" check for the user's current location:\n   - Combines temperature, rain, wind, a hot-pavement warning (estimated from air temperature and sunshine) and pollen level.\n   - Shows one clear result: Go / Caution / Avoid, with the main reason in plain words.\n   - Shows the best walking window in the next 12 hours.\n2. One-tap walk logging:\n   - Start/stop a walk; records duration, distance and route via GPS.\n   - Walk history list and weekly totals (walks, time, distance).\n   - Walk logging must work offline.\n3. Dog profile: name, breed, photo, and a heat-sensitivity setting (normal / sensitive) that makes heat warnings stricter.\n\nConstraints:\n- Android only, phones only.\n- Only free data sources that need no paid API keys.\n- Location and walk data stay on the device; no accounts, no backend, no analytics or tracking.\n- Accessible: large touch targets, readable in bright sunlight, works with TalkBack.\n- Safety advice is framed as guidance, not veterinary advice.\n\nLater releases (not this one): dog-friendly routes nearby, multiple dogs, walk reminders, sharing walks, Wear OS.\n",
   "status": "in_progress",
-  "stage": "design",
+  "stage": "stack_checkpoint",
   "created_at": "2026-10-19T12:17:05Z",
   "epic_issue": 7,
   "feature_branch": "feature/20261019-dog-walk-buddy-mvp",
   "artifacts": {
     "spec": "docs/specs/20261019-dog-walk-buddy-mvp.md",
-    "design": "",
-    "adrs": [],
+    "design": "docs/design/20261019-dog-walk-buddy-mvp.md",
+    "adrs": [
+      "docs/adr/0001-technology-stack.md",
+      "docs/adr/0002-weather-source-and-client.md",
+      "docs/adr/0003-map-renderer-and-tile-source.md",
+      "docs/adr/0004-local-data-model-and-persistence.md",
+      "docs/adr/0005-walk-recording-foreground-service.md"
+    ],
     "audit": ""
   },
   "gates": {
@@ -23,13 +29,201 @@
       "at": "2026-10-19T13:56:30Z",
       "evidence": "Owner answered Gate A question \"Do you approve the spec at docs/specs/20261019-dog-walk-buddy-mvp.md, including its 15 assumptions and the new Later item for suggested routes, for design?\" with: \"Approve spec\""
     },
-    "G2": null,
+    "G2": {
+      "result": "PASS",
+      "at": "2026-10-19T14:11:55Z",
+      "evidence": "gatekeeper G2: G2.1-G2.6 and bootstrap B1-B4 met; failing: []"
+    },
     "G4": null,
     "G5": null,
     "release_approval": null,
-    "stack_approval": null
+    "stack_approval": {
+      "result": "APPROVED",
+      "at": "2026-10-19T14:18:08Z",
+      "evidence": "Owner answered \"Do you approve the stack in docs/adr/0001-technology-stack.md and docs/project.md, including the app ID io.github.greavemrsvg.dogwalkbuddy, the Galaxy A35 5G reference phone, and the Cloudflare mention in the privacy text?\" with: \"Approve stack\""
+    }
   },
-  "tasks": [],
+  "tasks": [
+    {
+      "n": 1,
+      "title": "Walking skeleton: project, hardened manifest, CI, coverage gate, MET field check",
+      "issue": 8,
+      "slug": "walking-skeleton",
+      "acs": [
+        "AC48"
+      ],
+      "depends": [],
+      "branch": "task/20261019-dog-walk-buddy-mvp-1-walking-skeleton",
+      "pr": null,
+      "status": "pending",
+      "attempts": 0,
+      "G3": null
+    },
+    {
+      "n": 2,
+      "title": "Rating engine, sunrise/sunset and best window",
+      "issue": 9,
+      "slug": "rating-engine",
+      "acs": [
+        "AC1-AC19"
+      ],
+      "depends": [
+        1
+      ],
+      "branch": "task/20261019-dog-walk-buddy-mvp-2-rating-engine",
+      "pr": null,
+      "status": "pending",
+      "attempts": 0,
+      "G3": null
+    },
+    {
+      "n": 3,
+      "title": "Weather client, approximate location and cached check",
+      "issue": 10,
+      "slug": "weather-client",
+      "acs": [
+        "AC21",
+        "AC22",
+        "AC23",
+        "AC24"
+      ],
+      "depends": [
+        1
+      ],
+      "branch": "task/20261019-dog-walk-buddy-mvp-3-weather-client",
+      "pr": null,
+      "status": "pending",
+      "attempts": 0,
+      "G3": null
+    },
+    {
+      "n": 4,
+      "title": "Dog profile with photo and validation",
+      "issue": 11,
+      "slug": "dog-profile",
+      "acs": [
+        "AC41",
+        "AC42",
+        "AC43",
+        "AC50",
+        "AC51"
+      ],
+      "depends": [
+        3
+      ],
+      "branch": "task/20261019-dog-walk-buddy-mvp-4-dog-profile",
+      "pr": null,
+      "status": "pending",
+      "attempts": 0,
+      "G3": null
+    },
+    {
+      "n": 5,
+      "title": "Check screen and About this advice",
+      "issue": 12,
+      "slug": "check-screen",
+      "acs": [
+        "AC15",
+        "AC20",
+        "AC21",
+        "AC22",
+        "AC25",
+        "AC26",
+        "AC27",
+        "AC44",
+        "AC45",
+        "AC50",
+        "AC51",
+        "AC52",
+        "AC53"
+      ],
+      "depends": [
+        2,
+        3,
+        4
+      ],
+      "branch": "task/20261019-dog-walk-buddy-mvp-5-check-screen",
+      "pr": null,
+      "status": "pending",
+      "attempts": 0,
+      "G3": null
+    },
+    {
+      "n": 6,
+      "title": "Walk recording foreground service and recording screen",
+      "issue": 13,
+      "slug": "walk-recording",
+      "acs": [
+        "AC28",
+        "AC29",
+        "AC30",
+        "AC31",
+        "AC32",
+        "AC33",
+        "AC34",
+        "AC50",
+        "AC51",
+        "AC52"
+      ],
+      "depends": [
+        5
+      ],
+      "branch": "task/20261019-dog-walk-buddy-mvp-6-walk-recording",
+      "pr": null,
+      "status": "pending",
+      "attempts": 0,
+      "G3": null
+    },
+    {
+      "n": 7,
+      "title": "Walk history, weekly totals and delete",
+      "issue": 14,
+      "slug": "walk-history",
+      "acs": [
+        "AC30",
+        "AC35",
+        "AC36",
+        "AC37",
+        "AC40",
+        "AC50",
+        "AC51"
+      ],
+      "depends": [
+        6
+      ],
+      "branch": "task/20261019-dog-walk-buddy-mvp-7-walk-history",
+      "pr": null,
+      "status": "pending",
+      "attempts": 0,
+      "G3": null
+    },
+    {
+      "n": 8,
+      "title": "Walk detail map, Privacy and Delete all my data",
+      "issue": 15,
+      "slug": "map-privacy",
+      "acs": [
+        "AC24",
+        "AC38",
+        "AC39",
+        "AC46",
+        "AC47",
+        "AC48",
+        "AC49",
+        "AC50",
+        "AC51"
+      ],
+      "depends": [
+        5,
+        7
+      ],
+      "branch": "task/20261019-dog-walk-buddy-mvp-8-map-privacy",
+      "pr": null,
+      "status": "pending",
+      "attempts": 0,
+      "G3": null
+    }
+  ],
   "release": {
     "version": "",
     "pr": null,
@@ -37,9 +231,10 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 8,
+    "agent_invocations": 11,
     "plan_attempts": 2,
-    "g1_fail_attempts": 1
+    "g1_fail_attempts": 1,
+    "design_attempts": 1
   },
   "log": [
     "2026-10-19T12:17:05Z orchestrator: run created (bootstrap), epic #7, branch feature/20261019-dog-walk-buddy-mvp",
@@ -64,7 +259,17 @@
     "2026-10-19T13:54:27Z orchestrator: invoking gatekeeper G1 (after Gate A change)",
     "2026-10-19T13:55:16Z gatekeeper G1 (after Gate A change): PASS",
     "2026-10-19T13:55:16Z orchestrator: Gate A re-presented to owner",
-    "2026-10-19T13:56:30Z owner Gate A: APPROVED (\"Approve spec\")"
+    "2026-10-19T13:56:30Z owner Gate A: APPROVED (\"Approve spec\")",
+    "2026-10-19T13:56:41Z orchestrator: spec committed 5c137af and pushed",
+    "2026-10-19T13:56:41Z orchestrator: invoking architect (design, bootstrap, attempt 1)",
+    "2026-10-19T14:10:46Z architect attempt 1: DONE, 8 tasks, ADRs 0001-0005 Accepted, project.md PROPOSED, OpenFreeMap commercial use allowed",
+    "2026-10-19T14:10:46Z orchestrator: invoking gatekeeper G2",
+    "2026-10-19T14:11:55Z gatekeeper G2: PASS",
+    "2026-10-19T14:11:55Z orchestrator: stack checkpoint presented to owner",
+    "2026-10-19T14:18:08Z owner stack checkpoint: APPROVED (\"Approve stack\")",
+    "2026-10-19T14:18:08Z orchestrator: invoking architect to set docs/project.md Status: APPROVED",
+    "2026-10-19T14:19:14Z orchestrator: created task issues #8-#15 (T1-T8)",
+    "2026-10-19T14:21:28Z architect: DONE, project.md Status: APPROVED, confirmation notes updated in design and ADR 0003"
   ],
   "bootstrap": true,
   "owner_answers": {
