@@ -2,7 +2,7 @@
   "run_id": "20261019-dog-walk-buddy-mvp",
   "idea": "Dog Walk Buddy: an Android app that helps UK dog owners decide when it's safe and pleasant to walk their dog, and keeps a simple record of their walks.\n\nUsers: everyday dog owners in the UK, using the app quickly before heading out, often one-handed.\n\nFirst release (MVP):\n1. \"Good time to walk?\" check for the user's current location:\n   - Combines temperature, rain, wind, a hot-pavement warning (estimated from air temperature and sunshine) and pollen level.\n   - Shows one clear result: Go / Caution / Avoid, with the main reason in plain words.\n   - Shows the best walking window in the next 12 hours.\n2. One-tap walk logging:\n   - Start/stop a walk; records duration, distance and route via GPS.\n   - Walk history list and weekly totals (walks, time, distance).\n   - Walk logging must work offline.\n3. Dog profile: name, breed, photo, and a heat-sensitivity setting (normal / sensitive) that makes heat warnings stricter.\n\nConstraints:\n- Android only, phones only.\n- Only free data sources that need no paid API keys.\n- Location and walk data stay on the device; no accounts, no backend, no analytics or tracking.\n- Accessible: large touch targets, readable in bright sunlight, works with TalkBack.\n- Safety advice is framed as guidance, not veterinary advice.\n\nLater releases (not this one): dog-friendly routes nearby, multiple dogs, walk reminders, sharing walks, Wear OS.\n",
   "status": "in_progress",
-  "stage": "stack_checkpoint",
+  "stage": "design",
   "created_at": "2026-10-19T12:17:05Z",
   "epic_issue": 7,
   "feature_branch": "feature/20261019-dog-walk-buddy-mvp",
@@ -21,13 +21,13 @@
   "gates": {
     "G1": {
       "result": "PASS",
-      "at": "2026-10-19T13:55:16Z",
-      "evidence": "gatekeeper G1 after Gate A change: all G1.1-G1.7, DoR.1-10, consistency checks met; failing: []"
+      "at": "2026-10-19T14:33:26Z",
+      "evidence": "gatekeeper G1 on wind amendment: all criteria met; diff limited to wind decision; failing: []"
     },
     "spec_approval": {
       "result": "APPROVED",
-      "at": "2026-10-19T13:56:30Z",
-      "evidence": "Owner answered Gate A question \"Do you approve the spec at docs/specs/20261019-dog-walk-buddy-mvp.md, including its 15 assumptions and the new Later item for suggested routes, for design?\" with: \"Approve spec\""
+      "at": "2026-10-19T14:34:19Z",
+      "evidence": "Owner answered \"Do you approve the amended spec (wind rated on mean speed only: Caution from 25 mph, Avoid from 39 mph, gusts moved to Later)?\" with: \"Approve spec\""
     },
     "G2": {
       "result": "PASS",
@@ -41,7 +41,14 @@
       "result": "APPROVED",
       "at": "2026-10-19T14:18:08Z",
       "evidence": "Owner answered \"Do you approve the stack in docs/adr/0001-technology-stack.md and docs/project.md, including the app ID io.github.greavemrsvg.dogwalkbuddy, the Galaxy A35 5G reference phone, and the Cloudflare mention in the privacy text?\" with: \"Approve stack\""
-    }
+    },
+    "spec_approval_history": [
+      {
+        "result": "APPROVED",
+        "at": "2026-10-19T13:56:30Z",
+        "evidence": "Owner answered Gate A question \"Do you approve the spec at docs/specs/20261019-dog-walk-buddy-mvp.md, including its 15 assumptions and the new Later item for suggested routes, for design?\" with: \"Approve spec\""
+      }
+    ]
   },
   "tasks": [
     {
@@ -55,8 +62,8 @@
       "depends": [],
       "branch": "task/20261019-dog-walk-buddy-mvp-1-walking-skeleton",
       "pr": null,
-      "status": "pending",
-      "attempts": 0,
+      "status": "blocked",
+      "attempts": 1,
       "G3": null
     },
     {
@@ -231,10 +238,10 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 11,
+    "agent_invocations": 15,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
-    "design_attempts": 1
+    "design_attempts": 2
   },
   "log": [
     "2026-10-19T12:17:05Z orchestrator: run created (bootstrap), epic #7, branch feature/20261019-dog-walk-buddy-mvp",
@@ -269,7 +276,19 @@
     "2026-10-19T14:18:08Z owner stack checkpoint: APPROVED (\"Approve stack\")",
     "2026-10-19T14:18:08Z orchestrator: invoking architect to set docs/project.md Status: APPROVED",
     "2026-10-19T14:19:14Z orchestrator: created task issues #8-#15 (T1-T8)",
-    "2026-10-19T14:21:28Z architect: DONE, project.md Status: APPROVED, confirmation notes updated in design and ADR 0003"
+    "2026-10-19T14:21:28Z architect: DONE, project.md Status: APPROVED, confirmation notes updated in design and ADR 0003",
+    "2026-10-19T14:21:39Z orchestrator: design committed 718e8f8",
+    "2026-10-19T14:21:39Z orchestrator: invoking developer T1 attempt 1",
+    "2026-10-19T14:23:24Z developer T1 attempt 1: BLOCKED - MET Locationforecast complete has no wind_speed_of_gust for UK points (London x2, Edinburgh, Manchester, Exeter); no commits/PR. Also: no JDK on PATH, no Python, locally",
+    "2026-10-19T14:23:24Z orchestrator: escalating gust decision to owner",
+    "2026-10-19T14:29:37Z owner T1 block: wind=mean only; build skeleton now; owner installs JDK 17 + Python",
+    "2026-10-19T14:29:37Z orchestrator: invoking planner (spec amendment: mean-wind-only)",
+    "2026-10-19T14:32:34Z planner amendment: DONE, wind mean-only (Caution 25<=M<39, Avoid M>=39 Beaufort F8), AC1/8/13/14 + Assumptions 1/6 updated, 53 ACs",
+    "2026-10-19T14:32:34Z orchestrator: invoking gatekeeper G1 (amended spec)",
+    "2026-10-19T14:33:26Z gatekeeper G1 (wind amendment): PASS",
+    "2026-10-19T14:33:26Z orchestrator: Gate A (amendment) presented to owner",
+    "2026-10-19T14:34:19Z owner Gate A (wind amendment): APPROVED (\"Approve spec\")",
+    "2026-10-19T14:34:19Z orchestrator: invoking architect (design amendment: drop gust)"
   ],
   "bootstrap": true,
   "owner_answers": {
@@ -288,6 +307,13 @@
       "request": "can we include a suggested route for walk",
       "route_type": "Generated loop",
       "fit": "Keep it in Later"
+    },
+    "t1_block": {
+      "at": "2026-10-19T14:29:37Z",
+      "gusts": "Mean wind only (Recommended)",
+      "skeleton": "Build skeleton now (Recommended)",
+      "local_tools": "I'll install JDK 17 + Python"
     }
-  }
+  },
+  "current_task": 1
 }

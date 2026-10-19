@@ -3,6 +3,8 @@
 - Run: `20261019-dog-walk-buddy-mvp`
 - Epic: #7
 - Status: Draft
+- Change log:
+  - 2026-10-19: wind rated on mean speed only (no gust data from MET Norway for UK points); owner decision during task 1.
 
 ## Problem
 UK dog owners have no quick, single place to decide whether *right now* is a safe and pleasant time to walk their dog. Today they have to read a general weather app and work out the dog-specific risks themselves: heat, hot pavement, heavy rain, strong wind, freezing conditions. Heat in particular is underestimated. Vets Now warns heat-related illness can start above about 20 °C, and pavements get much hotter than the air. Owners also want a simple, private record of their walks (how often, how long, how far) without signing up for an account or sharing their location history. The first release delivers a one-glance Go / Caution / Avoid check, one-tap walk logging that works offline, and a single dog profile whose heat-sensitivity setting tightens the heat warnings.
@@ -17,7 +19,7 @@ UK dog owners have no quick, single place to decide whether *right now* is a saf
 ## Scope
 **In scope**
 1. **"Good time to walk?" check** for the user's approximate current location, using free, keyless, commercial-use weather data (MET Norway Locationforecast, see Dependencies):
-   - Factors: air temperature (heat and cold), precipitation rate, wind (mean speed and gusts), and a hot-pavement estimate (from air temperature, daylight and cloud cover).
+   - Factors: air temperature (heat and cold), precipitation rate, wind (mean speed only; gusts are not rated, see Out of scope), and a hot-pavement estimate (from air temperature, daylight and cloud cover).
    - One overall result, **Go / Caution / Avoid**, with one main reason in plain words.
    - The best walking window in the next 12 hours.
    - Rating rules exactly as in "Rating rules" below. Heat and pavement thresholds are stricter for a dog set to "sensitive".
@@ -39,20 +41,23 @@ UK dog owners have no quick, single place to decide whether *right now* is a saf
 | Heat (air temperature T) | T < 20 − s | 20 − s ≤ T < 25 − s | T ≥ 25 − s | "Warm: keep it short and bring water" / "Too hot to walk safely" |
 | Hot pavement: applies only in daylight (between local sunrise and sunset) **and** sunny (forecast cloud cover below 50 %) | T < 20 − s | 20 − s ≤ T < 25 − s | T ≥ 25 − s | "Pavement may be hot: test it with the back of your hand" / "Pavement likely too hot for paws" |
 | Rain (precipitation rate P, mm/h) | P < 0.5 | 0.5 ≤ P ≤ 4 | P > 4 | "Rain expected" / "Heavy rain" |
-| Wind (mean speed M, gust G, mph) | M < 25 and G < 25 | M ≥ 25 or G ≥ 25 (and G < 39) | G ≥ 39 | "Windy" / "Dangerous wind gusts" |
+| Wind (mean speed M, mph) | M < 25 | 25 ≤ M < 39 | M ≥ 39 | "Windy" / "Dangerous winds" |
 | Cold (air temperature T) | T > 0 | T ≤ 0 | never | "Freezing: watch for ice and grit" |
 
 Resulting bands: Normal is Go below 20 °C, Caution from 20 °C to below 25 °C, Avoid from 25 °C. Sensitive is Go below 16 °C, Caution from 16 °C to below 21 °C, Avoid from 21 °C.
+
+Wind thresholds follow the Beaufort scale's mean wind speeds as published by the Royal Meteorological Society (see Sources). Caution starts at 25 mph, the bottom of force 6 ("strong breeze", 25-31 mph). Avoid starts at 39 mph, the bottom of force 8 ("gale", 39-46 mph), where the scale says progress is "generally impeded". Force 7 ("near gale", 32-38 mph) is described only as "inconvenience felt when walking against the wind", so it stays Caution.
 
 - The overall rating for an hour is the worst factor rating (Avoid > Caution > Go).
 - The main reason is the reason of the worst-rated factor. On a tie it follows this precedence: Hot pavement, Heat, Wind, Rain, Cold. When pavement and heat are both at the worst level, the pavement reason is shown.
 - When every factor is Go, the reason is "Good conditions for a walk".
 - Sensitivity changes only the heat and pavement thresholds. Rain, wind and cold are the same for both settings.
-- Missing data: an hour with any of temperature, precipitation, mean wind or gust missing is never rated Go. The hour is rated from the available factors. If that would be Go, the hour is rated Caution with the reason "Some weather data isn't available". If temperature, precipitation and wind are all missing for the current hour, the check shows "Can't check right now". Missing cloud cover means "not sunny" for the pavement rule. Temperature is still rated.
+- Missing data: an hour with any of temperature, precipitation or mean wind missing is never rated Go. The hour is rated from the available factors. If that would be Go, the hour is rated Caution with the reason "Some weather data isn't available". If temperature, precipitation and mean wind are all missing for the current hour, the check shows "Can't check right now". Missing cloud cover means "not sunny" for the pavement rule. Temperature is still rated.
 - **Best window:** look at the 12 hourly forecast periods starting with the one that contains the current time. Find the best overall rating among them. The window is the longest run of consecutive hours at that rating, and the earliest run wins a tie. It is shown as a start time and an end time (the end of the last hour in the run) in the device's time format. If the window starts in the current hour it reads "Now until <end>". If the best rating is Caution, the window is labelled "Best available: Caution". If all 12 hours are Avoid, show "No good time in the next 12 hours".
 
 **Out of scope** (this release)
 - Pollen. No free, keyless, commercial-use UK pollen source was found (see Dependencies). Moved to Later.
+- Wind gusts. They aren't rated in this release because the free weather source (MET Norway Locationforecast) doesn't provide gust data for UK points. Moved to Later.
 - Dog-friendly routes nearby, multiple dogs, walk reminders or notifications, sharing or exporting walks, Wear OS.
 - iOS, tablets, web, widgets, home-screen shortcuts.
 - Accounts, sign-in, cloud sync, any backend or proxy server, analytics, crash reporting to third parties, ads or in-app purchases. Commercial distribution is allowed, but no monetisation is built in this release.
@@ -68,6 +73,7 @@ Resulting bands: Normal is Go below 20 °C, Caution from 20 °C to below 25 °C,
 
 **Later** (wider vision, not this release)
 - Pollen level in the check, once a free, keyless, commercial-use UK source exists or the owner accepts a different source policy.
+- Wind gusts in the check, once a free, keyless, commercial-use source provides gust data for UK points.
 - Dog-friendly routes nearby; multiple dogs; walk reminders; sharing walks; Wear OS.
 - **Suggested walk route (generated loop)**, planned as the next release: the app plans a new circular walk that starts and ends at the user's location, for a length or duration the user chooses. A future run that specifies it must meet these constraints:
   - Routing or map data must be free, keyless and allowed for commercial use, the same source policy as this release.
@@ -82,20 +88,20 @@ Forecast values in ACs mean the values for the hour under test, as supplied by a
 
 | ID | Given | When | Then | Test type |
 |---|---|---|---|---|
-| AC1 | Normal; current hour T = 15 °C, P = 0 mm/h, M = 10 mph, G = 15 mph, all data present | The check runs | The result is **Go** with reason "Good conditions for a walk" | unit |
+| AC1 | Normal; current hour T = 15 °C, P = 0 mm/h, M = 10 mph, all data present | The check runs | The result is **Go** with reason "Good conditions for a walk" | unit |
 | AC2 | Normal; no other factor above Go | The current hour T is 19.9, 20.0, 24.9 and 25.0 °C in turn | The result is Go, Caution ("Warm: keep it short and bring water"), Caution, Avoid ("Too hot to walk safely") in that order | unit |
 | AC3 | Sensitive; no other factor above Go | The current hour T is 15.9, 16.0, 20.9 and 21.0 °C in turn | The result is Go, Caution, Caution, Avoid in that order, with heat reasons | unit |
 | AC4 | Normal; current hour is between local sunrise and sunset with cloud cover 30 %; no other factor above Go | T is 19.9, 20.0 and 25.0 °C in turn | The result is Go, Caution with "Pavement may be hot: test it with the back of your hand", and Avoid with "Pavement likely too hot for paws" | unit |
 | AC5 | Sensitive; daylight, cloud cover 30 % | T is 16.0 and then 21.0 °C | The result is Caution and then Avoid, both with pavement reasons | unit |
 | AC6 | Normal; T = 22 °C | The hour is (a) after sunset with cloud cover 0 %, (b) in daylight with cloud cover 50 %, (c) in daylight with cloud cover missing | In all three cases the result is Caution with the heat reason, not the pavement reason | unit |
 | AC7 | Normal; T = 15 °C, wind Go | P is 0.4, 0.5, 4.0 and 4.1 mm/h in turn | The result is Go, Caution ("Rain expected"), Caution, Avoid ("Heavy rain") | unit |
-| AC8 | Normal; T = 15 °C, P = 0 | (M, G) in mph is (24, 24), (25, 25), (10, 25), (20, 38.9), (20, 39) in turn | The result is Go, Caution ("Windy"), Caution, Caution, Avoid ("Dangerous wind gusts") | unit |
+| AC8 | Normal; T = 15 °C, P = 0 | M is 24.9, 25.0, 38.9 and 39.0 mph in turn | The result is Go, Caution ("Windy"), Caution, Avoid ("Dangerous winds") in that order | unit |
 | AC9 | Normal; P = 0, wind Go | T is 0.1, 0.0 and −10 °C in turn | The result is Go, Caution ("Freezing: watch for ice and grit"), Caution. Cold never gives Avoid | unit |
 | AC10 | Sensitive | The same rain, wind and cold inputs as AC7-AC9 (with T = 10 °C where AC7/AC8 use 15 °C) are rated | The results are identical to AC7-AC9 | unit |
 | AC11 | Normal; T = 22 °C (heat Caution) and P = 5 mm/h (rain Avoid) | The check runs | The result is Avoid with "Heavy rain" | unit |
 | AC12 | Normal; daylight, cloud 20 %, T = 21 °C (heat and pavement Caution), M = 26 mph (wind Caution), P = 1 mm/h (rain Caution) | The check runs | The result is Caution with the pavement reason (precedence: pavement, heat, wind, rain, cold) | unit |
-| AC13 | Normal; T = 15 °C, P = 0, M = 10 mph, gust missing for the current hour | The check runs | The result is Caution with "Some weather data isn't available", never Go | unit |
-| AC14 | Normal; T = 15 °C, gust missing, P = 6 mm/h | The check runs | The result is Avoid with "Heavy rain" (missing data does not hide a worse rating) | unit |
+| AC13 | Normal; T = 15 °C, P = 0, mean wind missing for the current hour | The check runs | The result is Caution with "Some weather data isn't available", never Go | unit |
+| AC14 | Normal; T = 15 °C, mean wind missing, P = 6 mm/h | The check runs | The result is Avoid with "Heavy rain" (missing data does not hide a worse rating) | unit |
 | AC15 | Temperature, precipitation and wind all missing for the current hour | The check runs | "Can't check right now" is shown with a retry control, and no Go / Caution / Avoid result is shown | unit |
 | AC16 | 12 hourly ratings starting now: C, C, G, G, G, C, G, G, A, A, C, C (hours starting 10:00 to 21:00) | The best window is computed | It is 12:00-15:00 (longest Go run; ties go to the earliest) | unit |
 | AC17 | 12 hourly ratings G, G, C, … (all others C or A), starting now at 10:00 | The best window is computed and shown | It reads "Now until 12:00" | unit |
@@ -173,12 +179,12 @@ Forecast values in ACs mean the values for the hour under test, as supplied by a
 
 ## Assumptions
 These are for the owner to review at Gate A.
-1. **Weather provider:** MET Norway Locationforecast 2.0 is the weather source. It is free, needs no key, and its data is CC BY 4.0 / NLOD (commercial use allowed). It covers the UK at hourly resolution for at least the next 12 hours, including temperature, precipitation amount, mean wind, wind gust and cloud cover. The walking skeleton confirms gust and cloud cover are present for UK points. If they are not, the work stops for an owner decision before the check is built.
+1. **Weather provider:** MET Norway Locationforecast 2.0 is the weather source. It is free, needs no key, and its data is CC BY 4.0 / NLOD (commercial use allowed). It covers the UK at hourly resolution for at least the next 12 hours, including temperature, precipitation amount, mean wind and cloud cover. Finding on 2026-10-19 (task 1): the `complete` response for London (51.51, −0.13), and for Edinburgh, Manchester and Exeter, returned hourly air temperature, precipitation amount (next 1 hour), mean wind speed and cloud cover for the first 12 hours, but no wind gust. The owner decided to rate wind on mean speed only.
 2. **Pollen** is dropped from the MVP (owner's fallback decision) because no free, keyless, commercial-use UK pollen source was found. The check states this (AC20). The owner's "pollen data not available" rule (Q6) therefore has no case to apply to in this release.
 3. **"Sunny"** for the pavement rule means forecast cloud cover below 50 %. **"Daylight"** means between local sunrise and sunset at the checked location.
 4. **Main-reason precedence** on ties is: hot pavement, heat, wind, rain, cold (safety-first).
 5. **Best window** = the longest run of consecutive hours at the best rating in the next 12 hourly periods, with the earliest run winning a tie. It may be a single hour.
-6. **Missing gust** counts as missing wind data (never Go), per the owner's "never Go if wind data is missing".
+6. **Wind gust is not used** in the rating (owner decision, 2026-10-19). Missing mean wind counts as missing wind data (never Go), per the owner's "never Go if wind data is missing".
 7. **Units:** temperature in °C, wind in mph, rain in mm/h, distance in miles to 1 decimal place, duration as h:mm. There is no unit setting.
 8. **Week** = Monday 00:00 to Sunday 23:59 local time. A walk counts in the week it started.
 9. **Profile limits:** name required, 1-30 characters; breed optional free text, up to 50 characters; photo optional, picked from the device (no in-app camera); sensitivity defaults to Normal. The check works without a profile, using Normal (AC45).
@@ -211,8 +217,10 @@ These are for the owner to review at Gate A.
 
 ## Sources
 - MET Norway API Terms of Service: https://api.met.no/doc/TermsOfService and https://developer.yr.no/doc/TermsOfService (licence CC BY 4.0, User-Agent, proxy advice, 20 req/s, IP logging)
-- MET Norway Locationforecast data model: https://api.met.no/doc/locationforecast/datamodel (variables incl. wind_speed_of_gust; gust not available beyond +60 h)
+- MET Norway Locationforecast data model: https://api.met.no/doc/locationforecast/datamodel (lists wind_speed_of_gust as a variable, but task 1 found on 2026-10-19 that it isn't provided for UK points)
 - MET Norway FAQ (generic User-Agents throttled): https://docs.api.met.no/doc/FAQ
+- Royal Meteorological Society, The Beaufort Wind Scale: https://www.rmets.org/metmatters/beaufort-wind-scale (mean wind speeds; force 6 "strong breeze" 25-31 mph, force 7 "near gale" 32-38 mph "inconvenience felt when walking against the wind", force 8 "gale" 39-46 mph "progress generally impeded")
+- Met Office, Beaufort wind force scale: https://weather.metoffice.gov.uk/guides/coast-and-sea/beaufort-scale (same forces in knots: near gale 28-33 kn, gale 34-40 kn; knots × 1.15 = mph)
 - OpenStreetMap Foundation Tile Usage Policy: https://operations.osmfoundation.org/policies/tiles/
 - OpenFreeMap: https://openfreemap.org/ (free, no keys, no registration, no cookies, no limits, FAQ on commercial use and attribution, MIT licence)
 - OpenFreeMap source: https://github.com/hyperknot/openfreemap
