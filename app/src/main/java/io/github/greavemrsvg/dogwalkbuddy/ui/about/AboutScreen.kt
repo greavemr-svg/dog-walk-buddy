@@ -1,5 +1,6 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.about
 
+import androidx.annotation.RawRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +15,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -58,8 +61,41 @@ fun AboutScreen(onBack: () -> Unit) {
             Body(R.string.check_pollen_not_included)
             Heading(R.string.about_licences_heading)
             Body(R.string.about_licences)
+            Heading(R.string.about_licence_maplibre_heading)
+            LicenceText(R.raw.licence_maplibre_native)
+            Heading(R.string.about_licence_gestures_heading)
+            LicenceText(R.raw.licence_maplibre_gestures)
+            Heading(R.string.about_apache_libraries_heading)
+            Body(R.string.about_apache_libraries_intro)
+            Body(R.string.about_apache_lib_androidx)
+            Body(R.string.about_apache_lib_compose)
+            Body(R.string.about_apache_lib_kotlin)
+            Body(R.string.about_apache_lib_okhttp)
+            Body(R.string.about_apache_lib_maplibre)
+            Body(R.string.about_apache_lib_other)
+            Heading(R.string.about_apache_text_heading)
+            LicenceText(R.raw.licence_apache_2_0)
         }
     }
+}
+
+/** A licence text shown exactly as shipped, one paragraph at a time so that long texts lay out cheaply. */
+@Composable
+private fun LicenceText(
+    @RawRes resId: Int,
+) {
+    val resources = LocalResources.current
+    val paragraphs =
+        remember(resId) {
+            resources
+                .openRawResource(resId)
+                .bufferedReader(Charsets.UTF_8)
+                .use { it.readText() }
+                .replace("\r\n", "\n")
+                .split("\n\n")
+                .filter { it.isNotBlank() }
+        }
+    paragraphs.forEach { Text(text = it, style = MaterialTheme.typography.bodyMedium) }
 }
 
 @Composable
