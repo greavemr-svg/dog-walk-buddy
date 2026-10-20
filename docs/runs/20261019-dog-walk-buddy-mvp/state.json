@@ -2,7 +2,7 @@
   "run_id": "20261019-dog-walk-buddy-mvp",
   "idea": "Dog Walk Buddy: an Android app that helps UK dog owners decide when it's safe and pleasant to walk their dog, and keeps a simple record of their walks.\n\nUsers: everyday dog owners in the UK, using the app quickly before heading out, often one-handed.\n\nFirst release (MVP):\n1. \"Good time to walk?\" check for the user's current location:\n   - Combines temperature, rain, wind, a hot-pavement warning (estimated from air temperature and sunshine) and pollen level.\n   - Shows one clear result: Go / Caution / Avoid, with the main reason in plain words.\n   - Shows the best walking window in the next 12 hours.\n2. One-tap walk logging:\n   - Start/stop a walk; records duration, distance and route via GPS.\n   - Walk history list and weekly totals (walks, time, distance).\n   - Walk logging must work offline.\n3. Dog profile: name, breed, photo, and a heat-sensitivity setting (normal / sensitive) that makes heat warnings stricter.\n\nConstraints:\n- Android only, phones only.\n- Only free data sources that need no paid API keys.\n- Location and walk data stay on the device; no accounts, no backend, no analytics or tracking.\n- Accessible: large touch targets, readable in bright sunlight, works with TalkBack.\n- Safety advice is framed as guidance, not veterinary advice.\n\nLater releases (not this one): dog-friendly routes nearby, multiple dogs, walk reminders, sharing walks, Wear OS.\n",
   "status": "in_progress",
-  "stage": "build_paused_budget",
+  "stage": "build",
   "created_at": "2026-10-19T12:17:05Z",
   "epic_issue": 7,
   "feature_branch": "feature/20261019-dog-walk-buddy-mvp",
@@ -106,10 +106,39 @@
         1
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-2-rating-engine",
-      "pr": null,
-      "status": "pending",
-      "attempts": 0,
-      "G3": null
+      "pr": 19,
+      "status": "done",
+      "attempts": 1,
+      "head": "92cdde8",
+      "tester": {
+        "status": "PASSED",
+        "head": "92cdde8",
+        "tests": "89/89 (0 skipped); ci.sh exit 0",
+        "coverage_changed": "100% (189 lines)",
+        "added": "RatingEngineEdgeCasesTest (15), BestWindowFinderEdgeCasesTest (9), BestWindowFormatterEdgeCasesTest (6); none changed/removed",
+        "manual": "none for AC1-AC19; AC15 UI (message + retry) belongs to T5"
+      },
+      "reviewer": {
+        "verdict": "APPROVE",
+        "sha": "92cdde8",
+        "review": "https://github.com/greavemr-svg/dog-walk-buddy/pull/19#pullrequestreview-5581298495",
+        "submitted_at": "2026-10-20T06:01:21Z",
+        "open_minor": [
+          "M1 SunCalculator.kt:221 @Suppress(\"LongMethod\") is a detekt rule not in stack; split sunTimes",
+          "M2 SunCalculator.kt:233-258 inline NOAA coefficients; cite source, name generic constants",
+          "M3 BestWindowFormatter.kt:407 inline time patterns; named constants",
+          "M4 Tests without AC prefix: SunCalculatorTest (7), an_empty_list_means_no_good_time, window_times_follow_the_device_12_hour_format",
+          "M5 Reason-mapping test belongs in ReasonTextTest.kt",
+          "M6 PR body: out-of-scope section says None but describes ReasonText.kt/Rating.kt grouping; test count 59 vs 89",
+          "M7 RatingEngine.kt:92 NaN would rate Go; Task 3 parser must reject NaN/Infinity (or treat non-finite as missing)"
+        ]
+      },
+      "G3": {
+        "result": "PASS",
+        "at": "2026-10-20T06:04:52Z",
+        "evidence": "gatekeeper G3 on 92cdde8: G3.1-G3.6 met; failing []; record docs/runs/20261019-dog-walk-buddy-mvp/gates/G3-T2.md; posted https://github.com/greavemr-svg/dog-walk-buddy/pull/19#issuecomment-6284554043"
+      },
+      "merge_commit": "962db72"
     },
     {
       "n": 3,
@@ -127,8 +156,11 @@
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-3-weather-client",
       "pr": null,
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
+      "carry_in": [
+        "From T2 review M7: MetResponseParser must turn NaN/Infinity into null (missing) and have tests for it, because RatingEngine would rate a NaN as Go"
+      ],
       "G3": null
     },
     {
@@ -181,6 +213,9 @@
       "pr": null,
       "status": "pending",
       "attempts": 0,
+      "carry_in": [
+        "From T2: AC15 UI ('Can't check right now' message + retry control) must be delivered here; T2 only provides RatingEngine.hasNoCoreData(hour)"
+      ],
       "G3": null
     },
     {
@@ -266,7 +301,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 36,
+    "agent_invocations": 42,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -370,7 +405,21 @@
     "2026-10-20T04:51:50Z reviewer: posted VERDICT: APPROVE on 959eed1 as formal review (COMMENTED 04:51:36Z)",
     "2026-10-20T04:51:50Z orchestrator: invoking release (integrate) for PR #16, retry",
     "2026-10-20T04:52:43Z release integrate PR #16: DONE, squash c52d527 into feature, issue #8 closed, branch deleted",
-    "2026-10-20T04:52:43Z orchestrator: T1 done. Budget check: 37/60 used; remaining minimum ~42 (7 tasks x5 + 7 stage 4-6) > 23 left. Escalating to owner before T2."
+    "2026-10-20T04:52:43Z orchestrator: T1 done. Budget check: 37/60 used; remaining minimum ~42 (7 tasks x5 + 7 stage 4-6) > 23 left. Escalating to owner before T2.",
+    "2026-10-20T04:53:30Z owner: \"Raise the limit (Recommended)\"; waiting for owner governance PR raising the 60 cap",
+    "2026-10-20T05:32:16Z orchestrator: resumed; owner governance PR #18 merged (pipeline.md:40 now 120 invocations per run), merged into feature as 069ecc0. AUDIT NOTE: counter read 36 at resume but the 04:52:43Z log entry says 37/60 used; counter kept as recorded (36) and only incremented normally for the next invocation. HOW-TO.md:92 still says 60 (owner-only doc)",
+    "2026-10-20T05:32:16Z orchestrator: invoking developer T2 attempt 1",
+    "2026-10-20T05:48:46Z developer T2 attempt 1: DONE PR #19 head 5124c95 (base feature, verified); 1 commit, 12 files under app/src; ci.sh green, 59 tests; changed-lines 100% (189/189); CI build-test + governance pass (verified gh pr checks). Notes: AC15 domain signal only (UI in T5); ReasonText.kt not in design file list (stated in PR)",
+    "2026-10-20T05:48:46Z orchestrator: invoking tester T2 (head 5124c95)",
+    "2026-10-20T05:57:59Z tester T2: PASSED head 92cdde8 (verified PR head), 89/89 tests, changed-lines 100%, CI build-test + governance pass (verified); added 3 edge-case test files (30 tests), none changed/removed; findings none",
+    "2026-10-20T05:57:59Z orchestrator: invoking reviewer T2 (head 92cdde8)",
+    "2026-10-20T06:01:50Z reviewer T2: APPROVE 92cdde8, formal review 5581298495 (COMMENTED 06:01:21Z, commit_id matches head - verified); 7 Minor, no Blocker/Major. M7 (NaN) carried into T3, AC15 UI carried into T5",
+    "2026-10-20T06:01:50Z orchestrator: invoking gatekeeper G3 T2 (head 92cdde8)",
+    "2026-10-20T06:04:52Z gatekeeper G3 T2: PASS (92cdde8), failing []; record saved to docs/runs/20261019-dog-walk-buddy-mvp/gates/G3-T2.md (scratchpad write blocked by governance hook) and posted as GATE G3: PASS on PR #19 (issuecomment-6284554043)",
+    "2026-10-20T06:04:52Z orchestrator: invoking release (integrate) for PR #19",
+    "2026-10-20T06:07:10Z release integrate PR #19: DONE, squash 962db72 into feature (MERGED 06:06:39Z, verified), issue #9 closed manually with link (verified CLOSED), task branch deleted; feature-head CI run 39378526192 in_progress at check",
+    "2026-10-20T06:07:10Z orchestrator: T2 done. Budget: 41/120 used. Next T3 (depends T1 only)",
+    "2026-10-20T06:07:10Z orchestrator: invoking developer T3 attempt 1"
   ],
   "bootstrap": true,
   "owner_answers": {
@@ -400,9 +449,18 @@
       "at": "2026-10-19T15:28:56Z",
       "question": "greavemr-bot has an unaccepted invitation to greavemr-svg/dog-walk-buddy and only READ access, so agents can't open PRs. How do you want to fix it?",
       "answer": "Let the bot accept it"
+    },
+    "budget": {
+      "at": "2026-10-20T04:53:30Z",
+      "question": "The run needs at least about 42 more agent invocations, and only 23 are left of its 60. How do you want to proceed?",
+      "answer": "Raise the limit (Recommended)"
+    },
+    "state_update_method": {
+      "at": "2026-10-20T05:32:16Z",
+      "instruction": "Use the Edit or Write tool (not Bash/sed) to update docs/runs/20261019-dog-walk-buddy-mvp/state.json. Make only the normal changes: stage build, current task 2, task 2 in_progress, counter 36 to 37, and the two log lines, including one noting the 36 vs 37 mismatch for the audit. Do not change the counter in any other way. Leave README.md alone. Then start the developer on Task 2."
     }
   },
-  "current_task": 1,
+  "current_task": 3,
   "toolchain": {
     "JAVA_HOME": "/c/Program Files/Eclipse Adoptium/jdk-17.0.20.101-hotspot",
     "python": "/c/Users/greav/AppData/Local/Programs/Python/Python312",
@@ -417,6 +475,7 @@
     "AC48 manual backup/transfer check pending (T8)"
   ],
   "audit_carryover": [
-    "T1 PR #16 optional Minor/Nit from final review left open (non-blocking)"
+    "T1 PR #16 optional Minor/Nit from final review left open (non-blocking)",
+    "T2 PR #19 Minor M1-M6 from review 5581298495 left open (non-blocking); M7 carried into T3"
   ]
 }
