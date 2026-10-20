@@ -53,6 +53,7 @@ class SmokeTest {
                 weatherHttpClient = OkHttpClient(),
                 database = database,
                 approximateLocationSource = { null },
+                filesDir = context.filesDir,
             )
 
         assertEquals(Instant.parse("2026-10-19T12:00:00Z"), container.clock.instant())

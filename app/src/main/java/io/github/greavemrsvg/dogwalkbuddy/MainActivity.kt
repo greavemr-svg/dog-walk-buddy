@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import io.github.greavemrsvg.dogwalkbuddy.ui.home.HomeScreen
+import io.github.greavemrsvg.dogwalkbuddy.ui.nav.DogWalkBuddyNavHost
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DogWalkBuddyTheme {
-                HomeScreen()
+                DogWalkBuddyNavHost(container = (application as DogWalkBuddyApp).container)
             }
         }
     }
