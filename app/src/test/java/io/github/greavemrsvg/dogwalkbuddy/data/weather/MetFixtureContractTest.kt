@@ -59,6 +59,50 @@ class MetFixtureContractTest {
         }
     }
 
+    @Test
+    fun Assumption1_fixture_units_are_celsius_mm_metres_per_second_and_percent() {
+        val units = fixtureRoot().obj("properties").obj("meta").obj("units")
+
+        assertEquals("celsius", units.text("air_temperature"))
+        assertEquals("mm", units.text("precipitation_amount"))
+        assertEquals("m/s", units.text("wind_speed"))
+        assertEquals("%", units.text("cloud_area_fraction"))
+    }
+
+    @Test
+    fun Assumption1_values_are_in_plausible_ranges() {
+        timeseries.take(HOURS_REQUIRED).forEach { entry ->
+            val data = entry.obj("data")
+            val instant = data.obj("instant").obj("details")
+            val rainDetails = data.obj("next_1_hours").obj("details")
+
+            assertTrue(instant.text("cloud_area_fraction").toDouble() in 0.0..100.0)
+            assertTrue(instant.text("wind_speed").toDouble() >= 0.0)
+            assertTrue(rainDetails.text("precipitation_amount").toDouble() >= 0.0)
+        }
+    }
+
+    @Test
+    fun Assumption1_the_fixture_is_for_a_uk_point() {
+        val coordinates = fixtureRoot().obj("geometry").getValue("coordinates").jsonArray
+        val lon = coordinates[0].jsonPrimitive.content.toDouble()
+        val lat = coordinates[1].jsonPrimitive.content.toDouble()
+
+        assertTrue(lat in 49.8..60.9)
+        assertTrue(lon in -8.7..1.8)
+    }
+
+    private fun JsonObject.obj(key: String): JsonObject = getValue(key).jsonObject
+
+    private fun JsonObject.text(key: String): String = getValue(key).jsonPrimitive.content
+
+    private fun fixtureRoot(): JsonObject {
+        val text =
+            checkNotNull(javaClass.classLoader?.getResourceAsStream(FIXTURE))
+                .use { it.readBytes().decodeToString() }
+        return Json.parseToJsonElement(text).jsonObject
+    }
+
     private fun assertNumber(
         field: String,
         value: String?,
