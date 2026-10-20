@@ -161,9 +161,9 @@ There were no known High or Critical CVEs for these versions at design time. The
 | Full CI | `bash scripts/ci.sh` |
 
 `scripts/coverage.sh` does three things:
-1. Runs `./gradlew --no-daemon createDebugUnitTestCoverageReport`.
+1. Runs `./gradlew --no-daemon jacocoDebugUnitTestReport`, the JaCoCo report task in `app/build.gradle.kts` that applies the "Coverage exclusions" below (AGP's `createDebugUnitTestCoverageReport` has no class filter).
 2. Installs `diff-cover==10.2.0` into a git-ignored `.venv-ci`.
-3. Runs `diff-cover app/build/reports/coverage/test/debug/report.xml --compare-branch=<base-ref> --src-roots app/src/main/java --fail-under=80`.
+3. Runs `diff-cover app/build/reports/jacoco/jacocoDebugUnitTestReport/report.xml --compare-branch=<base-ref> --src-roots app/src/main/java --fail-under=80`.
 
 When `<base-ref>` is omitted, it uses `origin/$GITHUB_BASE_REF` if that is set. Otherwise it prints the total coverage only and skips the gate. On a shallow CI checkout it runs `git fetch --no-tags --unshallow origin` first.
 
@@ -217,3 +217,6 @@ No other exclusions are allowed without an ADR amendment.
 
 ### 2026-10-19: lint and ktlint configuration (T1)
 - Recorded in "Lint and format configuration": `warningsAsErrors = true`, the four disabled online version-currency checks, and the root `.editorconfig` (ktlint_official, `function-naming` ignores `Composable` and `Test` functions).
+
+### 2026-10-20: coverage report task (T1 review)
+- `scripts/coverage.sh` now runs the dedicated `jacocoDebugUnitTestReport` task (in `app/build.gradle.kts`) and reads `app/build/reports/jacoco/jacocoDebugUnitTestReport/report.xml`, because AGP's `createDebugUnitTestCoverageReport` cannot apply the "Coverage exclusions"; the exclusion list itself is unchanged.

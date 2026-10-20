@@ -39,7 +39,7 @@
 The commands work as follows:
 - **Unit tests** cover both plain JVM unit tests and Robolectric integration tests (Compose UI, Room, service, location). No emulator is needed.
 - **Coverage:**
-  - It runs `createDebugUnitTestCoverageReport` (JaCoCo XML at `app/build/reports/coverage/test/debug/report.xml`).
+  - It runs `jacocoDebugUnitTestReport`, which applies the ADR 0001 coverage exclusions (JaCoCo XML at `app/build/reports/jacoco/jacocoDebugUnitTestReport/report.xml`).
   - It then runs `diff-cover` against `<base-ref>` with `--fail-under=80`.
   - With no argument it uses `origin/$GITHUB_BASE_REF` when set. Otherwise it reports total coverage and skips the changed-lines gate.
 - **Performance is none** because the performance NFRs need a real phone and network. They are run manually on the reference phone, a **Samsung Galaxy A35 5G**, using the procedures in `docs/design/20261019-dog-walk-buddy-mvp.md` (Test strategy, Manual checks). The results are recorded in `docs/perf/<run-id>/`.

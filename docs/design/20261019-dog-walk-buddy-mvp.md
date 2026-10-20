@@ -280,9 +280,9 @@ All automated tests run on the JVM with `./gradlew testDebugUnitTest`: plain JUn
 - `app/build.gradle.kts` sets `debug { enableUnitTestCoverage = true }`.
 - JaCoCo is configured with `isIncludeNoLocationClasses = true` and `excludes = ["jdk.internal.*"]`, so Robolectric-loaded classes are counted.
 - `scripts/coverage.sh <base-ref>`:
-  1. runs `createDebugUnitTestCoverageReport`
+  1. runs `jacocoDebugUnitTestReport`, a JaCoCo report task in `app/build.gradle.kts` that applies the ADR 0001 exclusions (AGP's `createDebugUnitTestCoverageReport` has no class filter)
   2. installs `diff-cover==10.2.0` in `.venv-ci`
-  3. runs `diff-cover app/build/reports/coverage/test/debug/report.xml --compare-branch=<base-ref> --src-roots app/src/main/java --fail-under=80`
+  3. runs `diff-cover app/build/reports/jacoco/jacocoDebugUnitTestReport/report.xml --compare-branch=<base-ref> --src-roots app/src/main/java --fail-under=80`
 - In CI on a pull request, `ci.sh` passes `origin/$GITHUB_BASE_REF`. The script unshallows the checkout first. Locally the tester runs `bash scripts/coverage.sh origin/feature/20261019-dog-walk-buddy-mvp`.
 - The only exclusions are the generated-code patterns and the `map/maplibre` adapter listed in ADR 0001.
 
