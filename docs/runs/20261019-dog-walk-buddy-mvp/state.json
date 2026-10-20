@@ -155,13 +155,48 @@
         1
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-3-weather-client",
-      "pr": null,
-      "status": "in_progress",
-      "attempts": 0,
+      "pr": 20,
+      "status": "done",
+      "attempts": 2,
+      "head": "65f43eb",
       "carry_in": [
         "From T2 review M7: MetResponseParser must turn NaN/Infinity into null (missing) and have tests for it, because RatingEngine would rate a NaN as Go"
       ],
-      "G3": null
+      "attempt2": {
+        "head": "8b510b5",
+        "fixes": "M2 empty timeseries -> MalformedWeatherResponseException (cache kept); M3 followSslRedirects(false) + HttpsOnlyInterceptor as network interceptor; M4 203 logs status code only via injectable logStatus (Log.println WARN; Log.w blocked by LogNotTimber lint); M5 suspendCancellableCoroutine + call.cancel(); M6 header allowlist (HTTP/2 pseudo-headers filtered); M1/N7 PR body updated via gh api PATCH (gh pr edit token scope error)",
+        "tests": "172 local, changed-lines 96% (250 lines, 8 missed); CI build-test + governance SUCCESS at 8b510b5 (verified)",
+        "test_changes_to_verify": "MetResponseParserTest.AC22_an_empty_timeseries_gives_no_hours changed to AC22_an_empty_timeseries_is_a_malformed_response (behaviour change per owner); denylist constant + 2 assertNull Cookie/Authorization removed from CheckRepositoryBoundaryTest (claimed subsumed by allowlist)",
+        "report_discrepancy": "developer said ci.sh runs detekt; scripts/ci.sh has no detekt reference"
+      },
+      "tester": {
+        "status": "PASSED",
+        "head": "65f43eb",
+        "tests": "174/174 (0 skipped); local ci.sh exit 0",
+        "coverage_changed": "96% (261 lines, 8 missed)",
+        "added": "attempt 2 re-test: +2 in MetNorwayClientTest (AC22_a_203_response_with_an_empty_timeseries_is_a_failure_and_logs_only_the_status, AC23_an_https_to_https_redirect_is_still_followed); none changed. Earlier (455b954): CheckRepositoryBoundaryTest (14) + 3 in LocationManagerApproximateSourceTest",
+        "test_change_verdict": "(a) parser test change ok - throw is stricter, matches owner-approved M2; (b) removed denylist + assertNull lines ok - allowlist is a superset; ':' pseudo-header filter sound",
+        "ci": "build-test pass run 39401714406, governance pass run 39401714487, both headSha 65f43eb (tester-stated, orchestrator verified rollup SUCCESS)",
+        "comment": "https://github.com/greavemr-svg/dog-walk-buddy/pull/20#issuecomment-6288023078",
+        "manual": "none; no real MET call or device-level cancellation check (stub tests only); AC24 end-to-end in T8"
+      },
+      "reviewer": {
+        "verdict": "APPROVE",
+        "sha": "65f43eb",
+        "review": "https://github.com/greavemr-svg/dog-walk-buddy/pull/20#pullrequestreview-5583376685",
+        "submitted_at": "2026-10-20T09:42:32Z",
+        "prior": "M1-M6 resolved (M1 count stale again), N7 resolved/accepted, N8 accepted; Log.println accepted (no lint suppression)",
+        "open_minor": [
+          "R2-1 PR body said 172 tests (head 174) and AC table missed the tester's 2 new tests - RESOLVED 09:45:46Z by body-only edit (174 tests, both tests added to AC22/AC23 rows, plus an unrequested accurate note in AC23 'How it's met'); head unchanged 65f43eb (verified)",
+          "R2-2 MetNorwayClient.kt download/onResponse catches only WeatherFetchException and IOException; a RuntimeException (e.g. from logStatus) would leave the coroutine unresumed and rethrow on the OkHttp dispatcher; hardening (production Log.println does not throw) - carried into T5"
+        ]
+      },
+      "G3": {
+        "result": "PASS",
+        "at": "2026-10-20T09:49:09Z",
+        "evidence": "gatekeeper G3 on 65f43eb: G3.1-G3.6 met; failing []; test changes judged replacement/strengthening, not weakening; record docs/runs/20261019-dog-walk-buddy-mvp/gates/G3-T3-65f43eb.md; posted https://github.com/greavemr-svg/dog-walk-buddy/pull/20#issuecomment-6288204549. Supersedes G3 PASS at 455b954 (gates/G3-T3.md, issuecomment-6287558648)"
+      },
+      "merge_commit": "4a12f49"
     },
     {
       "n": 4,
@@ -180,7 +215,7 @@
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-4-dog-profile",
       "pr": null,
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "G3": null
     },
@@ -214,7 +249,12 @@
       "status": "pending",
       "attempts": 0,
       "carry_in": [
-        "From T2: AC15 UI ('Can't check right now' message + retry control) must be delivered here; T2 only provides RatingEngine.hasNoCoreData(hour)"
+        "From T2: AC15 UI ('Can't check right now' message + retry control) must be delivered here; T2 only provides RatingEngine.hasNoCoreData(hour)",
+        "From T3: declare ACCESS_COARSE_LOCATION in AndroidManifest.xml and update SourceManifestHardeningTest (currently INTERNET only); until then LocationManagerApproximateSource returns null. AndroidManifest.xml is not in T5's design file list - declare as out-of-list change with reason",
+        "From T3: parser keeps 48 periods (WeatherConfig.MAX_PERIODS_KEPT); T5 must select the 12 hourly periods starting at the one containing now",
+        "From T3: check flow is CheckRepository.check(fix: LocationFix?); CheckRepository.loadCached() available for no-network re-rate (AC44)",
+        "From T3 G3 note: reassess @SuppressLint(MissingPermission) x2 and InlinedApi in LocationManagerApproximateSource.kt once the manifest permission exists",
+        "From T3 re-review R2-2: harden MetNorwayClient onResponse to resume with WeatherFetchException on any RuntimeException (or runCatching around logStatus), with a test; out-of-list change in T5"
       ],
       "G3": null
     },
@@ -291,6 +331,9 @@
       "pr": null,
       "status": "pending",
       "attempts": 0,
+      "carry_in": [
+        "From T3: ACCESS_NETWORK_STATE manifest declaration + SourceManifestHardeningTest update belong here; end-to-end AC24 test still to come"
+      ],
       "G3": null
     }
   ],
@@ -301,7 +344,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 42,
+    "agent_invocations": 53,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -419,7 +462,34 @@
     "2026-10-20T06:04:52Z orchestrator: invoking release (integrate) for PR #19",
     "2026-10-20T06:07:10Z release integrate PR #19: DONE, squash 962db72 into feature (MERGED 06:06:39Z, verified), issue #9 closed manually with link (verified CLOSED), task branch deleted; feature-head CI run 39378526192 in_progress at check",
     "2026-10-20T06:07:10Z orchestrator: T2 done. Budget: 41/120 used. Next T3 (depends T1 only)",
-    "2026-10-20T06:07:10Z orchestrator: invoking developer T3 attempt 1"
+    "2026-10-20T06:07:10Z orchestrator: invoking developer T3 attempt 1",
+    "2026-10-20T06:32:42Z orchestrator: run records committed 71f548c; feature-head CI 71f548c success (962db72 run cancelled, superseded)",
+    "2026-10-20T06:32:42Z developer T3 attempt 1: DONE PR #20 head 6830f51 (base feature, verified); 1 commit; ci.sh green, 149 tests; changed-lines 97% (243 lines, 5 missed); CI build-test + governance pass (verified). Out-of-list: app/build.gradle.kts (room.schemaLocation KSP arg, buildConfig=true; no dependency change), AppContainer/DogWalkBuddyApp wiring, SmokeTest updated, schema 1.json. Manifest unchanged: ACCESS_COARSE_LOCATION deferred to T5, ACCESS_NETWORK_STATE to T8 (carried in)",
+    "2026-10-20T06:32:42Z orchestrator: invoking tester T3 (head 6830f51)",
+    "2026-10-20T06:41:56Z tester T3: PASSED head 455b954 (verified PR head), 166/166 local, changed-lines 97%; added CheckRepositoryBoundaryTest (14) + 3 tests in LocationManagerApproximateSourceTest (closes 30-min gap); findings none. DISCREPANCY: tester said CI pass at tested head but quoted 6830f51 run; actual 455b954 build-test IN_PROGRESS, governance SUCCESS - G3 to verify",
+    "2026-10-20T06:41:56Z orchestrator: invoking reviewer T3 (head 455b954)",
+    "2026-10-20T09:01:45Z reviewer T3: INTERRUPTED (API session limit, HTTP 429) right after starting; verified no review posted on PR #20, head still 455b954",
+    "2026-10-20T09:01:45Z orchestrator: usage limit reset; verified CI on 455b954: build-test pass (run 39381838657), governance pass",
+    "2026-10-20T09:01:45Z orchestrator: invoking reviewer T3 (re-run after interruption, head 455b954)",
+    "2026-10-20T09:07:19Z reviewer T3: APPROVE 455b954, formal review 5582998557 (COMMENTED 09:06:45Z, commit_id matches head - verified); 6 Minor, 2 Nit, no Blocker/Major. M1 PR-body accuracy (asks body edit before merge); M2-M6 carried into T5 if not fixed here. Reviewer noted governance hook blocks '>' in commands",
+    "2026-10-20T09:07:19Z orchestrator: invoking gatekeeper G3 T3 (head 455b954)",
+    "2026-10-20T09:11:35Z gatekeeper G3 T3: PASS (455b954), failing []; G3.2 met literally, PR body M1 must be fixed before merge; 3 @SuppressLint noted for T5. Record docs/runs/20261019-dog-walk-buddy-mvp/gates/G3-T3.md, posted GATE G3: PASS on PR #20 (issuecomment-6287558648)",
+    "2026-10-20T09:11:35Z orchestrator: merge paused - escalating to owner: (a) fix reviewer M2/M3/M5/M6 in T3 now or carry to T5, (b) M4 203 logging per ADR 0002 or none; PR body M1 fix goes to developer either way",
+    "2026-10-20T09:13:48Z owner: T3 gaps \"Fix in Task 3 now (Recommended)\"; 203 logging \"Log status code only (Recommended)\". G3 PASS on 455b954 superseded by new work; T5 carry-in for M2-M6 removed",
+    "2026-10-20T09:13:48Z orchestrator: invoking developer T3 attempt 2 with reviewer findings M1-M6 (+ N7 PR-body declaration)",
+    "2026-10-20T09:29:39Z developer T3 attempt 2: DONE head 8b510b5 (verified), 1 commit, 6 files under app/src; M1-M6 + N7 addressed; 172 local tests, changed-lines 96%; CI build-test + governance SUCCESS at 8b510b5 (verified); PR body updated (verified 172 tests, full schema path, fetch() deviation). To verify: changed existing parser test for new behaviour, removed 2 assertNull lines + denylist (claimed subsumed by allowlist). Report claimed ci.sh runs detekt - not in scripts/ci.sh",
+    "2026-10-20T09:29:39Z orchestrator: invoking tester T3 (attempt 2 head 8b510b5)",
+    "2026-10-20T09:38:42Z tester T3 (attempt 2): PASSED head 65f43eb (verified PR head, rollup SUCCESS), 174/174, changed-lines 96%; test changes (a) parser throw and (b) allowlist replacing denylist judged not weakenings; added 2 tests (203+empty timeseries, https->https redirect followed); findings none",
+    "2026-10-20T09:38:42Z orchestrator: invoking reviewer T3 (re-review head 65f43eb)",
+    "2026-10-20T09:43:07Z reviewer T3 re-review: APPROVE 65f43eb, formal review 5583376685 (COMMENTED 09:42:32Z, commit_id 65f43eb, newer than head commit 09:34:46Z - verified); M1-M6 resolved, N7/N8 accepted; new Minor R2-1 (PR body 172 vs 174 + AC table misses 2 tester tests) and R2-2 (narrow catch in onResponse, hardening) - R2-2 carried into T5",
+    "2026-10-20T09:43:07Z orchestrator: invoking developer T3 for PR-body-only edit (R2-1; no commit, not a new attempt) before G3",
+    "2026-10-20T09:45:46Z developer T3 body edit: DONE, no commit; verified head still 65f43eb, body has '174 unit tests' and AC23_an_https_to_https_redirect_is_still_followed, CI SUCCESS. Developer verified 174 @Test by git grep. One unrequested but accurate wording addition in AC23 'How it's met' cell - accepted",
+    "2026-10-20T09:45:46Z orchestrator: invoking gatekeeper G3 T3 (head 65f43eb)",
+    "2026-10-20T09:49:09Z gatekeeper G3 T3: PASS (65f43eb), failing []; G3.6 judged test changes a replacement and a strengthening, not weakening. Record docs/runs/20261019-dog-walk-buddy-mvp/gates/G3-T3-65f43eb.md, posted GATE G3: PASS on PR #20 (issuecomment-6288204549); supersedes 455b954 PASS",
+    "2026-10-20T09:49:09Z orchestrator: invoking release (integrate) for PR #20",
+    "2026-10-20T09:51:56Z release integrate PR #20: DONE, squash 4a12f49 into feature (MERGED 09:51:30Z, verified), issue #10 closed manually with link (verified CLOSED), task branch deleted; feature-head CI on 4a12f49 in_progress at check",
+    "2026-10-20T09:51:56Z orchestrator: T3 done (2 attempts). Budget: 52/120 used. Next T4 (depends T3)",
+    "2026-10-20T09:51:56Z orchestrator: invoking developer T4 attempt 1"
   ],
   "bootstrap": true,
   "owner_answers": {
@@ -458,9 +528,16 @@
     "state_update_method": {
       "at": "2026-10-20T05:32:16Z",
       "instruction": "Use the Edit or Write tool (not Bash/sed) to update docs/runs/20261019-dog-walk-buddy-mvp/state.json. Make only the normal changes: stage build, current task 2, task 2 in_progress, counter 36 to 37, and the two log lines, including one noting the 36 vs 37 mismatch for the audit. Do not change the counter in any other way. Leave README.md alone. Then start the developer on Task 2."
+    },
+    "t3_review_findings": {
+      "at": "2026-10-20T09:13:48Z",
+      "question_1": "Task 3 passed G3, but the reviewer found behaviour gaps in the weather client: an empty forecast overwrites a good cached check, HTTPS→HTTP redirects are followed, cancelled checks hold the request for up to 10 s, and the header test checks against a denylist. Where should these be fixed?",
+      "answer_1": "Fix in Task 3 now (Recommended)",
+      "question_2": "ADR 0002 says a 203 response from MET Norway should be logged without personal data, but the code logs nothing. What do you want?",
+      "answer_2": "Log status code only (Recommended)"
     }
   },
-  "current_task": 3,
+  "current_task": 4,
   "toolchain": {
     "JAVA_HOME": "/c/Program Files/Eclipse Adoptium/jdk-17.0.20.101-hotspot",
     "python": "/c/Users/greav/AppData/Local/Programs/Python/Python312",
@@ -472,10 +549,15 @@
     "Verify release APK exports only MainActivity (aapt)",
     "OkHttp 5.1.0 forced under MapLibre 13.6.1: CVE check + runtime map check (T8)",
     "debug-overrides trust user CAs: confirm release debuggable=false",
-    "AC48 manual backup/transfer check pending (T8)"
+    "AC48 manual backup/transfer check pending (T8)",
+    "T3: cached check stores rounded coordinates + fetch time in Room (AppDatabase v1); include in Delete all my data (T8) and backup review (AC48)",
+    "T3 review M3: OkHttp follows https->http redirects by default and the HTTPS-only check is an application interceptor (does not see redirects); fixed in T3 attempt 2 (8b510b5) per owner, tested at 65f43eb (redirect refused, no plain-HTTP request), re-review resolved; security review in Stage 4 must confirm"
   ],
   "audit_carryover": [
     "T1 PR #16 optional Minor/Nit from final review left open (non-blocking)",
-    "T2 PR #19 Minor M1-M6 from review 5581298495 left open (non-blocking); M7 carried into T3"
+    "T2 PR #19 Minor M1-M6 from review 5581298495 left open (non-blocking); M7 carried into T3",
+    "T3 tester report misattributed CI result (6830f51 run quoted for 455b954); later verified pass on 455b954",
+    "T3 developer attempt 2 report claimed ci.sh runs detekt; not present in scripts/ci.sh",
+    "T3 re-review R2-2 (narrow catch in onResponse) carried into T5"
   ]
 }
