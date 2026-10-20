@@ -9,8 +9,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * AC51 for the profile screen: text contrast is at least 4.5:1 in light and dark themes. The shared high-contrast
- * tokens and the 7:1 rule for the rating and Start/Stop belong to task 5.
+ * AC51 for the profile screen: text contrast is at least 4.5:1 in light and dark themes. The profile screen uses
+ * the shared theme tokens, which `ContrastTest` also checks (including the 7:1 rule for the rating and Start/Stop).
  */
 class ProfileContrastTest {
     private fun assertTextPairsMeetAa(

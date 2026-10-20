@@ -53,6 +53,8 @@ class SmokeTest {
                 weatherHttpClient = OkHttpClient(),
                 database = database,
                 approximateLocationSource = { null },
+                hasCoarseLocationPermission = { false },
+                is24HourFormat = { true },
                 filesDir = context.filesDir,
             )
 

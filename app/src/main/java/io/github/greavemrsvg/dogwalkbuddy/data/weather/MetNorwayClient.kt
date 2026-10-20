@@ -93,6 +93,11 @@ class MetNorwayClient(
                             continuation.resumeWithException(
                                 WeatherFetchException("Weather request failed: ${error.javaClass.simpleName}", error),
                             )
+                        } catch (error: RuntimeException) {
+                            // Any other failure while reading must still end the call, or the check would hang forever.
+                            continuation.resumeWithException(
+                                WeatherFetchException("Weather request failed: ${error.javaClass.simpleName}", error),
+                            )
                         }
                     }
                 },

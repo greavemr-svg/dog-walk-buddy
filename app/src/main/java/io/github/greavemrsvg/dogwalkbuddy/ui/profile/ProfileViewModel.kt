@@ -55,20 +55,28 @@ class ProfileViewModel(
 
     init {
         viewModelScope.launch {
-            val profile = repository.observeProfile().first()
-            if (profile != null) {
-                hasStoredPhoto = profile.photoFileName != null
-                val photo = repository.loadPhoto(profile)?.asImageBitmap()
-                mutableState.update {
-                    it.copy(
-                        name = profile.name,
-                        breed = profile.breed.orEmpty(),
-                        sensitivity = profile.heatSensitivity,
-                        photo = photo,
-                    )
+            try {
+                val profile = repository.observeProfile().first()
+                if (profile != null) {
+                    hasStoredPhoto = profile.photoFileName != null
+                    val photo = repository.loadPhoto(profile)?.asImageBitmap()
+                    mutableState.update {
+                        it.copy(
+                            name = profile.name,
+                            breed = profile.breed.orEmpty(),
+                            sensitivity = profile.heatSensitivity,
+                            photo = photo,
+                        )
+                    }
                 }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                // A failed load leaves an empty form the user can still fill in. Nothing about the profile is logged.
+            } finally {
+                // The form must never stay disabled because loading failed.
+                mutableState.update { it.copy(isLoaded = true) }
             }
-            mutableState.update { it.copy(isLoaded = true) }
         }
     }
 

@@ -3,6 +3,7 @@
     <string name="app_name">Dog Walk Buddy</string>
     <string name="home_title">Dog Walk Buddy</string>
     <string name="home_dog_profile">Dog profile</string>
+    <string name="home_about">About this advice</string>
 
     <!-- Dog profile -->
     <string name="profile_title">Dog profile</string>
@@ -48,4 +49,44 @@
     <string name="best_window_range">%1$s-%2$s</string>
     <string name="best_window_best_available_caution">Best available: Caution</string>
     <string name="best_window_none">No good time in the next 12 hours</string>
+
+    <!-- Check card -->
+    <string name="check_title">Good time to walk?</string>
+    <string name="rating_go">Go</string>
+    <string name="rating_caution">Caution</string>
+    <string name="rating_avoid">Avoid</string>
+    <!-- Spoken as one phrase: the rating, then the reason (AC50). Example: "Caution. Windy." -->
+    <string name="check_rating_announcement">%1$s. %2$s.</string>
+    <string name="check_loading">Checking the weather</string>
+    <string name="check_cant_check">Can\'t check right now</string>
+    <string name="check_retry">Retry</string>
+    <string name="check_refresh">Refresh</string>
+    <string name="check_needs_location">The check needs your approximate location.</string>
+    <string name="check_grant_location">Allow approximate location</string>
+    <string name="check_age_minutes">Checked %1$d min ago</string>
+    <string name="check_age_hours_minutes">Checked %1$d h %2$d min ago</string>
+    <string name="check_window_heading">Best walking window</string>
+    <string name="check_pollen_not_included">Pollen isn\'t included in this check</string>
+    <string name="check_default_sensitivity">Using normal heat sensitivity. Set up your dog\'s profile to change this.</string>
+    <string name="check_disclaimer">Guidance only, not veterinary advice. If you\'re worried about your dog, contact a vet.</string>
+    <string name="check_attribution">Weather data: MET Norway (CC BY 4.0)</string>
+
+    <!-- About this advice -->
+    <string name="about_title">About this advice</string>
+    <string name="about_back">Back</string>
+    <string name="about_thresholds_heading">Rating thresholds</string>
+    <string name="about_overall">The overall rating for an hour is the worst of these factors. Sensitivity changes only the heat and pavement limits.</string>
+    <string name="about_heat">Heat (air temperature). Normal: Go below 20 °C, Caution from 20 °C to below 25 °C, Avoid from 25 °C. Sensitive: Go below 16 °C, Caution from 16 °C to below 21 °C, Avoid from 21 °C.</string>
+    <string name="about_pavement">Hot pavement: rated only in daylight (between local sunrise and sunset) when the forecast cloud cover is below 50 percent. It uses the same temperature bands as heat.</string>
+    <string name="about_rain">Rain (precipitation rate): Go below 0.5 mm/h, Caution from 0.5 mm/h to 4 mm/h, Avoid above 4 mm/h.</string>
+    <string name="about_wind">Wind (mean speed): Go below 25 mph, Caution from 25 mph to below 39 mph, Avoid from 39 mph. Gusts are not rated.</string>
+    <string name="about_cold">Cold (air temperature): Caution at 0 °C or below. Cold never gives Avoid.</string>
+    <string name="about_sources_heading">Guidance sources</string>
+    <string name="about_sources_intro">The thresholds are based on this guidance. It is general guidance, and forecasts can be wrong.</string>
+    <string name="about_source_vets_now">Vets Now: heat-related illness can start above about 20 °C.</string>
+    <string name="about_source_four_paws">FOUR PAWS UK: asphalt reaches about 52 °C when the air is 25 °C.</string>
+    <string name="about_source_beaufort">The wind thresholds follow the Beaufort scale\'s mean wind speeds, as published by the Royal Meteorological Society.</string>
+    <string name="about_data_heading">Data</string>
+    <string name="about_licences_heading">Open-source licences</string>
+    <string name="about_licences">Dog Walk Buddy uses open-source software: Jetpack Compose, Room, Kotlin, kotlinx, OkHttp and Okio (Apache License 2.0) and MapLibre Native (BSD 2-Clause License).</string>
 </resources>

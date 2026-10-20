@@ -28,16 +28,22 @@ class LocationManagerApproximateSource(
     private val sdkInt: Int = Build.VERSION.SDK_INT,
     private val timeout: Duration = REQUEST_TIMEOUT,
 ) : ApproximateLocationSource {
-    // The permission is checked through hasCoarsePermission(), which lint cannot see through.
-    @SuppressLint("MissingPermission")
     override suspend fun current(): LocationFix? {
         if (!hasCoarsePermission()) return null
         val provider = provider()
         if (!locationManager.isProviderEnabled(provider)) return null
-        val lastKnown = locationManager.getLastKnownLocation(provider)
+        val lastKnown = lastKnown(provider)
         if (lastKnown != null && isRecent(lastKnown)) return lastKnown.toFix()
         return withTimeoutOrNull(timeout.toMillis()) { requestCurrent(provider) }?.toFix()
     }
+
+    // The permission is checked first, and a revocation between that check and this call is handled here.
+    private fun lastKnown(provider: String): Location? =
+        try {
+            locationManager.getLastKnownLocation(provider)
+        } catch (_: SecurityException) {
+            null
+        }
 
     // FUSED_PROVIDER is a plain string constant that is only read on API 31 and later, so the inlined value is safe.
     @SuppressLint("InlinedApi")
@@ -49,13 +55,17 @@ class LocationManagerApproximateSource(
         return !age.isNegative && age <= MAX_LAST_KNOWN_AGE
     }
 
-    @SuppressLint("MissingPermission")
     private suspend fun requestCurrent(provider: String): Location? =
         suspendCancellableCoroutine { continuation ->
             val signal = CancellationSignal()
             continuation.invokeOnCancellation { signal.cancel() }
-            LocationManagerCompat.getCurrentLocation(locationManager, provider, signal, executor) { location ->
-                if (continuation.isActive) continuation.resume(location)
+            try {
+                LocationManagerCompat.getCurrentLocation(locationManager, provider, signal, executor) { location ->
+                    if (continuation.isActive) continuation.resume(location)
+                }
+            } catch (_: SecurityException) {
+                // Permission revoked after the check: no location, so the check falls back to a stored result.
+                if (continuation.isActive) continuation.resume(null)
             }
         }
 

@@ -1,0 +1,48 @@
+package io.github.greavemrsvg.dogwalkbuddy.ui.check
+
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import io.github.greavemrsvg.dogwalkbuddy.R
+import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HourRating
+import io.github.greavemrsvg.dogwalkbuddy.domain.rating.Rating
+import io.github.greavemrsvg.dogwalkbuddy.domain.window.BestWindow
+
+/** What the check card shows. The ViewModel produces exactly one of these at a time. */
+sealed interface CheckUiState {
+    /** The check has not produced anything yet, or a refresh is running. */
+    data object Loading : CheckUiState
+
+    /** Approximate location is not granted. No weather request is made (AC25). */
+    data object NeedsLocationPermission : CheckUiState
+
+    /** No usable result: no rating is shown, only a retry (AC15, AC22). */
+    data object CantCheck : CheckUiState
+
+    /**
+     * A rated result. [ageMinutes] is non-null when the result is a stored one, or old enough to label, so the
+     * screen can say how old it is (AC21). [usingDefaultSensitivity] is true when there is no dog profile (AC45).
+     */
+    data class Rated(
+        val current: HourRating,
+        val window: BestWindow,
+        val ageMinutes: Long?,
+        val usingDefaultSensitivity: Boolean,
+    ) : CheckUiState
+}
+
+@StringRes
+fun Rating.labelRes(): Int =
+    when (this) {
+        Rating.GO -> R.string.rating_go
+        Rating.CAUTION -> R.string.rating_caution
+        Rating.AVOID -> R.string.rating_avoid
+    }
+
+/** Each rating has its own icon, so colour is never the only difference (AC53). */
+@DrawableRes
+fun Rating.iconRes(): Int =
+    when (this) {
+        Rating.GO -> R.drawable.ic_rating_go
+        Rating.CAUTION -> R.drawable.ic_rating_caution
+        Rating.AVOID -> R.drawable.ic_rating_avoid
+    }

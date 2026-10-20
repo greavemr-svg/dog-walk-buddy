@@ -18,6 +18,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -228,6 +229,22 @@ class ProfileViewModelTest {
         viewModel.onPhotoPicked { ByteArrayInputStream(SyntheticImages.jpeg(16, 16)) }
         assertNull(viewModel.state.value.photoProblem)
         assertNotNull(viewModel.state.value.photo)
+    }
+
+    @Test
+    fun AC41_a_failing_load_still_enables_the_form_so_it_never_stays_disabled() {
+        val dao = database.dogProfileDao()
+        val failingDao =
+            object : DogProfileDao by dao {
+                override fun observe() = flow<DogProfileEntity?> { throw IllegalStateException("database unavailable") }
+            }
+
+        val viewModel = ProfileViewModel(repositoryOver(failingDao))
+
+        assertTrue(viewModel.state.value.isLoaded)
+        assertEquals("", viewModel.state.value.name)
+        viewModel.onNameChange("Biscuit")
+        assertEquals("Biscuit", viewModel.state.value.name)
     }
 
     @Test
