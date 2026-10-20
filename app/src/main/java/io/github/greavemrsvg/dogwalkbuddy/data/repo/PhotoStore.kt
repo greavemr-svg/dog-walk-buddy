@@ -69,7 +69,15 @@ class PhotoStore(
         withContext(dispatcher) {
             check(directory.isDirectory || directory.mkdirs()) { "Cannot create the photo directory" }
             val fileName = "$FILE_PREFIX${nameGenerator()}$FILE_SUFFIX"
-            File(directory, fileName).writeBytes(photo.jpegBytes)
+            val target = File(directory, fileName)
+            // Written under a temporary name and renamed, so a failed write never leaves a partial photo behind.
+            val partial = File(directory, "$fileName$PARTIAL_SUFFIX")
+            try {
+                partial.writeBytes(photo.jpegBytes)
+                check(partial.renameTo(target)) { "Cannot move the photo into place" }
+            } finally {
+                partial.delete()
+            }
             fileName
         }
 
@@ -133,6 +141,7 @@ class PhotoStore(
                 return PhotoPreparation.NotAnImage
             }
         val bitmap = flattenOnWhite(decoded)
+        decoded.recycle()
         val output = ByteArrayOutputStream()
         check(bitmap.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, output)) { "JPEG encoding failed" }
         return PhotoPreparation.Ready(ProcessedPhoto(output.toByteArray(), bitmap))
@@ -156,6 +165,7 @@ class PhotoStore(
         private const val BUFFER_BYTES = 8 * 1024
         private const val FILE_PREFIX = "photo_"
         private const val FILE_SUFFIX = ".jpg"
+        private const val PARTIAL_SUFFIX = ".partial"
         private val GENERATED_NAME = Regex("photo_[0-9a-fA-F-]{1,64}\\.jpg")
     }
 }

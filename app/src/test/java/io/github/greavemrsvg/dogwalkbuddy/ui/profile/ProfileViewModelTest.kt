@@ -7,14 +7,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
 import io.github.greavemrsvg.dogwalkbuddy.data.db.DogProfileDao
 import io.github.greavemrsvg.dogwalkbuddy.data.db.DogProfileEntity
+import io.github.greavemrsvg.dogwalkbuddy.data.repo.PhotoChange
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.PhotoStore
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.ProfileRepository
 import io.github.greavemrsvg.dogwalkbuddy.domain.profile.ProfileError
+import io.github.greavemrsvg.dogwalkbuddy.domain.profile.ProfileInput
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HeatSensitivity
 import io.github.greavemrsvg.dogwalkbuddy.testutil.SyntheticImages
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -243,4 +247,129 @@ class ProfileViewModelTest {
         viewModel.onSave()
         assertTrue(viewModel.state.value.saveFailed)
     }
+
+    @Test
+    fun AC41_after_a_failed_save_a_retry_that_succeeds_saves_the_profile() =
+        runTest {
+            val dao = database.dogProfileDao()
+            var failures = 1
+            val flakyDao =
+                object : DogProfileDao by dao {
+                    override suspend fun save(entity: DogProfileEntity) {
+                        if (failures-- > 0) throw IllegalStateException("disk full")
+                        dao.save(entity)
+                    }
+                }
+            val viewModel = ProfileViewModel(repositoryOver(flakyDao))
+            viewModel.onNameChange("Biscuit")
+
+            viewModel.onSave()
+            assertTrue(viewModel.state.value.saveFailed)
+            assertNull(repository.observeProfile().first())
+
+            viewModel.onSave()
+
+            assertFalse(viewModel.state.value.saveFailed)
+            assertTrue(viewModel.state.value.justSaved)
+            assertEquals("Biscuit", repository.observeProfile().first()!!.name)
+        }
+
+    @Test
+    fun AC42_each_refused_save_is_counted_so_the_screen_can_move_focus() {
+        val viewModel = newViewModel()
+
+        viewModel.onSave()
+        viewModel.onSave()
+
+        assertEquals(2, viewModel.state.value.refusedSaves)
+    }
+
+    @Test
+    fun AC41_edits_and_saves_are_ignored_until_the_stored_profile_has_loaded_and_are_never_overwritten() =
+        runTest {
+            repository.save(ProfileInput("Stored", "Cockapoo"), HeatSensitivity.SENSITIVE, PhotoChange.Keep)
+            val release = CompletableDeferred<Unit>()
+            val dao = database.dogProfileDao()
+            val slowDao =
+                object : DogProfileDao by dao {
+                    override fun observe() = dao.observe().onStart { release.await() }
+                }
+            val viewModel = ProfileViewModel(repositoryOver(slowDao))
+
+            viewModel.onNameChange("Typed too early")
+            viewModel.onBreedChange("Early breed")
+            viewModel.onSensitivityChange(HeatSensitivity.NORMAL)
+            viewModel.onSave()
+            assertFalse(viewModel.state.value.isLoaded)
+            assertEquals("", viewModel.state.value.name)
+            assertFalse(viewModel.state.value.isSaving)
+
+            release.complete(Unit)
+
+            val loaded = viewModel.state.value
+            assertTrue(loaded.isLoaded)
+            assertEquals("Stored", loaded.name)
+            assertEquals("Cockapoo", loaded.breed)
+            assertEquals(HeatSensitivity.SENSITIVE, loaded.sensitivity)
+            assertEquals("Stored", repository.observeProfile().first()!!.name)
+        }
+
+    @Test
+    fun AC43_a_photo_picked_while_a_save_runs_is_kept_for_the_next_save() =
+        runTest {
+            val gate = CompletableDeferred<Unit>()
+            val dao = database.dogProfileDao()
+            val gatedDao =
+                object : DogProfileDao by dao {
+                    override suspend fun save(entity: DogProfileEntity) {
+                        gate.await()
+                        dao.save(entity)
+                    }
+                }
+            val viewModel = ProfileViewModel(repositoryOver(gatedDao))
+            viewModel.onNameChange("Biscuit")
+            viewModel.onPhotoPicked { ByteArrayInputStream(SyntheticImages.jpeg(64, 64)) }
+            viewModel.onSave()
+            assertTrue(viewModel.state.value.isSaving)
+
+            viewModel.onPhotoPicked { ByteArrayInputStream(SyntheticImages.jpeg(32, 32)) }
+            gate.complete(Unit)
+            assertTrue(viewModel.state.value.justSaved)
+            val firstFile = photoFiles()
+            assertEquals(1, firstFile.size)
+
+            viewModel.onSave()
+
+            val afterSecond = photoFiles()
+            assertEquals(1, afterSecond.size)
+            assertTrue(afterSecond != firstFile)
+            val stored = repository.observeProfile().first()!!
+            assertEquals(afterSecond.single(), stored.photoFileName)
+            assertEquals(32, repository.loadPhoto(stored)!!.width)
+        }
+
+    @Test
+    fun AC43_a_photo_removed_while_a_save_runs_is_removed_by_the_next_save() =
+        runTest {
+            val gate = CompletableDeferred<Unit>()
+            val dao = database.dogProfileDao()
+            val gatedDao =
+                object : DogProfileDao by dao {
+                    override suspend fun save(entity: DogProfileEntity) {
+                        gate.await()
+                        dao.save(entity)
+                    }
+                }
+            val viewModel = ProfileViewModel(repositoryOver(gatedDao))
+            viewModel.onNameChange("Biscuit")
+            viewModel.onPhotoPicked { ByteArrayInputStream(SyntheticImages.jpeg(64, 64)) }
+            viewModel.onSave()
+
+            viewModel.onRemovePhoto()
+            gate.complete(Unit)
+            viewModel.onSave()
+
+            assertTrue(photoFiles().isEmpty())
+            assertNull(repository.observeProfile().first()!!.photoFileName)
+        }
 }

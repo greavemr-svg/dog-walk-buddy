@@ -241,7 +241,7 @@ class PhotoStoreTest {
 
             val result = store.prepare { ByteArrayInputStream(truncated) }
 
-            assertFalse(result is PhotoPreparation.Unreadable)
+            assertEquals(PhotoPreparation.NotAnImage, result)
             assertFalse(File(root, "profile").exists())
         }
 
@@ -301,6 +301,35 @@ class PhotoStoreTest {
     @Test
     fun AC43_deleting_a_missing_generated_name_is_harmless() =
         runTest {
+            val keep = store.store(prepared(SyntheticImages.jpeg(64, 64)))
+            val before = File(root, "profile").list().orEmpty().sorted()
+
             store.delete("photo_00000000-0000-0000-0000-000000000099.jpg")
+
+            assertEquals(before, File(root, "profile").list().orEmpty().sorted())
+            assertEquals(listOf(keep), before)
+            assertNotNull(store.load(keep))
+        }
+
+    @Test
+    fun AC43_a_store_that_cannot_finish_leaves_no_partial_file_and_no_photo() =
+        runTest {
+            val photo = prepared(SyntheticImages.jpeg(64, 64))
+            // A non-empty directory in the way of the final name makes the move fail after the bytes were written.
+            val blocker = File(root, "profile/photo_00000000-0000-0000-0000-000000000000.jpg")
+            assertTrue(File(blocker, "in-the-way").apply { parentFile!!.mkdirs() }.createNewFile())
+
+            val failure = runCatching { store.store(photo) }.exceptionOrNull()
+
+            assertTrue(failure is IllegalStateException)
+            assertEquals(listOf(blocker.name), File(root, "profile").list().orEmpty().toList())
+        }
+
+    @Test
+    fun AC43_a_successful_store_leaves_only_the_final_file() =
+        runTest {
+            val fileName = store.store(prepared(SyntheticImages.jpeg(64, 64)))
+
+            assertEquals(listOf(fileName), File(root, "profile").list().orEmpty().toList())
         }
 }

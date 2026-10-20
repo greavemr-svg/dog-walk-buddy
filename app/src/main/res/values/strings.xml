@@ -17,7 +17,7 @@
     <string name="profile_sensitivity_label">Heat sensitivity</string>
     <string name="profile_sensitivity_normal">Normal</string>
     <string name="profile_sensitivity_sensitive">Sensitive</string>
-    <string name="profile_sensitivity_hint">Sensitive tightens the heat warnings, for example for flat-faced, thick-coated or older dogs.</string>
+    <string name="profile_sensitivity_hint">Sensitive uses stricter heat and pavement limits.</string>
     <string name="profile_save">Save profile</string>
     <string name="profile_saved">Profile saved</string>
     <string name="profile_save_failed">Couldn\'t save the profile. Try again.</string>
@@ -26,7 +26,7 @@
     <string name="profile_error_name_characters">Name can\'t contain control characters or line breaks.</string>
     <string name="profile_error_breed_too_long">Breed is too long. Use %1$s characters or fewer.</string>
     <string name="profile_error_breed_characters">Breed can\'t contain control characters or line breaks.</string>
-    <string name="profile_photo_too_large">That photo is too large. Choose one under 20 MB and 8000 pixels on each side.</string>
+    <string name="profile_photo_too_large">That photo is too large. Choose one under %1$s MB and %2$s pixels on each side.</string>
     <string name="profile_photo_not_an_image">That file isn\'t a photo the app can use. Choose a different one.</string>
     <string name="profile_photo_unreadable">Couldn\'t read that photo. Try another one.</string>
 

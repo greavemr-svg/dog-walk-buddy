@@ -28,27 +28,34 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.PhotoSource
+import io.github.greavemrsvg.dogwalkbuddy.data.repo.PhotoStore
 import io.github.greavemrsvg.dogwalkbuddy.domain.profile.ProfileError
 import io.github.greavemrsvg.dogwalkbuddy.domain.profile.ProfileValidator
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HeatSensitivity
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
 
-/** Minimum touch target (AC51). */
-val MinTouchTarget = 48.dp
+private const val BYTES_PER_MB = 1024 * 1024
 private val SaveButtonHeight = 56.dp
 private val PhotoSize = 160.dp
 
@@ -92,6 +99,18 @@ fun ProfileScreen(
     onSave: () -> Unit,
     onBack: () -> Unit,
 ) {
+    val nameFocus = remember { FocusRequester() }
+    val breedFocus = remember { FocusRequester() }
+    // A refused save moves focus to the first field in error, so a screen reader announces its message (AC50, AC42).
+    LaunchedEffect(state.refusedSaves) {
+        if (state.refusedSaves > 0) {
+            if (state.nameError != null) {
+                nameFocus.requestFocus()
+            } else if (state.breedError != null) {
+                breedFocus.requestFocus()
+            }
+        }
+    }
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier =
@@ -111,12 +130,12 @@ fun ProfileScreen(
                 modifier = Modifier.semantics { heading() },
             )
             PhotoSection(state, onChoosePhoto, onRemovePhoto)
-            NameField(state, onNameChange)
-            BreedField(state, onBreedChange)
-            SensitivityGroup(state.sensitivity, onSensitivityChange)
+            NameField(state, onNameChange, nameFocus)
+            BreedField(state, onBreedChange, breedFocus)
+            SensitivityGroup(state.sensitivity, state.isLoaded, onSensitivityChange)
             Button(
                 onClick = onSave,
-                enabled = !state.isSaving,
+                enabled = state.isLoaded && !state.isSaving,
                 modifier = Modifier.fillMaxWidth().heightIn(min = SaveButtonHeight),
             ) {
                 Text(stringResource(R.string.profile_save))
@@ -147,20 +166,21 @@ private fun PhotoSection(
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            OutlinedButton(onClick = onChoosePhoto, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+            OutlinedButton(onClick = onChoosePhoto, enabled = state.isLoaded, modifier = Modifier.heightIn(min = MinTouchTarget)) {
                 Text(stringResource(if (photo == null) R.string.profile_choose_photo else R.string.profile_replace_photo))
             }
             if (photo != null) {
-                OutlinedButton(onClick = onRemovePhoto, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                OutlinedButton(onClick = onRemovePhoto, enabled = state.isLoaded, modifier = Modifier.heightIn(min = MinTouchTarget)) {
                     Text(stringResource(R.string.profile_remove_photo))
                 }
             }
         }
         state.photoProblem?.let { problem ->
             Text(
-                text = stringResource(photoProblemText(problem)),
+                text = photoProblemMessage(problem),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
         }
     }
@@ -170,12 +190,15 @@ private fun PhotoSection(
 private fun NameField(
     state: ProfileUiState,
     onNameChange: (String) -> Unit,
+    focusRequester: FocusRequester,
 ) {
     val message = state.nameError?.let { stringResource(nameErrorText(it), ProfileValidator.NAME_MAX_LENGTH.toString()) }
     ProfileTextField(
         value = state.name,
         label = stringResource(R.string.profile_name_label),
         errorMessage = message,
+        enabled = state.isLoaded,
+        focusRequester = focusRequester,
         onValueChange = onNameChange,
     )
 }
@@ -184,12 +207,15 @@ private fun NameField(
 private fun BreedField(
     state: ProfileUiState,
     onBreedChange: (String) -> Unit,
+    focusRequester: FocusRequester,
 ) {
     val message = state.breedError?.let { stringResource(breedErrorText(it), ProfileValidator.BREED_MAX_LENGTH.toString()) }
     ProfileTextField(
         value = state.breed,
         label = stringResource(R.string.profile_breed_label),
         errorMessage = message,
+        enabled = state.isLoaded,
+        focusRequester = focusRequester,
         onValueChange = onBreedChange,
     )
 }
@@ -199,11 +225,14 @@ private fun ProfileTextField(
     value: String,
     label: String,
     errorMessage: String?,
+    enabled: Boolean,
+    focusRequester: FocusRequester,
     onValueChange: (String) -> Unit,
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
+        enabled = enabled,
         label = { Text(label) },
         singleLine = true,
         isError = errorMessage != null,
@@ -212,6 +241,7 @@ private fun ProfileTextField(
             Modifier
                 .fillMaxWidth()
                 .heightIn(min = MinTouchTarget)
+                .focusRequester(focusRequester)
                 .semantics(mergeDescendants = true) { if (errorMessage != null) error(errorMessage) },
     )
 }
@@ -219,6 +249,7 @@ private fun ProfileTextField(
 @Composable
 private fun SensitivityGroup(
     selected: HeatSensitivity,
+    enabled: Boolean,
     onSelect: (HeatSensitivity) -> Unit,
 ) {
     Column(modifier = Modifier.selectableGroup()) {
@@ -234,7 +265,12 @@ private fun SensitivityGroup(
                     Modifier
                         .fillMaxWidth()
                         .heightIn(min = MinTouchTarget)
-                        .selectable(selected = option == selected, role = Role.RadioButton, onClick = { onSelect(option) }),
+                        .selectable(
+                            selected = option == selected,
+                            enabled = enabled,
+                            role = Role.RadioButton,
+                            onClick = { onSelect(option) },
+                        ),
             ) {
                 RadioButton(selected = option == selected, onClick = null)
                 Text(
@@ -251,12 +287,18 @@ private fun SensitivityGroup(
 @Composable
 private fun SaveStatus(state: ProfileUiState) {
     when {
-        state.justSaved -> Text(stringResource(R.string.profile_saved), style = MaterialTheme.typography.bodyLarge)
+        state.justSaved ->
+            Text(
+                text = stringResource(R.string.profile_saved),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
         state.saveFailed ->
             Text(
                 text = stringResource(R.string.profile_save_failed),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
             )
     }
 }
@@ -267,11 +309,17 @@ private fun sensitivityText(option: HeatSensitivity) =
         HeatSensitivity.SENSITIVE -> R.string.profile_sensitivity_sensitive
     }
 
-private fun photoProblemText(problem: PhotoProblem) =
+@Composable
+private fun photoProblemMessage(problem: PhotoProblem) =
     when (problem) {
-        PhotoProblem.TOO_LARGE -> R.string.profile_photo_too_large
-        PhotoProblem.NOT_AN_IMAGE -> R.string.profile_photo_not_an_image
-        PhotoProblem.UNREADABLE -> R.string.profile_photo_unreadable
+        PhotoProblem.TOO_LARGE ->
+            stringResource(
+                R.string.profile_photo_too_large,
+                PhotoStore.MAX_SOURCE_BYTES / BYTES_PER_MB,
+                PhotoStore.MAX_SOURCE_EDGE_PX,
+            )
+        PhotoProblem.NOT_AN_IMAGE -> stringResource(R.string.profile_photo_not_an_image)
+        PhotoProblem.UNREADABLE -> stringResource(R.string.profile_photo_unreadable)
     }
 
 private fun nameErrorText(error: ProfileError) =

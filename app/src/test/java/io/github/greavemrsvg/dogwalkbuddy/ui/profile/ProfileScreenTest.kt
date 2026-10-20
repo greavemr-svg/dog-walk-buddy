@@ -5,11 +5,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -245,6 +248,68 @@ class ProfileScreenTest {
         composeRule.onNodeWithText("Sensitive").assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
         composeRule.onNodeWithText("Heat sensitivity").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
         composeRule.onAllNodes(hasSetTextAction())[0].assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Error))
+    }
+
+    @Test
+    fun AC50_a_refused_save_moves_focus_to_the_first_field_in_error() {
+        save()
+
+        composeRule.onAllNodes(hasSetTextAction())[0].assertIsFocused()
+    }
+
+    @Test
+    fun AC50_a_refused_save_with_only_a_breed_error_moves_focus_to_the_breed_field() {
+        typeName("Biscuit")
+        typeBreed("b".repeat(51))
+        save()
+
+        composeRule.onAllNodes(hasSetTextAction())[1].assertIsFocused()
+    }
+
+    @Test
+    fun AC50_a_second_refused_save_moves_focus_back_to_the_field_in_error() {
+        save()
+        composeRule.onAllNodes(hasSetTextAction())[1].performClick()
+        composeRule.onAllNodes(hasSetTextAction())[0].assertIsNotFocused()
+
+        save()
+
+        composeRule.onAllNodes(hasSetTextAction())[0].assertIsFocused()
+    }
+
+    @Test
+    fun AC50_a_refused_photo_is_announced_as_a_polite_live_region() {
+        composeRule.runOnUiThread { viewModel!!.onPhotoPicked { ByteArrayInputStream("not an image".toByteArray()) } }
+        composeRule.waitForIdle()
+
+        composeRule
+            .onNodeWithText("That file isn't a photo the app can use. Choose a different one.")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+    }
+
+    @Test
+    fun AC50_a_successful_save_is_announced_as_a_polite_live_region() {
+        typeName("Biscuit")
+        save()
+
+        composeRule
+            .onNodeWithText("Profile saved")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+    }
+
+    @Test
+    fun AC41_a_photo_over_the_size_limit_names_the_limits_from_the_photo_store() {
+        composeRule.runOnUiThread { viewModel!!.onPhotoPicked { ByteArrayInputStream(SyntheticImages.png(8001, 1)) } }
+        composeRule.waitForIdle()
+
+        composeRule
+            .onNodeWithText("That photo is too large. Choose one under 20 MB and 8000 pixels on each side.")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun AC41_the_sensitivity_hint_only_says_what_the_setting_changes() {
+        composeRule.onNodeWithText("Sensitive uses stricter heat and pavement limits.").assertIsDisplayed()
     }
 
     @Test

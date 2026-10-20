@@ -38,6 +38,8 @@ data class ProfileUiState(
     val isSaving: Boolean = false,
     val justSaved: Boolean = false,
     val saveFailed: Boolean = false,
+    /** Counts refused saves, so the screen can move focus to the first field in error each time. */
+    val refusedSaves: Int = 0,
 )
 
 /** Holds the profile form. Edits stay in this state until Save, which is the only write (AC41, AC42, AC43). */
@@ -70,15 +72,25 @@ class ProfileViewModel(
         }
     }
 
-    fun onNameChange(value: String) =
+    // Until the stored profile has loaded, edits are ignored (the screen disables the controls), so loading
+    // can never overwrite what the user typed.
+    fun onNameChange(value: String) {
+        if (!mutableState.value.isLoaded) return
         mutableState.update { it.copy(name = value.take(INPUT_HARD_CAP), nameError = null, justSaved = false) }
+    }
 
-    fun onBreedChange(value: String) =
+    fun onBreedChange(value: String) {
+        if (!mutableState.value.isLoaded) return
         mutableState.update { it.copy(breed = value.take(INPUT_HARD_CAP), breedError = null, justSaved = false) }
+    }
 
-    fun onSensitivityChange(value: HeatSensitivity) = mutableState.update { it.copy(sensitivity = value, justSaved = false) }
+    fun onSensitivityChange(value: HeatSensitivity) {
+        if (!mutableState.value.isLoaded) return
+        mutableState.update { it.copy(sensitivity = value, justSaved = false) }
+    }
 
     fun onPhotoPicked(source: PhotoSource) {
+        if (!mutableState.value.isLoaded) return
         viewModelScope.launch {
             when (val result = repository.preparePhoto(source)) {
                 is PhotoPreparation.Ready -> {
@@ -94,6 +106,7 @@ class ProfileViewModel(
     }
 
     fun onRemovePhoto() {
+        if (!mutableState.value.isLoaded) return
         pendingPhoto = null
         removeStoredPhoto = hasStoredPhoto
         mutableState.update { it.copy(photo = null, photoProblem = null, justSaved = false) }
@@ -101,15 +114,17 @@ class ProfileViewModel(
 
     fun onSave() {
         val current = mutableState.value
-        if (current.isSaving) return
+        if (current.isSaving || !current.isLoaded) return
+        // The photo change is fixed now, so a photo picked while the save runs is not lost or mistaken for this one.
+        val submittedPhoto = pendingPhoto
+        val change =
+            when {
+                submittedPhoto != null -> PhotoChange.Replace(submittedPhoto)
+                removeStoredPhoto -> PhotoChange.Remove
+                else -> PhotoChange.Keep
+            }
         mutableState.update { it.copy(isSaving = true, justSaved = false, saveFailed = false) }
         viewModelScope.launch {
-            val change =
-                when {
-                    pendingPhoto != null -> PhotoChange.Replace(checkNotNull(pendingPhoto))
-                    removeStoredPhoto -> PhotoChange.Remove
-                    else -> PhotoChange.Keep
-                }
             val result =
                 try {
                     repository.save(ProfileInput(current.name, current.breed), current.sensitivity, change)
@@ -127,12 +142,18 @@ class ProfileViewModel(
                             nameError = result.validation.nameError,
                             breedError = result.validation.breedError,
                             isSaving = false,
+                            refusedSaves = it.refusedSaves + 1,
                         )
                     }
                 is SaveResult.Saved -> {
                     hasStoredPhoto = result.profile.photoFileName != null
-                    pendingPhoto = null
-                    removeStoredPhoto = false
+                    if (pendingPhoto === submittedPhoto) {
+                        pendingPhoto = null
+                        removeStoredPhoto = false
+                    } else if (pendingPhoto == null) {
+                        // The photo was removed while saving: the photo that was just stored still has to go.
+                        removeStoredPhoto = hasStoredPhoto
+                    }
                     mutableState.update {
                         it.copy(
                             name = result.profile.name,

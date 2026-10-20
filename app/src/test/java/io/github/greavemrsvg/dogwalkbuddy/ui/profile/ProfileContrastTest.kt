@@ -1,9 +1,9 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.profile
 
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import io.github.greavemrsvg.dogwalkbuddy.testutil.Wcag
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DarkColors
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.LightColors
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -32,10 +32,10 @@ class ProfileContrastTest {
     }
 
     @Test
-    fun AC51_profile_text_has_at_least_4_5_to_1_contrast_in_the_light_theme() = assertTextPairsMeetAa(lightColorScheme(), "light")
+    fun AC51_profile_text_has_at_least_4_5_to_1_contrast_in_the_light_theme() = assertTextPairsMeetAa(LightColors, "light")
 
     @Test
-    fun AC51_profile_text_has_at_least_4_5_to_1_contrast_in_the_dark_theme() = assertTextPairsMeetAa(darkColorScheme(), "dark")
+    fun AC51_profile_text_has_at_least_4_5_to_1_contrast_in_the_dark_theme() = assertTextPairsMeetAa(DarkColors, "dark")
 
     @Test
     fun AC51_the_contrast_helper_matches_the_wcag_reference_values() {
