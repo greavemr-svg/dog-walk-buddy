@@ -210,6 +210,37 @@ class MetNorwayClientTest {
     }
 
     @Test
+    fun AC22_a_203_response_with_an_empty_timeseries_is_a_failure_and_logs_only_the_status() {
+        stub.server.enqueue(
+            MockResponse
+                .Builder()
+                .code(WeatherConfig.HTTP_NON_AUTHORITATIVE)
+                .body("""{"properties":{"timeseries":[]}}""")
+                .build(),
+        )
+        val logged = mutableListOf<Int>()
+
+        assertThrows(WeatherFetchException::class.java) { fetch(logStatus = { logged.add(it) }) }
+
+        assertEquals(listOf(WeatherConfig.HTTP_NON_AUTHORITATIVE), logged)
+    }
+
+    @Test
+    fun AC23_an_https_to_https_redirect_is_still_followed() {
+        stub.server.enqueue(
+            MockResponse
+                .Builder()
+                .code(302)
+                .addHeader("Location", stub.server.url("/weatherapi/locationforecast/2.0/complete?lat=51.51&lon=-0.13").toString())
+                .build(),
+        )
+        stub.enqueueFixture()
+
+        assertTrue(fetch().isNotEmpty())
+        assertEquals(2, stub.server.requestCount)
+    }
+
+    @Test
     fun AC21_cancelling_the_check_cancels_the_http_call() {
         val cancelled = CountDownLatch(1)
         val listener =
