@@ -35,7 +35,7 @@ stop and tell the owner.
    count, a one-line log entry). A crashed run must be resumable from it.
 4. **Evidence, not assertions.** A step is done only when its report contains
    the required artifacts (PR number, file paths, test output, verdict JSON).
-5. **Limits.** Max 3 attempts per task. Max 8 tasks per run. Max 60 agent
+5. **Limits.** Max 3 attempts per task. Max 8 tasks per run. Max 120 agent
    invocations per run. On any limit, stop and escalate to the owner.
 6. **Human gates are absolute.** Never continue past Gate A or Gate B without
    an explicit approval from the owner in this conversation, recorded verbatim
