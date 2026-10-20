@@ -2,9 +2,15 @@ package io.github.greavemrsvg.dogwalkbuddy
 
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.OkHttpClient
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,9 +41,36 @@ class SmokeTest {
         val fixed = Clock.fixed(Instant.parse("2026-10-19T12:00:00Z"), ZoneOffset.UTC)
         val zone = ZoneId.of("Europe/London")
 
-        val container = AppContainer(clock = fixed, zoneId = zone)
+        val context = ApplicationProvider.getApplicationContext<DogWalkBuddyApp>()
+        val database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
+        val baseUrl = "https://localhost/".toHttpUrl()
+
+        val container =
+            AppContainer(
+                clock = fixed,
+                zoneId = zone,
+                weatherBaseUrl = baseUrl,
+                weatherHttpClient = OkHttpClient(),
+                database = database,
+                approximateLocationSource = { null },
+            )
 
         assertEquals(Instant.parse("2026-10-19T12:00:00Z"), container.clock.instant())
         assertEquals(zone, container.zoneId)
+        assertEquals(baseUrl, container.weatherBaseUrl)
+        database.close()
+    }
+
+    @Test
+    fun AC24_the_default_container_is_wired_for_the_production_weather_host_and_makes_no_request_on_creation() {
+        val app = ApplicationProvider.getApplicationContext<DogWalkBuddyApp>()
+
+        val container = app.container
+
+        assertEquals("api.met.no", container.weatherBaseUrl.host)
+        assertTrue(container.weatherBaseUrl.isHttps)
+        assertEquals(0, container.weatherHttpClient.dispatcher.runningCallsCount())
+        assertNotNull(container.checkRepository)
+        assertNotNull(container.approximateLocationSource)
     }
 }

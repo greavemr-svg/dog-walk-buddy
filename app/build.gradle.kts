@@ -56,6 +56,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -83,6 +84,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+// Room exports its schema JSON here (ADR 0004). The files are committed.
+ksp {
+    arg("room.schemaLocation", "${layout.projectDirectory}/schemas")
 }
 
 jacoco {
