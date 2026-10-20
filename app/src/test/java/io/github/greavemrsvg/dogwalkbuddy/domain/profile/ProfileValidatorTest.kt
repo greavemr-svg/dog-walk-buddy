@@ -77,4 +77,34 @@ class ProfileValidatorTest {
 
         assertEquals(ProfileInput("Biscuit", "Cockapoo"), input)
     }
+
+    private val dog = "🐕"
+
+    @Test
+    fun AC42_31_emoji_are_refused_for_the_name_and_51_for_the_breed() {
+        assertEquals(ProfileError.NAME_TOO_LONG, invalid(dog.repeat(31)).nameError)
+        assertEquals(dog.repeat(50), valid("Biscuit", dog.repeat(50)).breed)
+        assertEquals(ProfileError.BREED_TOO_LONG, invalid("Biscuit", dog.repeat(51)).breedError)
+    }
+
+    @Test
+    fun AC42_multi_byte_letters_count_as_one_character_each() {
+        assertEquals("é".repeat(30), valid("é".repeat(30)).name)
+        assertEquals(ProfileError.NAME_TOO_LONG, invalid("é".repeat(31)).nameError)
+    }
+
+    @Test
+    fun AC42_a_whitespace_only_breed_with_no_break_spaces_is_treated_as_empty() {
+        assertNull(valid("Biscuit", "   ").breed)
+    }
+
+    @Test
+    fun AC42_a_name_of_31_characters_is_still_refused_when_padded_with_whitespace() {
+        assertEquals(ProfileError.NAME_TOO_LONG, invalid(" " + "a".repeat(31) + " ").nameError)
+    }
+
+    @Test
+    fun AC42_an_over_long_breed_with_a_control_character_is_refused() {
+        assertEquals(ProfileError.BREED_INVALID_CHARACTERS, invalid("Biscuit", "b".repeat(60) + "\u0007").breedError)
+    }
 }

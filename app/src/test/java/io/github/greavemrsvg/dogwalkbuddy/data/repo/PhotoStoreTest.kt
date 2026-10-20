@@ -205,4 +205,102 @@ class PhotoStoreTest {
 
             assertEquals(Color.WHITE, photo.bitmap.getPixel(8, 8))
         }
+
+    @Test
+    fun AC41_a_one_pixel_photo_is_accepted_and_not_enlarged() =
+        runTest {
+            val photo = prepared(SyntheticImages.png(1, 1))
+
+            assertEquals(1, photo.bitmap.width)
+            assertEquals(1, photo.bitmap.height)
+        }
+
+    @Test
+    fun AC41_a_photo_exactly_1024_pixels_wide_is_not_resized() =
+        runTest {
+            val photo = prepared(SyntheticImages.png(1024, 10))
+
+            assertEquals(1024, photo.bitmap.width)
+            assertEquals(10, photo.bitmap.height)
+        }
+
+    @Test
+    fun AC41_a_very_tall_photo_keeps_at_least_one_pixel_on_the_short_edge() =
+        runTest {
+            val photo = prepared(SyntheticImages.png(1, 8000))
+
+            assertEquals(1024, photo.bitmap.height)
+            assertTrue(photo.bitmap.width >= 1)
+        }
+
+    @Test
+    fun AC41_a_truncated_jpeg_does_not_crash_and_writes_nothing() =
+        runTest {
+            val whole = SyntheticImages.jpeg(200, 200)
+            val truncated = whole.copyOf(whole.size / 3)
+
+            val result = store.prepare { ByteArrayInputStream(truncated) }
+
+            assertFalse(result is PhotoPreparation.Unreadable)
+            assertFalse(File(root, "profile").exists())
+        }
+
+    @Test
+    fun AC41_an_empty_file_is_refused_as_not_an_image() =
+        runTest {
+            assertEquals(PhotoPreparation.NotAnImage, store.prepare { ByteArrayInputStream(ByteArray(0)) })
+        }
+
+    @Test
+    fun AC41_a_file_of_exactly_20_MB_is_not_refused_for_size() =
+        runTest {
+            val result = store.prepare { ByteArrayInputStream(ByteArray(PhotoStore.MAX_SOURCE_BYTES)) }
+
+            assertEquals(PhotoPreparation.NotAnImage, result)
+        }
+
+    @Test
+    fun AC41_an_svg_text_file_is_refused() =
+        runTest {
+            val svg = "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>".toByteArray()
+
+            assertEquals(PhotoPreparation.NotAnImage, store.prepare { ByteArrayInputStream(svg) })
+        }
+
+    @Test
+    fun AC43_prepare_alone_writes_nothing_to_the_file_system() =
+        runTest {
+            prepared(SyntheticImages.jpeg(64, 64))
+
+            assertFalse(File(root, "profile").exists())
+        }
+
+    @Test
+    fun AC43_names_that_merely_look_like_generated_names_never_touch_the_file_system() =
+        runTest {
+            val victim = File(root, "victim.jpg").apply { writeBytes(byteArrayOf(1)) }
+            val names =
+                listOf(
+                    "photo_../victim.jpg",
+                    "photo_..${'\\'}victim.jpg",
+                    "/photo_1.jpg",
+                    "photo_1.jpg/..",
+                    "",
+                    "photo_1.jpg\u0000x",
+                    "photo_%2e%2e.jpg",
+                )
+
+            names.forEach { name ->
+                store.delete(name)
+                assertNull(name, store.load(name))
+            }
+
+            assertTrue(victim.exists())
+        }
+
+    @Test
+    fun AC43_deleting_a_missing_generated_name_is_harmless() =
+        runTest {
+            store.delete("photo_00000000-0000-0000-0000-000000000099.jpg")
+        }
 }
