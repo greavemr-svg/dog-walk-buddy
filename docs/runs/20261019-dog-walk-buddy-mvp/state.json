@@ -2,7 +2,7 @@
   "run_id": "20261019-dog-walk-buddy-mvp",
   "idea": "Dog Walk Buddy: an Android app that helps UK dog owners decide when it's safe and pleasant to walk their dog, and keeps a simple record of their walks.\n\nUsers: everyday dog owners in the UK, using the app quickly before heading out, often one-handed.\n\nFirst release (MVP):\n1. \"Good time to walk?\" check for the user's current location:\n   - Combines temperature, rain, wind, a hot-pavement warning (estimated from air temperature and sunshine) and pollen level.\n   - Shows one clear result: Go / Caution / Avoid, with the main reason in plain words.\n   - Shows the best walking window in the next 12 hours.\n2. One-tap walk logging:\n   - Start/stop a walk; records duration, distance and route via GPS.\n   - Walk history list and weekly totals (walks, time, distance).\n   - Walk logging must work offline.\n3. Dog profile: name, breed, photo, and a heat-sensitivity setting (normal / sensitive) that makes heat warnings stricter.\n\nConstraints:\n- Android only, phones only.\n- Only free data sources that need no paid API keys.\n- Location and walk data stay on the device; no accounts, no backend, no analytics or tracking.\n- Accessible: large touch targets, readable in bright sunlight, works with TalkBack.\n- Safety advice is framed as guidance, not veterinary advice.\n\nLater releases (not this one): dog-friendly routes nearby, multiple dogs, walk reminders, sharing walks, Wear OS.\n",
   "status": "in_progress",
-  "stage": "build",
+  "stage": "build_paused_budget",
   "created_at": "2026-10-19T12:17:05Z",
   "epic_issue": 7,
   "feature_branch": "feature/20261019-dog-walk-buddy-mvp",
@@ -69,21 +69,30 @@
       "depends": [],
       "branch": "task/20261019-dog-walk-buddy-mvp-1-walking-skeleton",
       "pr": 16,
-      "status": "in_progress",
-      "attempts": 2,
-      "G3": null,
+      "status": "done",
+      "attempts": 3,
+      "G3": {
+        "result": "PASS",
+        "at": "2026-10-20T04:50:10Z",
+        "evidence": "gatekeeper G3 on 959eed1: G3.1-G3.6 met; failing []; posted on PR #16"
+      },
       "tester": {
         "status": "PASSED",
-        "head": "179f823",
-        "tests": "22/22",
-        "coverage_changed": "100%",
+        "head": "959eed1",
+        "tests": "22/22 (local up-to-date; CI fresh)",
+        "coverage_changed": "100% (21 lines)",
         "manual": "AC48 cloud backup/restore pending owner/release"
       },
       "reviewer": {
-        "verdict": "CHANGES_REQUESTED",
-        "sha": "179f823",
-        "comment": "https://github.com/greavemr-svg/dog-walk-buddy/pull/16#issuecomment-6283278461"
-      }
+        "verdict": "APPROVE",
+        "sha": "959eed1",
+        "comment": "https://github.com/greavemr-svg/dog-walk-buddy/pull/16#issuecomment-6283623536",
+        "open_minor": [
+          "PR body omits tools:ignore=MissingClass and DEBUG_ONLY_ACTIVITIES filter from deviations (non-blocking)",
+          "Nit: build.gradle.kts:92 comment cites ADR for isIncludeNoLocationClasses"
+        ]
+      },
+      "merge_commit": "c52d527"
     },
     {
       "n": 2,
@@ -257,7 +266,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 28,
+    "agent_invocations": 36,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -343,7 +352,25 @@
     "2026-10-20T04:30:38Z orchestrator: invoking architect (coverage command doc sync)",
     "2026-10-20T04:35:31Z architect: DONE coverage doc sync (ADR 0001 l164/166 + amendment, design l283/285, project.md l42)",
     "2026-10-20T04:35:31Z orchestrator: verified jacoco excludes match ADR (7); DISCREPANCY: coverage.sh:73 still passes diff-cover --exclude maplibre, developer reported it removed - forwarded to reviewer",
-    "2026-10-20T04:35:31Z orchestrator: invoking tester T1 (attempt 2 head 91ead5d)"
+    "2026-10-20T04:35:31Z orchestrator: invoking tester T1 (attempt 2 head 91ead5d)",
+    "2026-10-20T04:38:10Z tester T1 (attempt 2): PASSED head 91ead5d, 22/22, 100% changed lines, no weakened tests",
+    "2026-10-20T04:38:10Z orchestrator: invoking reviewer T1 (re-review 91ead5d)",
+    "2026-10-20T04:40:13Z reviewer T1 re-review: CHANGES_REQUESTED (Major: coverage.sh:73 --exclude remains, PR body misreports; Minor: stale PR body note); prior 6 findings resolved/partly",
+    "2026-10-20T04:40:13Z orchestrator: invoking developer T1 attempt 3 of 3",
+    "2026-10-20T04:44:48Z developer T1 attempt 3: DONE head 959eed1 (verified: only coverage.sh -1 line, no --exclude), CI pass",
+    "2026-10-20T04:44:48Z orchestrator: invoking tester T1 (attempt 3 head 959eed1)",
+    "2026-10-20T04:46:49Z tester T1 (attempt 3): PASSED head 959eed1, gate command matches ADR",
+    "2026-10-20T04:46:49Z orchestrator: invoking reviewer T1 (re-review 959eed1)",
+    "2026-10-20T04:48:52Z reviewer T1 round 3: APPROVE 959eed1 (1 optional Minor, 1 Nit, no Blocker/Major)",
+    "2026-10-20T04:48:52Z orchestrator: invoking gatekeeper G3 T1",
+    "2026-10-20T04:50:10Z gatekeeper G3 T1: PASS (959eed1); posted GATE G3: PASS on PR #16",
+    "2026-10-20T04:50:10Z orchestrator: invoking release (integrate) for PR #16",
+    "2026-10-20T04:51:09Z release integrate PR #16: BLOCKED by merge guard - reviewer verdicts were plain PR comments, guard reads formal PR reviews (orchestrator prompt wrongly forbade the review-comment command)",
+    "2026-10-20T04:51:09Z orchestrator: invoking reviewer to post 959eed1 verdict as a formal review comment",
+    "2026-10-20T04:51:50Z reviewer: posted VERDICT: APPROVE on 959eed1 as formal review (COMMENTED 04:51:36Z)",
+    "2026-10-20T04:51:50Z orchestrator: invoking release (integrate) for PR #16, retry",
+    "2026-10-20T04:52:43Z release integrate PR #16: DONE, squash c52d527 into feature, issue #8 closed, branch deleted",
+    "2026-10-20T04:52:43Z orchestrator: T1 done. Budget check: 37/60 used; remaining minimum ~42 (7 tasks x5 + 7 stage 4-6) > 23 left. Escalating to owner before T2."
   ],
   "bootstrap": true,
   "owner_answers": {
@@ -388,5 +415,8 @@
     "OkHttp 5.1.0 forced under MapLibre 13.6.1: CVE check + runtime map check (T8)",
     "debug-overrides trust user CAs: confirm release debuggable=false",
     "AC48 manual backup/transfer check pending (T8)"
+  ],
+  "audit_carryover": [
+    "T1 PR #16 optional Minor/Nit from final review left open (non-blocking)"
   ]
 }
