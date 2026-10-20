@@ -105,6 +105,10 @@ class CheckViewModelTest {
 
     private fun rated(state: CheckUiState) = state as CheckUiState.Rated
 
+    // The state is recomputed on the flow's own dispatch, so wait for the change instead of reading it at once.
+    private fun CheckViewModel.awaitRated(accept: (CheckUiState.Rated) -> Boolean): CheckUiState.Rated =
+        runBlocking { withTimeout(AWAIT_MS) { state.first { it is CheckUiState.Rated && accept(it) } } } as CheckUiState.Rated
+
     private fun enqueueHours(temperatureC: Double) =
         stub.enqueueBody(MetBodies.hourly(START.minusSeconds(START.epochSecond % 3600), temperatureC))
 
@@ -248,7 +252,7 @@ class CheckViewModelTest {
         assertEquals(Rating.GO, rated(viewModel.awaitSettled()).current.rating)
 
         sensitivity.value = HeatSensitivity.SENSITIVE
-        val state = rated(viewModel.state.value)
+        val state = viewModel.awaitRated { it.current.rating == Rating.CAUTION }
 
         assertEquals(Rating.CAUTION, state.current.rating)
         assertEquals(Reason.WARM, state.current.reason)
@@ -263,7 +267,7 @@ class CheckViewModelTest {
         assertEquals(Rating.CAUTION, rated(viewModel.awaitSettled()).current.rating)
 
         sensitivity.value = HeatSensitivity.SENSITIVE
-        val state = rated(viewModel.state.value)
+        val state = viewModel.awaitRated { it.current.rating == Rating.AVOID }
 
         assertEquals(Rating.AVOID, state.current.rating)
         assertEquals(Reason.TOO_HOT, state.current.reason)
@@ -280,7 +284,7 @@ class CheckViewModelTest {
         sensitivity.value = HeatSensitivity.SENSITIVE
         viewModel.onOpened()
 
-        assertEquals(Rating.CAUTION, rated(viewModel.state.value).current.rating)
+        assertEquals(Rating.CAUTION, viewModel.awaitRated { it.current.rating == Rating.CAUTION }.current.rating)
         assertEquals(1, stub.server.requestCount)
         assertEquals(1, locationCalls)
     }
@@ -436,7 +440,7 @@ class CheckViewModelTest {
         clock.advance(Duration.ofSeconds(60))
         sensitivity.value = HeatSensitivity.SENSITIVE
 
-        assertEquals(1L, rated(viewModel.state.value).ageMinutes)
+        assertEquals(1L, viewModel.awaitRated { it.ageMinutes == 1L }.ageMinutes)
     }
 
     private companion object {
