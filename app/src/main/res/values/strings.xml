@@ -2,4 +2,23 @@
 <resources>
     <string name="app_name">Dog Walk Buddy</string>
     <string name="home_title">Dog Walk Buddy</string>
+
+    <!-- Rating reasons (exact spec texts) -->
+    <string name="reason_good">Good conditions for a walk</string>
+    <string name="reason_warm">Warm: keep it short and bring water</string>
+    <string name="reason_too_hot">Too hot to walk safely</string>
+    <string name="reason_pavement_warm">Pavement may be hot: test it with the back of your hand</string>
+    <string name="reason_pavement_too_hot">Pavement likely too hot for paws</string>
+    <string name="reason_rain">Rain expected</string>
+    <string name="reason_heavy_rain">Heavy rain</string>
+    <string name="reason_windy">Windy</string>
+    <string name="reason_dangerous_winds">Dangerous winds</string>
+    <string name="reason_freezing">Freezing: watch for ice and grit</string>
+    <string name="reason_data_missing">Some weather data isn\'t available</string>
+
+    <!-- Best window -->
+    <string name="best_window_now_until">Now until %1$s</string>
+    <string name="best_window_range">%1$s-%2$s</string>
+    <string name="best_window_best_available_caution">Best available: Caution</string>
+    <string name="best_window_none">No good time in the next 12 hours</string>
 </resources>
