@@ -37,7 +37,7 @@ New projects: the first run is a **bootstrap run** (when `docs/project.md`
 says `NOT SET UP`). It adds a stack checkpoint for the owner after G2, and its
 first task is a walking skeleton. See the orchestrator's bootstrap section.
 
-Retries: max 3 attempts per task, then the owner decides. Max 8 tasks and 60
+Retries: max 3 attempts per task, then the owner decides. Max 8 tasks and 120
 agent invocations per run.
 
 ## Gate criteria
