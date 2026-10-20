@@ -214,10 +214,55 @@
         3
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-4-dog-profile",
-      "pr": null,
-      "status": "in_progress",
-      "attempts": 0,
-      "G3": null
+      "pr": 21,
+      "status": "done",
+      "attempts": 2,
+      "head": "5bef609",
+      "developer": {
+        "head": "76d387d",
+        "tests": "239 local (65 new), 0 skipped; ci.sh exit 0; changed-lines 96% (438 lines, 14 missed); CI build-test run 39406754677 + governance run 39406754686 SUCCESS at 76d387d (verified rollup)",
+        "deviations": "ValidationResult Valid/Invalid + ProfileError enum (adds *_INVALID_CHARACTERS for control chars) instead of flat enum; platform ImageDecoder (API 28+) for EXIF rotation/scaling (android.media.ExifInterface fails lint, androidx.exifinterface would need ADR); edits held until Save; a11y helper checks labels + 48dp only; AppContainer gains required filesDir (SmokeTest updated); Room stays schema v1 with dog_profile added (matches design line 345 for unreleased app)",
+        "out_of_list": "AppDatabase.kt, schema 1.json, AppContainer.kt, MainActivity.kt, ui/home/HomeScreen.kt, domain/profile/DogProfile.kt, SmokeTest.kt, testutil/SyntheticImages.kt, testutil/Wcag.kt",
+        "manual_open": "AC43 gallery-delete-and-restart; AC50 TalkBack walkthrough"
+      },
+      "attempt2": {
+        "head": "5bef609",
+        "fixes": "F1 liveRegion Polite on photo-problem / saved / save-failed texts + focus first field in error on refused save (refusedSaves counter + FocusRequester); F2 sensitivity hint now 'Sensitive uses stricter heat and pavement limits.'; F3 PR body updated after final push (271 tests, 97 new); F4 MinTouchTarget moved to ui/theme; F5 photo-too-large string uses format args from PhotoStore constants; F6 edits/Save ignored and disabled until isLoaded; F7 photo change captured before launch, pendingPhoto cleared only if unchanged; F8 .partial temp file + rename, deleted in finally; F9 decoded bitmap recycled; F10 truncated-JPEG and delete-missing tests strengthened + new retry-succeeds test; F12 Theme exposes LightColors/DarkColors used by ProfileContrastTest. F11 not done (Stage 4 security)",
+        "test_changes": "PhotoStoreTest.AC41_a_truncated_jpeg... assertFalse(Unreadable) -> assertEquals(NotAnImage); PhotoStoreTest.AC43_deleting_a_missing_generated_name... gained real assertions; ProfileContrastTest uses theme schemes (same thresholds); none deleted/loosened (tester verified)",
+        "tests": "271 local (git grep @Test = 271), 0 skipped; changed-lines 97% (489 lines, 10 missed); CI build-test run 39411571032 + governance run 39411571071 SUCCESS at 5bef609 (verified rollup); PR body has 271 (verified)",
+        "files": "main: PhotoStore.kt, HomeScreen.kt, ProfileScreen.kt, ProfileViewModel.kt, Theme.kt, strings.xml; tests: PhotoStoreTest, ProfileContrastTest, ProfileScreenTest, ProfileViewModelTest, new ProfileScreenStateTest",
+        "note": "typed name overwritten by saved trimmed value on save completion - pre-existing, reviewer accepted"
+      },
+      "tester": {
+        "status": "PASSED",
+        "head": "5bef609",
+        "tests": "271/271 (0 skipped); ci.sh green",
+        "coverage_changed": "97% (489 lines, 10 missed)",
+        "added": "none in re-test (no gaps found); PR body count 271 remains correct",
+        "test_change_verdict": "3 modified tests all ok/stronger (truncated JPEG exact result, delete-missing gained assertions, contrast uses theme schemes, same thresholds); only 4 lines removed; nothing deleted/skipped",
+        "report": "docs/runs/20261019-dog-walk-buddy-mvp/gates/tester-T4-5bef609.md; posted on PR by orchestrator https://github.com/greavemr-svg/dog-walk-buddy/pull/21#issuecomment-6289628138 (earlier tester comment at 58b1aa6 https://github.com/greavemr-svg/dog-walk-buddy/pull/21#issuecomment-6288992301)",
+        "open_discrepancy": "RESOLVED by reviewer: ProfileScreenStateTest is a Robolectric Compose test with AC41_the_fields_and_save_are_disabled_until_the_stored_profile_has_loaded and ..._enabled_once_...; tester's claim was wrong",
+        "manual": "TalkBack on device (polite announcements, focus to first field in error); AC43 gallery delete + restart"
+      },
+      "reviewer": {
+        "verdict": "APPROVE",
+        "sha": "5bef609",
+        "review": "https://github.com/greavemr-svg/dog-walk-buddy/pull/21#pullrequestreview-5584218473",
+        "submitted_at": "2026-10-20T11:11:41Z",
+        "prior": "Round 1 CHANGES_REQUESTED review 5583954088 at 58b1aa6 (3 Major, 9 Minor). Round 2: F1-F10, F12 resolved; F11 deferred to Stage 4 security",
+        "open_minor": [
+          "N1 ProfileViewModel.kt init ~56-72: if observeProfile()/loadPhoto throws, isLoaded never true and form stays disabled forever; exception uncaught; wrap in try/catch and always set isLoaded (carried into T5)",
+          "N2 ProfileViewModel.kt onSave Saved ~150-165: fields editable while isSaving so typing during save is overwritten; only replace unchanged fields or disable while saving",
+          "N3 ProfileScreenStateTest enabled-after-load test checks only name, Save, Normal; add Breed and Choose photo",
+          "N4 Theme.kt 'Placeholder theme' comment now above LightColors"
+        ]
+      },
+      "G3": {
+        "result": "PASS",
+        "at": "2026-10-20T11:16:25Z",
+        "evidence": "gatekeeper G3 on 5bef609: G3.1-G3.6 met; failing []; G3.4 met on orchestrator-recorded tester report + independent @Test count 271 + CI coverage gate; record docs/runs/20261019-dog-walk-buddy-mvp/gates/G3-T4.md; posted https://github.com/greavemr-svg/dog-walk-buddy/pull/21#issuecomment-6289628497"
+      },
+      "merge_commit": "085d5e4"
     },
     {
       "n": 5,
@@ -246,7 +291,7 @@
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-5-check-screen",
       "pr": null,
-      "status": "pending",
+      "status": "in_progress",
       "attempts": 0,
       "carry_in": [
         "From T2: AC15 UI ('Can't check right now' message + retry control) must be delivered here; T2 only provides RatingEngine.hasNoCoreData(hour)",
@@ -254,7 +299,11 @@
         "From T3: parser keeps 48 periods (WeatherConfig.MAX_PERIODS_KEPT); T5 must select the 12 hourly periods starting at the one containing now",
         "From T3: check flow is CheckRepository.check(fix: LocationFix?); CheckRepository.loadCached() available for no-network re-rate (AC44)",
         "From T3 G3 note: reassess @SuppressLint(MissingPermission) x2 and InlinedApi in LocationManagerApproximateSource.kt once the manifest permission exists",
-        "From T3 re-review R2-2: harden MetNorwayClient onResponse to resume with WeatherFetchException on any RuntimeException (or runCatching around logStatus), with a test; out-of-list change in T5"
+        "From T3 re-review R2-2: harden MetNorwayClient onResponse to resume with WeatherFetchException on any RuntimeException (or runCatching around logStatus), with a test; out-of-list change in T5",
+        "From T4: ProfileRepository.observeSensitivity(): Flow<HeatSensitivity> (NORMAL when no profile, distinctUntilChanged) - consume for re-rating (AC44); 'Set up your dog's profile' note navigates to Routes.PROFILE",
+        "From T4: T5 owns shared high-contrast tokens + ContrastTest; move profile screen to shared tokens (Theme.kt now exposes LightColors/DarkColors and MinTouchTarget); reuse testutil/Wcag.contrastRatio; AC52 fontScale 2.0 overflow check and rating announcement check not yet in assertAccessibleScreen()",
+        "From T4: HomeScreen is a placeholder (title + Dog profile link, HomeScreen(onOpenProfile) default no-op) to be replaced",
+        "From T4 re-review N1: ProfileViewModel init must catch load failures and always set isLoaded (form otherwise disabled forever), with a test; out-of-list change in T5"
       ],
       "G3": null
     },
@@ -332,7 +381,8 @@
       "status": "pending",
       "attempts": 0,
       "carry_in": [
-        "From T3: ACCESS_NETWORK_STATE manifest declaration + SourceManifestHardeningTest update belong here; end-to-end AC24 test still to come"
+        "From T3: ACCESS_NETWORK_STATE manifest declaration + SourceManifestHardeningTest update belong here; end-to-end AC24 test still to come",
+        "From T4: Delete all my data must delete filesDir/profile/ (photo copies, incl. any *.partial) and the dog_profile row; no PhotoStore.deleteAll() yet (design assigns it to DeleteAllDataUseCase)"
       ],
       "G3": null
     }
@@ -344,7 +394,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 53,
+    "agent_invocations": 61,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -489,7 +539,25 @@
     "2026-10-20T09:49:09Z orchestrator: invoking release (integrate) for PR #20",
     "2026-10-20T09:51:56Z release integrate PR #20: DONE, squash 4a12f49 into feature (MERGED 09:51:30Z, verified), issue #10 closed manually with link (verified CLOSED), task branch deleted; feature-head CI on 4a12f49 in_progress at check",
     "2026-10-20T09:51:56Z orchestrator: T3 done (2 attempts). Budget: 52/120 used. Next T4 (depends T3)",
-    "2026-10-20T09:51:56Z orchestrator: invoking developer T4 attempt 1"
+    "2026-10-20T09:51:56Z orchestrator: invoking developer T4 attempt 1",
+    "2026-10-20T10:22:32Z orchestrator: run records committed 4597a1c; feature-head CI 4597a1c success (4a12f49 run cancelled, superseded)",
+    "2026-10-20T10:22:32Z developer T4 attempt 1: DONE PR #21 head 76d387d (base feature, verified), 1 commit; 239 local tests (65 new), changed-lines 96%; CI build-test + governance SUCCESS (verified). Deviations declared: ValidationResult shape, ImageDecoder for EXIF (no new dep), edits held until Save, Room stays v1 + dog_profile (matches design line 345). Manual AC43/AC50 checks open. Carry-ins added to T5 and T8",
+    "2026-10-20T10:22:32Z orchestrator: invoking tester T4 (head 76d387d)",
+    "2026-10-20T10:37:22Z tester T4: PASSED head 58b1aa6 (verified PR head, rollup SUCCESS), 254/254, changed-lines 96%; added 15 tests (ProfileValidatorTest +5, PhotoStoreTest +10), none deleted/loosened; findings none; observations: RTL/zero-width chars accepted (not required), *_INVALID_CHARACTERS deviation for owner awareness; manual AC43 + AC50 steps recorded",
+    "2026-10-20T10:37:22Z orchestrator: invoking reviewer T4 (head 58b1aa6)",
+    "2026-10-20T10:43:39Z reviewer T4: CHANGES_REQUESTED 58b1aa6, formal review 5583954088 (commit_id 58b1aa6, verified); 3 Major (F1 no TalkBack announcements on refused/saved, F2 invented sensitivity hint text vs spec, F3 stale PR body counts), 9 Minor (F4-F12). Deviations accepted (validator shape, ImageDecoder, Room v1). F11 bidi/zero-width hardening not required by spec/design -> flagged for Stage 4 security, not in attempt 2",
+    "2026-10-20T10:43:39Z orchestrator: invoking developer T4 attempt 2 of 3 with findings F1-F10, F12",
+    "2026-10-20T11:02:27Z developer T4 attempt 2: DONE head 5bef609 (verified), 1 commit; F1-F10, F12 addressed, F11 left for Stage 4; 271 local tests, changed-lines 97%; CI build-test + governance SUCCESS at 5bef609 (verified); PR body updated after final push (verified '271'). Existing tests modified: 2 PhotoStoreTest strengthened, ProfileContrastTest uses theme schemes - tester to verify not weakened",
+    "2026-10-20T11:02:27Z orchestrator: invoking tester T4 (attempt 2 head 5bef609)",
+    "2026-10-20T11:07:15Z tester T4 (attempt 2): PASSED head 5bef609, 271/271, changed-lines 97%; 3 modified tests judged stronger, nothing deleted/skipped; no tests added; no PR comment posted - report saved to docs/runs/20261019-dog-walk-buddy-mvp/gates/tester-T4-5bef609.md. Open discrepancy (Compose-level disabled-before-load test) forwarded to reviewer",
+    "2026-10-20T11:07:15Z orchestrator: invoking reviewer T4 (re-review head 5bef609)",
+    "2026-10-20T11:12:17Z reviewer T4 re-review: APPROVE 5bef609, formal review 5584218473 (11:11:41Z, commit_id 5bef609, newer than last commit - verified); F1-F10, F12 resolved, F11 deferred to Stage 4; discrepancy resolved in developer's favour (ProfileScreenStateTest is Compose-level); 4 new Minor (N1 load failure leaves form disabled - carried to T5; N2-N4 non-blocking)",
+    "2026-10-20T11:12:17Z orchestrator: invoking gatekeeper G3 T4 (head 5bef609)",
+    "2026-10-20T11:16:25Z gatekeeper G3 T4: PASS (5bef609), failing []; G3.4 accepted orchestrator-recorded tester report + independent checks. Tester report posted on PR (issuecomment-6289628138); gate record docs/runs/20261019-dog-walk-buddy-mvp/gates/G3-T4.md posted as GATE G3: PASS (issuecomment-6289628497). Note: Theme.kt not named in out-of-list section but described in AC51 row",
+    "2026-10-20T11:16:25Z orchestrator: invoking release (integrate) for PR #21",
+    "2026-10-20T11:19:40Z release integrate PR #21: DONE, squash 085d5e4 into feature (MERGED 11:19:14Z, verified), issue #11 closed manually with link (verified CLOSED), task branch deleted; feature-head CI run 39414105134 in_progress at check",
+    "2026-10-20T11:19:40Z orchestrator: T4 done (2 attempts). Budget: 60/120 used, 4 of 8 tasks done. Next T5 (depends T2, T3, T4 - all done)",
+    "2026-10-20T11:19:40Z orchestrator: invoking developer T5 attempt 1"
   ],
   "bootstrap": true,
   "owner_answers": {
@@ -537,7 +605,7 @@
       "answer_2": "Log status code only (Recommended)"
     }
   },
-  "current_task": 4,
+  "current_task": 5,
   "toolchain": {
     "JAVA_HOME": "/c/Program Files/Eclipse Adoptium/jdk-17.0.20.101-hotspot",
     "python": "/c/Users/greav/AppData/Local/Programs/Python/Python312",
@@ -551,13 +619,18 @@
     "debug-overrides trust user CAs: confirm release debuggable=false",
     "AC48 manual backup/transfer check pending (T8)",
     "T3: cached check stores rounded coordinates + fetch time in Room (AppDatabase v1); include in Delete all my data (T8) and backup review (AC48)",
-    "T3 review M3: OkHttp follows https->http redirects by default and the HTTPS-only check is an application interceptor (does not see redirects); fixed in T3 attempt 2 (8b510b5) per owner, tested at 65f43eb (redirect refused, no plain-HTTP request), re-review resolved; security review in Stage 4 must confirm"
+    "T3 review M3: OkHttp follows https->http redirects by default and the HTTPS-only check is an application interceptor (does not see redirects); fixed in T3 attempt 2 (8b510b5) per owner, tested at 65f43eb (redirect refused, no plain-HTTP request), re-review resolved; security review in Stage 4 must confirm",
+    "T4: dog photo copies stored under filesDir/profile/ (re-encoded, EXIF incl. GPS stripped per tester); dog_profile table in Room v1; include in Delete all my data (T8) and backup review (AC48)",
+    "T4 review F11: ProfileValidator refuses only ISO control chars; bidi overrides (U+202E) and zero-width (U+200B) accepted - display-spoofing hardening for Stage 4 security to assess"
   ],
   "audit_carryover": [
     "T1 PR #16 optional Minor/Nit from final review left open (non-blocking)",
     "T2 PR #19 Minor M1-M6 from review 5581298495 left open (non-blocking); M7 carried into T3",
     "T3 tester report misattributed CI result (6830f51 run quoted for 455b954); later verified pass on 455b954",
     "T3 developer attempt 2 report claimed ci.sh runs detekt; not present in scripts/ci.sh",
-    "T3 re-review R2-2 (narrow catch in onResponse) carried into T5"
+    "T3 re-review R2-2 (narrow catch in onResponse) carried into T5",
+    "T4 attempt-2 tester report has no tester-posted PR comment at 5bef609; orchestrator recorded it (gates/tester-T4-5bef609.md) and posted it on PR #21 (issuecomment-6289628138); tester wrongly said disabled-before-load untested at Compose level (reviewer corrected)",
+    "T4 PR #21 Minor N2-N4 from review 5584218473 left open (non-blocking); N1 carried into T5; Theme.kt not named in PR out-of-list section (described in AC51 row)",
+    "Manual checks pending before release: AC43 (gallery delete + restart) and AC50 (TalkBack, incl. polite announcements and focus-to-error) from T4; AC48 backup/restore from T1/T8"
   ]
 }
