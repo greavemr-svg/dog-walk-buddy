@@ -1,6 +1,13 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.check
 
 import android.Manifest
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,6 +39,8 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.Rating
@@ -58,8 +68,22 @@ fun CheckRoute(
     // Opening the screen is one of the only two triggers for a check (AC24). The ViewModel decides whether a
     // check is needed, so coming back from another screen does not make a second request.
     LaunchedEffect(viewModel) { viewModel.onOpened() }
+    // Every time the screen starts again, the shown age is re-evaluated and a permission granted in Settings is
+    // noticed. This makes no network request.
+    LifecycleStartEffect(viewModel) {
+        viewModel.onShown()
+        onStopOrDispose {}
+    }
+    val context = LocalContext.current
     val permissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { viewModel.refresh() }
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            // After a request, "no rationale" and not granted means the system will not show the dialog again.
+            val activity = context.findActivity()
+            val canAskAgain =
+                activity == null ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
+            viewModel.onPermissionResult(granted, canAskAgain)
+        }
     CheckCard(
         state = state,
         windowFormatter = windowFormatter,
@@ -67,8 +91,27 @@ fun CheckRoute(
         onGrantPermission = { permissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION) },
         onOpenAbout = onOpenAbout,
         onOpenProfile = onOpenProfile,
+        onOpenSettings = { context.openAppSettings() },
         modifier = modifier,
     )
+}
+
+private tailrec fun Context.findActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }
+
+/** Opens this app's page in system Settings, where the permission can be granted. It needs no permission. */
+private fun Context.openAppSettings() {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))
+    if (this !is Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    try {
+        startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        // No Settings app to open: nothing more can be done here.
+    }
 }
 
 /** The check card: the rating, its reason, the best window, and the guidance and attribution notes. */
@@ -81,6 +124,7 @@ fun CheckCard(
     onOpenAbout: () -> Unit,
     onOpenProfile: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenSettings: () -> Unit = {},
 ) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
@@ -91,6 +135,7 @@ fun CheckCard(
         when (state) {
             CheckUiState.Loading -> StatusMessage(stringResource(R.string.check_loading))
             CheckUiState.NeedsLocationPermission -> LocationPrompt(onGrantPermission)
+            CheckUiState.LocationPermissionBlocked -> LocationBlocked(onOpenSettings)
             CheckUiState.CantCheck -> CantCheck(onRefresh)
             is CheckUiState.Rated -> RatedResult(state, windowFormatter, onRefresh, onOpenAbout, onOpenProfile)
         }
@@ -194,6 +239,14 @@ private fun LocationPrompt(onGrantPermission: () -> Unit) {
     StatusMessage(stringResource(R.string.check_needs_location))
     Button(onClick = onGrantPermission, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
         Text(stringResource(R.string.check_grant_location))
+    }
+}
+
+@Composable
+private fun LocationBlocked(onOpenSettings: () -> Unit) {
+    StatusMessage(stringResource(R.string.check_needs_location))
+    Button(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
+        Text(stringResource(R.string.check_open_settings))
     }
 }
 

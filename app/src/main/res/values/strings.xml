@@ -21,6 +21,7 @@
     <string name="profile_sensitivity_hint">Sensitive uses stricter heat and pavement limits.</string>
     <string name="profile_save">Save profile</string>
     <string name="profile_saved">Profile saved</string>
+    <string name="profile_load_failed">Couldn\'t load your dog\'s profile.</string>
     <string name="profile_save_failed">Couldn\'t save the profile. Try again.</string>
     <string name="profile_error_name_required">Name is required. Enter 1 to %1$s characters.</string>
     <string name="profile_error_name_too_long">Name is too long. Use %1$s characters or fewer.</string>
@@ -63,6 +64,7 @@
     <string name="check_refresh">Refresh</string>
     <string name="check_needs_location">The check needs your approximate location.</string>
     <string name="check_grant_location">Allow approximate location</string>
+    <string name="check_open_settings">Open settings</string>
     <string name="check_age_minutes">Checked %1$d min ago</string>
     <string name="check_age_hours_minutes">Checked %1$d h %2$d min ago</string>
     <string name="check_window_heading">Best walking window</string>

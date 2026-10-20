@@ -53,6 +53,7 @@ class CheckCardTest {
     private var state by mutableStateOf<CheckUiState>(CheckUiState.Loading)
     private var refreshes = 0
     private var grants = 0
+    private var settingsOpens = 0
     private var aboutOpens = 0
     private var profileOpens = 0
 
@@ -73,6 +74,7 @@ class CheckCardTest {
                             onGrantPermission = { grants++ },
                             onOpenAbout = { aboutOpens++ },
                             onOpenProfile = { profileOpens++ },
+                            onOpenSettings = { settingsOpens++ },
                         )
                     }
                 }
@@ -175,6 +177,25 @@ class CheckCardTest {
         composeRule.onNodeWithText("Allow approximate location").assertIsDisplayed().performClick()
         assertEquals(1, grants)
         composeRule.onNodeWithTag(RATING_BLOCK_TAG, useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun AC25_after_a_permanent_refusal_the_card_offers_open_settings_instead_of_the_dialog() {
+        show(CheckUiState.LocationPermissionBlocked)
+
+        composeRule.onNodeWithText("The check needs your approximate location.").assertIsDisplayed()
+        composeRule.onNodeWithText("Allow approximate location").assertDoesNotExist()
+        composeRule.onNodeWithText("Open settings").assertIsDisplayed().performClick()
+        assertEquals(1, settingsOpens)
+        assertEquals(0, grants)
+        composeRule.onNodeWithTag(RATING_BLOCK_TAG, useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun AC21_a_stored_result_under_a_minute_old_reads_0_min_ago() {
+        show(ratedState(ageMinutes = 0))
+
+        composeRule.onNodeWithText("Checked 0 min ago").assertIsDisplayed()
     }
 
     @Test
@@ -303,6 +324,9 @@ class CheckCardTest {
         composeRule.assertNoTextTruncation()
 
         state = CheckUiState.NeedsLocationPermission
+        composeRule.assertNoTextTruncation()
+
+        state = CheckUiState.LocationPermissionBlocked
         composeRule.assertNoTextTruncation()
     }
 

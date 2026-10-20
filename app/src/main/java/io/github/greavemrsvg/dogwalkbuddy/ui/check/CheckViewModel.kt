@@ -1,5 +1,6 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.check
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
@@ -31,7 +32,7 @@ import java.time.Duration
 /**
  * The single source of truth for the check card (design, "The check flow"). A check runs only when the screen
  * is opened with nothing usable in memory ([onOpened]) or when the user taps refresh or retry ([refresh]).
- * There are no timers and no lifecycle observers here (AC24). The heat sensitivity is combined with the loaded
+ * There are no timers here (AC24). The screen calls [onShown] when it starts again, which makes no request. The heat sensitivity is combined with the loaded
  * hours, so changing the dog profile re-rates the data in memory with no network request (AC44).
  */
 class CheckViewModel(
@@ -42,6 +43,8 @@ class CheckViewModel(
     private val hasCoarsePermission: () -> Boolean,
     private val clock: Clock,
     private val locationTimeout: Duration = LOCATION_TIMEOUT,
+    // Only the class name of an unexpected error is logged: no message, no coordinates.
+    private val logError: (String) -> Unit = { name -> Log.println(Log.WARN, LOG_TAG, "Check step failed: $name") },
 ) : ViewModel() {
     private sealed interface Source {
         data object Idle : Source
@@ -49,6 +52,9 @@ class CheckViewModel(
         data object Loading : Source
 
         data object NeedsPermission : Source
+
+        /** Permission was refused and the system will not ask again, so only Settings can grant it. */
+        data object PermissionBlocked : Source
 
         data class Loaded(
             val data: CheckData,
@@ -78,6 +84,35 @@ class CheckViewModel(
         refresh()
     }
 
+    /**
+     * The screen started again (for example after the app was in the background). This makes no request: it only
+     * re-evaluates what is shown against the current time (so the age label is current and a result that has
+     * become 3 h old is no longer shown), and it picks up a permission granted in Settings (AC21, AC22, AC25).
+     */
+    fun onShown() {
+        val waitingForPermission = source.value == Source.NeedsPermission || source.value == Source.PermissionBlocked
+        if (waitingForPermission && hasCoarsePermission() && refreshJob?.isActive != true) {
+            refresh()
+        } else {
+            shown.update { it + 1 }
+        }
+    }
+
+    /** The system permission dialog closed. [canAskAgain] is false after a permanent refusal (AC25). */
+    fun onPermissionResult(
+        granted: Boolean,
+        canAskAgain: Boolean,
+    ) {
+        if (granted) {
+            refresh()
+        } else if (!canAskAgain) {
+            refreshJob?.cancel()
+            source.value = Source.PermissionBlocked
+        } else {
+            source.value = Source.NeedsPermission
+        }
+    }
+
     /** Refresh or retry was tapped, or location permission was just granted. */
     fun refresh() {
         refreshJob?.cancel()
@@ -97,8 +132,9 @@ class CheckViewModel(
             withTimeoutOrNull(locationTimeout.toMillis()) { locationSource.current() }
         } catch (error: CancellationException) {
             throw error
-        } catch (_: Exception) {
+        } catch (error: Exception) {
             // No location is a normal outcome: the repository falls back to a recent stored check.
+            logError(error.javaClass.name)
             null
         }
 
@@ -107,8 +143,9 @@ class CheckViewModel(
             repository.check(fix)
         } catch (error: CancellationException) {
             throw error
-        } catch (_: Exception) {
+        } catch (error: Exception) {
             // Anything unexpected (for example a database failure) must end as "Can't check right now", not a crash.
+            logError(error.javaClass.name)
             CheckData.Unavailable
         }
 
@@ -127,6 +164,7 @@ class CheckViewModel(
         when (current) {
             Source.Idle, Source.Loading -> CheckUiState.Loading
             Source.NeedsPermission -> CheckUiState.NeedsLocationPermission
+            Source.PermissionBlocked -> CheckUiState.LocationPermissionBlocked
             is Source.Loaded -> rated(current.data, sensitivity, hasProfile)
         }
 
@@ -137,6 +175,8 @@ class CheckViewModel(
     ): CheckUiState {
         if (data !is CheckData.Available) return CheckUiState.CantCheck
         val now = clock.instant()
+        // Under the offline rule (AC22) nothing 3 h old or older is ever shown, however long the screen stayed open.
+        if (!CachePolicy.isUsable(data.fetchedAt, now)) return CheckUiState.CantCheck
         val outcome = CheckRater.rate(data, sensitivity, now) as? CheckOutcome.Rated ?: return CheckUiState.CantCheck
         val ageMinutes = CachePolicy.age(outcome.fetchedAt, now).toMinutes().coerceAtLeast(0)
         return CheckUiState.Rated(
@@ -150,6 +190,8 @@ class CheckViewModel(
     companion object {
         /** The location read gives up after this long (design, step 3). */
         val LOCATION_TIMEOUT: Duration = Duration.ofSeconds(10)
+
+        private const val LOG_TAG = "CheckViewModel"
 
         /** A result from this session is labelled with its age once it is at least this old. */
         const val MIN_AGE_TO_LABEL_MINUTES = 1L

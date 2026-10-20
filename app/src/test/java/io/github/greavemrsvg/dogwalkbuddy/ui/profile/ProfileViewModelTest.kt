@@ -248,6 +248,26 @@ class ProfileViewModelTest {
     }
 
     @Test
+    fun AC41_a_failing_load_is_flagged_so_the_screen_can_say_so() {
+        val dao = database.dogProfileDao()
+        val failingDao =
+            object : DogProfileDao by dao {
+                override fun observe() = flow<DogProfileEntity?> { throw IllegalStateException("database unavailable") }
+            }
+
+        val viewModel = ProfileViewModel(repositoryOver(failingDao))
+
+        assertTrue(viewModel.state.value.loadFailed)
+    }
+
+    @Test
+    fun AC41_a_successful_load_is_not_flagged() {
+        val viewModel = ProfileViewModel(repositoryOver(database.dogProfileDao()))
+
+        assertFalse(viewModel.state.value.loadFailed)
+    }
+
+    @Test
     fun AC41_a_failing_save_tells_the_user_and_can_be_retried() {
         val dao = database.dogProfileDao()
         val failingDao =

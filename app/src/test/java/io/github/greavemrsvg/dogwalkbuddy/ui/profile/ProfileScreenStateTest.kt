@@ -52,6 +52,22 @@ class ProfileScreenStateTest {
     }
 
     @Test
+    fun AC41_a_failed_load_is_announced_as_a_polite_live_region() {
+        show(ProfileUiState(isLoaded = true, loadFailed = true))
+
+        composeRule
+            .onNodeWithText("Couldn't load your dog's profile.")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+    }
+
+    @Test
+    fun AC41_no_load_message_is_shown_when_the_load_worked() {
+        show(ProfileUiState(isLoaded = true))
+
+        composeRule.onNodeWithText("Couldn't load your dog's profile.").assertDoesNotExist()
+    }
+
+    @Test
     fun AC41_the_fields_and_save_are_disabled_until_the_stored_profile_has_loaded() {
         show(ProfileUiState(isLoaded = false))
 

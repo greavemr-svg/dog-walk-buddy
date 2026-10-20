@@ -15,6 +15,9 @@ sealed interface CheckUiState {
     /** Approximate location is not granted. No weather request is made (AC25). */
     data object NeedsLocationPermission : CheckUiState
 
+    /** Approximate location was refused and the system will not ask again: only Settings can grant it (AC25). */
+    data object LocationPermissionBlocked : CheckUiState
+
     /** No usable result: no rating is shown, only a retry (AC15, AC22). */
     data object CantCheck : CheckUiState
 

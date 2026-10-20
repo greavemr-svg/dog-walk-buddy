@@ -86,6 +86,7 @@ class CheckViewModelTest {
     private fun newViewModel(
         repo: CheckRepository = repository,
         locationTimeout: Duration = CheckViewModel.LOCATION_TIMEOUT,
+        logError: (String) -> Unit = {},
     ) = CheckViewModel(
         repository = repo,
         locationSource =
@@ -98,6 +99,7 @@ class CheckViewModelTest {
         hasCoarsePermission = { permissionGranted },
         clock = clock,
         locationTimeout = locationTimeout,
+        logError = logError,
     )
 
     private fun CheckViewModel.awaitSettled(): CheckUiState =
@@ -441,6 +443,159 @@ class CheckViewModelTest {
         sensitivity.value = HeatSensitivity.SENSITIVE
 
         assertEquals(1L, viewModel.awaitRated { it.ageMinutes == 1L }.ageMinutes)
+    }
+
+    @Test
+    fun AC21_returning_to_the_screen_30_min_after_a_check_shows_the_label_with_no_request() {
+        stub.enqueueFixture()
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        viewModel.awaitSettled()
+
+        clock.advance(Duration.ofMinutes(30))
+        viewModel.onShown()
+
+        assertEquals(30L, viewModel.awaitRated { it.ageMinutes == 30L }.ageMinutes)
+        assertEquals(1, stub.server.requestCount)
+        assertEquals(1, locationCalls)
+    }
+
+    @Test
+    fun AC22_returning_to_the_screen_3h_after_a_check_is_cant_check_and_makes_no_request() {
+        stub.enqueueFixture()
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        viewModel.awaitSettled()
+
+        clock.advance(Duration.ofHours(3))
+        viewModel.onShown()
+
+        val state = runBlocking { withTimeout(AWAIT_MS) { viewModel.state.first { it == CheckUiState.CantCheck } } }
+        assertEquals(CheckUiState.CantCheck, state)
+        assertEquals(1, stub.server.requestCount)
+        assertEquals(1, locationCalls)
+    }
+
+    @Test
+    fun AC22_a_result_just_under_3h_old_is_still_shown_with_its_age() {
+        stub.enqueueFixture()
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        viewModel.awaitSettled()
+
+        clock.advance(Duration.ofMinutes(179))
+        viewModel.onShown()
+
+        assertEquals(179L, viewModel.awaitRated { it.ageMinutes == 179L }.ageMinutes)
+    }
+
+    @Test
+    fun AC25_a_permanent_refusal_shows_the_open_settings_state_and_makes_no_request() {
+        permissionGranted = false
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+
+        viewModel.onPermissionResult(granted = false, canAskAgain = false)
+
+        assertEquals(CheckUiState.LocationPermissionBlocked, viewModel.state.value)
+        assertEquals(0, stub.server.requestCount)
+        assertEquals(0, locationCalls)
+    }
+
+    @Test
+    fun AC25_a_refusal_that_can_be_asked_again_keeps_the_grant_prompt() {
+        permissionGranted = false
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        viewModel.onPermissionResult(granted = false, canAskAgain = false)
+
+        viewModel.onPermissionResult(granted = false, canAskAgain = true)
+
+        assertEquals(CheckUiState.NeedsLocationPermission, viewModel.state.value)
+    }
+
+    @Test
+    fun AC25_a_grant_from_the_dialog_runs_the_check() {
+        permissionGranted = false
+        stub.enqueueFixture()
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+
+        permissionGranted = true
+        viewModel.onPermissionResult(granted = true, canAskAgain = true)
+
+        assertTrue(viewModel.awaitSettled() is CheckUiState.Rated)
+    }
+
+    @Test
+    fun AC25_returning_from_settings_with_the_permission_granted_runs_the_check() {
+        permissionGranted = false
+        stub.enqueueFixture()
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        viewModel.onPermissionResult(granted = false, canAskAgain = false)
+
+        permissionGranted = true
+        viewModel.onShown()
+
+        assertTrue(viewModel.awaitSettled() is CheckUiState.Rated)
+        assertEquals(1, stub.server.requestCount)
+    }
+
+    @Test
+    fun AC25_returning_from_settings_still_without_the_permission_stays_blocked_with_no_request() {
+        permissionGranted = false
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        viewModel.onPermissionResult(granted = false, canAskAgain = false)
+
+        viewModel.onShown()
+
+        assertEquals(CheckUiState.LocationPermissionBlocked, viewModel.state.value)
+        assertEquals(0, stub.server.requestCount)
+    }
+
+    @Test
+    fun AC21_a_stored_result_under_a_minute_old_reads_0_min_ago() {
+        stub.enqueueFixture().enqueueStatus(SERVER_ERROR)
+        newViewModel().apply {
+            onOpened()
+            awaitSettled()
+        }
+        val viewModel = newViewModel()
+
+        viewModel.onOpened()
+
+        assertEquals(0L, rated(viewModel.awaitSettled()).ageMinutes)
+    }
+
+    @Test
+    fun AC22_an_unexpected_failure_logs_only_the_error_class_name() {
+        val logged = mutableListOf<String>()
+        locationSource = ApproximateLocationSource { throw IllegalStateException("secret 51.5, -0.12") }
+        val viewModel = newViewModel(logError = { logged += it })
+
+        viewModel.onOpened()
+        viewModel.awaitSettled()
+
+        assertTrue(logged.isNotEmpty())
+        assertTrue(logged.all { it == IllegalStateException::class.java.name })
+    }
+
+    @Test
+    fun AC22_a_storage_failure_logs_only_the_error_class_name() {
+        val logged = mutableListOf<String>()
+        val failingDao =
+            object : CachedCheckDao by database.cachedCheckDao() {
+                override suspend fun get(): CachedCheckEntity? = throw IllegalStateException("disk failure")
+            }
+        locationSource = ApproximateLocationSource { null }
+        val viewModel = newViewModel(repositoryOver(failingDao), logError = { logged += it })
+
+        viewModel.onOpened()
+        viewModel.awaitSettled()
+
+        assertEquals(listOf(IllegalStateException::class.java.name), logged)
     }
 
     private companion object {
