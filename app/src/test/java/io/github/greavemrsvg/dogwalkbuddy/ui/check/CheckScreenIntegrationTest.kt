@@ -156,6 +156,8 @@ class CheckScreenIntegrationTest {
         test.permissionGranted = false
 
         showApp()
+        // The state leaves Loading on the ViewModel's own dispatch, so wait for the explanation instead of reading at once.
+        awaitText("The check needs your approximate location.")
 
         composeRule.onNodeWithText("The check needs your approximate location.").assertIsDisplayed()
         composeRule.onNodeWithText("Allow approximate location").assertIsDisplayed()

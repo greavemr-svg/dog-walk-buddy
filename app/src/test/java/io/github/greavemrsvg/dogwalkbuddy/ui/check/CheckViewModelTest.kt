@@ -490,6 +490,95 @@ class CheckViewModelTest {
     }
 
     @Test
+    fun AC22_a_result_1_second_short_of_3h_old_is_still_shown_and_makes_no_request() {
+        stub.enqueueFixture()
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        viewModel.awaitSettled()
+
+        clock.advance(Duration.ofHours(3).minusSeconds(1))
+        viewModel.onShown()
+
+        assertEquals(179L, viewModel.awaitRated { it.ageMinutes == 179L }.ageMinutes)
+        assertEquals(1, stub.server.requestCount)
+        assertEquals(1, locationCalls)
+    }
+
+    @Test
+    fun AC22_a_result_shown_after_3h_can_be_checked_again_with_a_refresh() {
+        stub.enqueueFixture()
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        viewModel.awaitSettled()
+        clock.advance(Duration.ofHours(3))
+        viewModel.onShown()
+        runBlocking { withTimeout(AWAIT_MS) { viewModel.state.first { it == CheckUiState.CantCheck } } }
+        stub.enqueueBody(MetBodies.hourly(START.plus(Duration.ofHours(3)).let { it.minusSeconds(it.epochSecond % 3600) }, 12.0))
+
+        viewModel.refresh()
+
+        assertTrue(viewModel.awaitSettled() is CheckUiState.Rated)
+        assertEquals(2, stub.server.requestCount)
+    }
+
+    @Test
+    fun AC24_returning_to_the_screen_while_a_check_is_loading_does_not_start_a_second_request() {
+        stub.enqueueFixture()
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+
+        viewModel.onShown()
+        viewModel.awaitSettled()
+
+        assertEquals(1, stub.server.requestCount)
+        assertEquals(1, locationCalls)
+    }
+
+    @Test
+    fun AC25_returning_from_settings_after_a_first_refusal_with_the_permission_granted_runs_the_check() {
+        permissionGranted = false
+        stub.enqueueFixture()
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        viewModel.onPermissionResult(granted = false, canAskAgain = true)
+
+        permissionGranted = true
+        viewModel.onShown()
+
+        assertTrue(viewModel.awaitSettled() is CheckUiState.Rated)
+        assertEquals(1, stub.server.requestCount)
+    }
+
+    @Test
+    fun AC25_a_permission_revoked_while_a_result_is_shown_keeps_the_result_until_refresh_then_asks_again() {
+        stub.enqueueFixture()
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        viewModel.awaitSettled()
+
+        permissionGranted = false
+        viewModel.onShown()
+        assertTrue(viewModel.awaitSettled() is CheckUiState.Rated)
+        viewModel.refresh()
+
+        assertEquals(CheckUiState.NeedsLocationPermission, viewModel.state.value)
+        assertEquals(1, stub.server.requestCount)
+    }
+
+    @Test
+    fun AC22_a_location_failure_with_a_message_holding_coordinates_never_logs_the_message() {
+        val logged = mutableListOf<String>()
+        locationSource = ApproximateLocationSource { throw SecurityException("lat=51.507351 lon=-0.127758") }
+        val viewModel = newViewModel(logError = { logged += it })
+
+        viewModel.onOpened()
+        viewModel.awaitSettled()
+
+        assertEquals(listOf(SecurityException::class.java.name), logged)
+        assertTrue(logged.none { it.contains("51.5") || it.contains("lat=") })
+    }
+
+    @Test
     fun AC25_a_permanent_refusal_shows_the_open_settings_state_and_makes_no_request() {
         permissionGranted = false
         val viewModel = newViewModel()
