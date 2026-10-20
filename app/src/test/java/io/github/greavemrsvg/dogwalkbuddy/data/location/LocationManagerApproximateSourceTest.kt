@@ -27,7 +27,12 @@ import java.util.concurrent.Executor
 class LocationManagerApproximateSourceTest {
     private lateinit var locationManager: LocationManager
     private val clock = MutableClock(NOW)
-    private val directExecutor = Executor { it.run() }
+    private var executorCalls = 0
+    private val directExecutor =
+        Executor {
+            executorCalls++
+            it.run()
+        }
     private var permissionGranted = true
 
     @Before
@@ -98,6 +103,45 @@ class LocationManagerApproximateSourceTest {
             val fix = source(sdkInt = Build.VERSION_CODES.R).current()
 
             assertEquals(LAT, fix!!.latitude, 0.0)
+        }
+
+    @Test
+    fun AC23_a_last_known_fix_exactly_30_minutes_old_is_still_used() =
+        runTest {
+            enableWithLastKnown(LocationManager.FUSED_PROVIDER, location(LocationManager.FUSED_PROVIDER, 30))
+
+            assertEquals(NOW.minus(Duration.ofMinutes(30)), source().current()!!.timeUtc)
+        }
+
+    @Test
+    fun AC23_a_recent_last_known_fix_means_no_current_fix_is_requested() =
+        runTest {
+            enableWithLastKnown(LocationManager.FUSED_PROVIDER, location(LocationManager.FUSED_PROVIDER, 30))
+
+            source().current()
+
+            assertEquals(0, executorCalls)
+        }
+
+    @Test
+    fun AC23_a_last_known_fix_older_than_30_minutes_triggers_a_current_fix_request() =
+        runTest {
+            enableWithLastKnown(LocationManager.FUSED_PROVIDER, location(LocationManager.FUSED_PROVIDER, 31))
+
+            source().current()
+
+            // Robolectric answers the request from the stale fix, so the callback executor shows the request happened.
+            assertEquals(1, executorCalls)
+        }
+
+    @Test
+    fun AC23_a_last_known_fix_dated_in_the_future_triggers_a_current_fix_request() =
+        runTest {
+            enableWithLastKnown(LocationManager.FUSED_PROVIDER, location(LocationManager.FUSED_PROVIDER, -5))
+
+            source().current()
+
+            assertEquals(1, executorCalls)
         }
 
     @Test
