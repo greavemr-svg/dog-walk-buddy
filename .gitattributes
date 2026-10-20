@@ -9,3 +9,5 @@
 *.jar binary
 *.keystore binary
 *.jks binary
+*.webp binary
+*.ttf binary
