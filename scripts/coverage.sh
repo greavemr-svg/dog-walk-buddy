@@ -70,5 +70,4 @@ echo "== Changed-lines coverage against ${base_ref} (minimum ${THRESHOLD} %)"
 "$venv_python" -m diff_cover.diff_cover_tool "$REPORT" \
   --compare-branch="$base_ref" \
   --src-roots app/src/main/java \
-  --exclude "**/map/maplibre/**" \
   --fail-under="$THRESHOLD"
