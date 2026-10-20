@@ -188,8 +188,14 @@ class CheckRepositoryBoundaryTest {
             assertEquals("https", request.url.scheme)
             assertEquals("lat=51.51&lon=-0.13", request.url.query)
             assertEquals(StubWeatherServer.USER_AGENT, request.headers["User-Agent"])
-            assertNull(request.headers["Cookie"])
-            assertNull(request.headers["Authorization"])
+            // HTTP/2 pseudo-headers (:authority, :scheme) carry the host and scheme, not identity.
+            val names =
+                request.headers
+                    .names()
+                    .map { it.lowercase() }
+                    .filterNot { it.startsWith(":") }
+                    .toSet()
+            assertTrue("unexpected request headers in $names", ALLOWED_REQUEST_HEADERS.containsAll(names))
             assertEquals(0, request.body?.size ?: 0)
             assertEquals("GET", request.method)
         }
@@ -233,6 +239,7 @@ class CheckRepositoryBoundaryTest {
 
     private companion object {
         const val SERVER_ERROR = 500
+        val ALLOWED_REQUEST_HEADERS = setOf("host", "connection", "accept-encoding", "user-agent")
         const val HOURS_3_SECONDS = 3L * 3600
         val START: Instant = Instant.parse("2026-10-19T14:20:00Z")
     }

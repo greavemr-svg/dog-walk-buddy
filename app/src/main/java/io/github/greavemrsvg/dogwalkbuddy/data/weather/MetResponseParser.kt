@@ -47,7 +47,10 @@ object MetResponseParser {
                 throw MalformedWeatherResponseException("Response is not valid JSON", error)
             }
         val timeseries = (root as? JsonObject)?.obj("properties")?.get("timeseries") as? JsonArray
-        return timeseries ?: throw MalformedWeatherResponseException("Response has no properties.timeseries")
+        if (timeseries == null || timeseries.isEmpty()) {
+            throw MalformedWeatherResponseException("Response has no properties.timeseries periods")
+        }
+        return timeseries
     }
 
     private fun toConditions(entry: JsonElement): HourlyConditions {

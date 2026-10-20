@@ -167,8 +167,10 @@ class MetResponseParserTest {
     }
 
     @Test
-    fun AC22_an_empty_timeseries_gives_no_hours() {
-        assertTrue(MetResponseParser.parse("""{"properties":{"timeseries":[]}}""").isEmpty())
+    fun AC22_an_empty_timeseries_is_a_malformed_response() {
+        assertThrows(MalformedWeatherResponseException::class.java) {
+            MetResponseParser.parse("""{"properties":{"timeseries":[]}}""")
+        }
     }
 
     private fun parseOne(

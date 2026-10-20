@@ -17,6 +17,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -171,6 +172,31 @@ class CheckRepositoryTest {
         }
 
     @Test
+    fun AC21_an_empty_timeseries_shows_the_cached_result_and_leaves_the_cache_unchanged() =
+        runTest {
+            stub.enqueueFixture().enqueueBody(EMPTY_TIMESERIES)
+            val fresh = repository.check(fix) as CheckData.Available
+            val savedBefore = database.cachedCheckDao().get()
+            clock.advance(Duration.ofMinutes(10))
+
+            val result = repository.check(fix) as CheckData.Available
+
+            assertTrue(result.isCached)
+            assertEquals(START, result.fetchedAt)
+            assertEquals(fresh.hours, result.hours)
+            assertEquals(savedBefore, database.cachedCheckDao().get())
+        }
+
+    @Test
+    fun AC22_an_empty_timeseries_with_no_cache_gives_no_result_and_saves_nothing() =
+        runTest {
+            stub.enqueueBody(EMPTY_TIMESERIES)
+
+            assertEquals(CheckData.Unavailable, repository.check(fix))
+            assertNull(database.cachedCheckDao().get())
+        }
+
+    @Test
     fun AC24_creating_the_repository_and_reading_the_cache_make_no_request() =
         runTest {
             repository.loadCached()
@@ -191,6 +217,7 @@ class CheckRepositoryTest {
 
     private companion object {
         const val SERVER_ERROR = 500
+        const val EMPTY_TIMESERIES = """{"properties":{"timeseries":[]}}"""
         val START: Instant = Instant.parse("2026-10-19T14:20:00Z")
     }
 }

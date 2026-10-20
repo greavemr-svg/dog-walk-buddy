@@ -2,8 +2,12 @@ package io.github.greavemrsvg.dogwalkbuddy.data.weather
 
 import io.github.greavemrsvg.dogwalkbuddy.testutil.StubWeatherServer
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
+import okhttp3.Call
+import okhttp3.EventListener
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.junit.After
@@ -17,6 +21,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.IOException
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 class MetNorwayClientTest {
@@ -39,7 +44,10 @@ class MetNorwayClientTest {
         latitude: Double = 51.51,
         longitude: Double = -0.13,
         server: StubWeatherServer = stub,
-    ) = runBlocking { MetNorwayClient(server.baseUrl, server.httpClient, Dispatchers.Unconfined).fetch(latitude, longitude) }
+        logStatus: (Int) -> Unit = {},
+    ) = runBlocking {
+        MetNorwayClient(server.baseUrl, server.httpClient, Dispatchers.Unconfined, logStatus).fetch(latitude, longitude)
+    }
 
     @Test
     fun AC23_sends_only_the_rounded_location_over_https() {
@@ -63,8 +71,14 @@ class MetNorwayClientTest {
 
         val headers = stub.server.takeRequest().headers
         assertEquals(StubWeatherServer.USER_AGENT, headers["User-Agent"])
-        val names = headers.names().map { it.lowercase() }.toSet()
-        assertTrue("unexpected identifying headers in $names", names.none { it in IDENTIFYING_HEADERS })
+        // HTTP/2 pseudo-headers (:authority, :scheme) carry the host and scheme, not identity.
+        val names =
+            headers
+                .names()
+                .map { it.lowercase() }
+                .filterNot { it.startsWith(":") }
+                .toSet()
+        assertTrue("unexpected request headers in $names", ALLOWED_REQUEST_HEADERS.containsAll(names))
     }
 
     @Test
@@ -142,6 +156,95 @@ class MetNorwayClientTest {
     }
 
     @Test
+    fun AC23_a_203_response_logs_the_status_code_and_nothing_else() {
+        stub.server.enqueue(
+            MockResponse
+                .Builder()
+                .code(WeatherConfig.HTTP_NON_AUTHORITATIVE)
+                .body(StubWeatherServer.fixtureText())
+                .build(),
+        )
+        val logged = mutableListOf<Any>()
+
+        fetch(51.507351, -0.127758, logStatus = { logged.add(it) })
+
+        assertEquals(listOf<Any>(WeatherConfig.HTTP_NON_AUTHORITATIVE), logged)
+    }
+
+    @Test
+    fun AC23_a_200_response_logs_nothing() {
+        stub.enqueueFixture()
+        val logged = mutableListOf<Int>()
+
+        fetch(logStatus = { logged.add(it) })
+
+        assertTrue(logged.isEmpty())
+    }
+
+    @Test
+    fun AC23_an_https_to_http_redirect_is_refused_and_no_plain_http_request_is_made() {
+        val plain = MockWebServer()
+        plain.start()
+        try {
+            plain.enqueue(
+                MockResponse
+                    .Builder()
+                    .code(200)
+                    .body(StubWeatherServer.fixtureText())
+                    .build(),
+            )
+            stub.server.enqueue(
+                MockResponse
+                    .Builder()
+                    .code(302)
+                    .addHeader("Location", plain.url("/weatherapi/locationforecast/2.0/complete").toString())
+                    .build(),
+            )
+
+            assertThrows(WeatherFetchException::class.java) { fetch() }
+
+            assertEquals(0, plain.requestCount)
+        } finally {
+            plain.close()
+        }
+    }
+
+    @Test
+    fun AC21_cancelling_the_check_cancels_the_http_call() {
+        val cancelled = CountDownLatch(1)
+        val listener =
+            object : EventListener() {
+                override fun canceled(call: Call) {
+                    cancelled.countDown()
+                }
+            }
+        val slow = StubWeatherServer(temporaryFolder.newFolder()) { eventListener(listener) }
+        try {
+            slow.server.enqueue(
+                MockResponse
+                    .Builder()
+                    .code(200)
+                    .body(StubWeatherServer.fixtureText())
+                    .headersDelay(SLOW_DELAY_MS, TimeUnit.MILLISECONDS)
+                    .build(),
+            )
+            runBlocking {
+                val job =
+                    launch(
+                        Dispatchers.Default,
+                    ) { MetNorwayClient(slow.baseUrl, slow.httpClient, Dispatchers.Unconfined).fetch(51.51, -0.13) }
+                slow.server.takeRequest()
+                job.cancel()
+                job.join()
+            }
+
+            assertTrue(cancelled.await(CANCEL_WAIT_S, TimeUnit.SECONDS))
+        } finally {
+            slow.close()
+        }
+    }
+
+    @Test
     fun AC22_a_non_finite_location_is_refused_without_a_request() {
         assertThrows(WeatherFetchException::class.java) { fetch(Double.NaN, -0.13) }
 
@@ -178,7 +281,8 @@ class MetNorwayClientTest {
     private companion object {
         const val HOURS_NEEDED = 12
         const val SHORT_TIMEOUT_MS = 300L
+        const val CANCEL_WAIT_S = 5L
         const val SLOW_DELAY_MS = 3_000L
-        val IDENTIFYING_HEADERS = setOf("authorization", "cookie", "x-device-id", "x-advertising-id", "x-user-id", "referer", "from")
+        val ALLOWED_REQUEST_HEADERS = setOf("host", "connection", "accept-encoding", "user-agent")
     }
 }
