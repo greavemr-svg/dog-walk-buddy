@@ -25,9 +25,10 @@
             </intent-filter>
         </activity>
 
-        <!-- The profileinstaller dependency adds an exported receiver. The app allows no
-             exported component other than the launcher, so the merger removes it. Lint cannot see the
-             library class from here, hence the MissingClass suppression. -->
+        <!-- Defensive guard: the resolved profileinstaller declares no receiver today, but an
+             earlier version exported ProfileInstallReceiver. The app allows no exported component
+             other than the launcher, so if a later version brings it back the merger removes it.
+             Lint cannot see the library class from here, hence the MissingClass suppression. -->
         <receiver
             android:name="androidx.profileinstaller.ProfileInstallReceiver"
             tools:ignore="MissingClass"

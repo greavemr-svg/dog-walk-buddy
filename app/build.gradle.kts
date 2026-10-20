@@ -97,6 +97,38 @@ tasks.withType<Test>().configureEach {
     }
 }
 
+// Coverage report with the exclusions of ADR 0001, "Coverage exclusions". Nothing else is excluded.
+val coverageExcludes =
+    listOf(
+        "**/R.class",
+        "**/R\$*.class",
+        "**/BuildConfig.*",
+        "**/*_Impl*.*",
+        "**/*ComposableSingletons*.*",
+        "**/*\$serializer.*",
+        "**/map/maplibre/**",
+    )
+
+tasks.register<JacocoReport>("jacocoDebugUnitTestReport") {
+    group = "verification"
+    description = "Line coverage of the debug unit tests, with the ADR 0001 exclusions."
+    dependsOn("testDebugUnitTest")
+    val buildDir = layout.buildDirectory
+    executionData.from(buildDir.file("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"))
+    classDirectories.from(
+        listOf(
+            buildDir.dir("intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes"),
+            buildDir.dir("intermediates/javac/debug/compileDebugJavaWithJavac/classes"),
+        ).map { dir -> fileTree(dir) { exclude(coverageExcludes) } },
+    )
+    sourceDirectories.from(layout.projectDirectory.dir("src/main/java"))
+    reports {
+        xml.required = true
+        xml.outputLocation = buildDir.file("reports/jacoco/jacocoDebugUnitTestReport/report.xml")
+        html.required = false
+    }
+}
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

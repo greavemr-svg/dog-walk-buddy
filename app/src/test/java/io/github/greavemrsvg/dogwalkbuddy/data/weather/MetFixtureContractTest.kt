@@ -18,15 +18,16 @@ import java.time.Instant
  * for 51.51, -0.13 (public forecast data, no personal data).
  */
 class MetFixtureContractTest {
-    private val timeseries: List<JsonObject> by lazy {
+    private val root: JsonObject by lazy {
         val text =
             checkNotNull(javaClass.classLoader?.getResourceAsStream(FIXTURE)) { "Missing fixture $FIXTURE" }
                 .use { it.readBytes().decodeToString() }
-        Json
-            .parseToJsonElement(text)
-            .jsonObject
-            .getValue("properties")
-            .jsonObject
+        Json.parseToJsonElement(text).jsonObject
+    }
+
+    private val timeseries: List<JsonObject> by lazy {
+        root
+            .obj("properties")
             .getValue("timeseries")
             .jsonArray
             .map { it.jsonObject }
@@ -61,7 +62,7 @@ class MetFixtureContractTest {
 
     @Test
     fun Assumption1_fixture_units_are_celsius_mm_metres_per_second_and_percent() {
-        val units = fixtureRoot().obj("properties").obj("meta").obj("units")
+        val units = root.obj("properties").obj("meta").obj("units")
 
         assertEquals("celsius", units.text("air_temperature"))
         assertEquals("mm", units.text("precipitation_amount"))
@@ -71,20 +72,25 @@ class MetFixtureContractTest {
 
     @Test
     fun Assumption1_values_are_in_plausible_ranges() {
-        timeseries.take(HOURS_REQUIRED).forEach { entry ->
+        timeseries.take(HOURS_REQUIRED).forEachIndexed { index, entry ->
             val data = entry.obj("data")
             val instant = data.obj("instant").obj("details")
             val rainDetails = data.obj("next_1_hours").obj("details")
 
-            assertTrue(instant.text("cloud_area_fraction").toDouble() in 0.0..100.0)
-            assertTrue(instant.text("wind_speed").toDouble() >= 0.0)
-            assertTrue(rainDetails.text("precipitation_amount").toDouble() >= 0.0)
+            val temperature = instant.text("air_temperature").toDouble()
+            val cloud = instant.text("cloud_area_fraction").toDouble()
+            val wind = instant.text("wind_speed").toDouble()
+            val rain = rainDetails.text("precipitation_amount").toDouble()
+            assertTrue("air_temperature $temperature outside -40..50 in hour $index", temperature in -40.0..50.0)
+            assertTrue("cloud_area_fraction $cloud outside 0..100 in hour $index", cloud in 0.0..100.0)
+            assertTrue("wind_speed $wind negative in hour $index", wind >= 0.0)
+            assertTrue("precipitation_amount $rain negative in hour $index", rain >= 0.0)
         }
     }
 
     @Test
     fun Assumption1_the_fixture_is_for_a_uk_point() {
-        val coordinates = fixtureRoot().obj("geometry").getValue("coordinates").jsonArray
+        val coordinates = root.obj("geometry").getValue("coordinates").jsonArray
         val lon = coordinates[0].jsonPrimitive.content.toDouble()
         val lat = coordinates[1].jsonPrimitive.content.toDouble()
 
@@ -95,13 +101,6 @@ class MetFixtureContractTest {
     private fun JsonObject.obj(key: String): JsonObject = getValue(key).jsonObject
 
     private fun JsonObject.text(key: String): String = getValue(key).jsonPrimitive.content
-
-    private fun fixtureRoot(): JsonObject {
-        val text =
-            checkNotNull(javaClass.classLoader?.getResourceAsStream(FIXTURE))
-                .use { it.readBytes().decodeToString() }
-        return Json.parseToJsonElement(text).jsonObject
-    }
 
     private fun assertNumber(
         field: String,

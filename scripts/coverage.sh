@@ -8,7 +8,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 readonly DIFF_COVER_VERSION="10.2.0"
-readonly REPORT="app/build/reports/coverage/test/debug/report.xml"
+readonly REPORT="app/build/reports/jacoco/jacocoDebugUnitTestReport/report.xml"
 readonly THRESHOLD=80
 
 base_ref="${1:-}"
@@ -16,7 +16,7 @@ if [ -z "$base_ref" ] && [ -n "${GITHUB_BASE_REF:-}" ]; then
   base_ref="origin/${GITHUB_BASE_REF}"
 fi
 
-bash ./gradlew --no-daemon createDebugUnitTestCoverageReport
+bash ./gradlew --no-daemon jacocoDebugUnitTestReport
 
 if [ ! -f "$REPORT" ]; then
   echo "Coverage report not found at $REPORT" >&2

@@ -64,7 +64,7 @@ class SourceManifestHardeningTest {
     }
 
     @Test
-    fun the_only_permission_requested_so_far_is_internet() {
+    fun source_manifest_declares_only_internet() {
         val permissions =
             manifest.getElementsByTagName("uses-permission").elements().map { it.getAttributeNS(ANDROID_NS, "name") }
 
