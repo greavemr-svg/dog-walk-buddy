@@ -8,6 +8,6 @@ class DogWalkBuddyApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        container = AppContainer.createDefault()
+        container = AppContainer.createDefault(this)
     }
 }
