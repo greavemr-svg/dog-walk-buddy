@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5458a1766801241b52d27bf492b487a9",
+    "identityHash": "cd532ededc30ddc3e62dd2be6fff1c5d",
     "entities": [
       {
         "tableName": "cached_check",
@@ -45,11 +45,52 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "dog_profile",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `breed` TEXT, `photo_file_name` TEXT, `heat_sensitivity` TEXT NOT NULL DEFAULT 'NORMAL', PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "breed",
+            "columnName": "breed",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "photoFileName",
+            "columnName": "photo_file_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "heatSensitivity",
+            "columnName": "heat_sensitivity",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'NORMAL'"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5458a1766801241b52d27bf492b487a9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cd532ededc30ddc3e62dd2be6fff1c5d')"
     ]
   }
 }

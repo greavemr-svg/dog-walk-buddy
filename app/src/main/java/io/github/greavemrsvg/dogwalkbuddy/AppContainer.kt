@@ -9,6 +9,8 @@ import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
 import io.github.greavemrsvg.dogwalkbuddy.data.location.ApproximateLocationSource
 import io.github.greavemrsvg.dogwalkbuddy.data.location.LocationManagerApproximateSource
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.CheckRepository
+import io.github.greavemrsvg.dogwalkbuddy.data.repo.PhotoStore
+import io.github.greavemrsvg.dogwalkbuddy.data.repo.ProfileRepository
 import io.github.greavemrsvg.dogwalkbuddy.data.weather.MetNorwayClient
 import io.github.greavemrsvg.dogwalkbuddy.data.weather.WeatherConfig
 import okhttp3.HttpUrl
@@ -29,10 +31,15 @@ class AppContainer(
     val weatherHttpClient: OkHttpClient,
     val database: AppDatabase,
     val approximateLocationSource: ApproximateLocationSource,
+    val filesDir: File,
 ) {
     val checkRepository: CheckRepository by lazy {
         CheckRepository(MetNorwayClient(weatherBaseUrl, weatherHttpClient), database.cachedCheckDao(), clock)
     }
+
+    val photoStore: PhotoStore by lazy { PhotoStore(filesDir) }
+
+    val profileRepository: ProfileRepository by lazy { ProfileRepository(database.dogProfileDao(), photoStore) }
 
     companion object {
         fun createDefault(context: Context): AppContainer {
@@ -59,6 +66,7 @@ class AppContainer(
                 weatherHttpClient = httpClient,
                 database = database,
                 approximateLocationSource = locationSource,
+                filesDir = appContext.filesDir,
             )
         }
     }
