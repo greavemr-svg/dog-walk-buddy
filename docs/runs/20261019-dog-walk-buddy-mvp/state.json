@@ -441,9 +441,9 @@
         7
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-8-map-privacy",
-      "pr": null,
-      "status": "in_progress",
-      "attempts": 1,
+      "pr": 25, "head": "f363a5e",
+      "status": "done", "merge_commit": "043b7f0",
+      "attempts": 4,
       "carry_in": [
         "From T3: ACCESS_NETWORK_STATE manifest declaration + SourceManifestHardeningTest update belong here; end-to-end AC24 test still to come",
         "From T4: Delete all my data must delete filesDir/profile/ (photo copies, incl. any *.partial) and the dog_profile row; no PhotoStore.deleteAll() yet (design assigns it to DeleteAllDataUseCase)",
@@ -451,7 +451,7 @@
         "From T5: if T6-T8 add any shipped library or transitive dependency, update the About licence list/notices (res/raw + AboutScreenTest)",
         "From T6: DeleteAllDataUseCase must stop any active recording first (ADR 0004) via walkRecordingController.stop() / recordingStateHolder; delete walk + route_point rows"
       ],
-      "G3": null
+      "G3": {"result": "PASS", "at": "2026-10-21T16:48:03Z", "evidence": "gatekeeper G3 re-run on f363a5e: G3.1-G3.6 met; failing []; gates/G3-T8.md (earlier FAIL on c34cc52: gates/G3-T8-c34cc52.md)"}
     }
   ],
   "release": {
@@ -461,7 +461,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 94,
+    "agent_invocations": 105,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -705,10 +705,45 @@
     "2026-10-21T13:53:54Z orchestrator: invoking release (integrate) PR #24. Budget 93/120 incl. this call",
     "2026-10-21T14:00:19Z release integrate PR #24: DONE, squash 8784d4a into feature (MERGED 13:54:16Z, verified), issue #14 closed manually with PR link (verified CLOSED), task branch deleted; feature CI run 39612085755 success on 8784d4a (verified)",
     "2026-10-21T14:00:19Z orchestrator: T7 done (2 attempts). 7/8 tasks done. Next T8 (depends T5, T7 - done). Budget 93/120 used; remaining minimum ~5 for T8 + ~8 stages 4-6",
-    "2026-10-21T14:00:19Z orchestrator: invoking developer T8 attempt 1. Budget 94/120 incl. this call"
+    "2026-10-21T14:00:19Z orchestrator: invoking developer T8 attempt 1. Budget 94/120 incl. this call",
+    "2026-10-21T14:30:58Z developer T8 attempt 1: NO REPORT - agent hit its 80-turn limit; verified: local branch task/20261019-dog-walk-buddy-mvp-8-map-privacy with uncommitted work (manifest, AppContainer, PhotoStore, CheckViewModel, HistoryScreen, HomeScreen, NavHost, strings, new data/net, DeleteAllDataUseCase, map/, ui/privacy, ui/walkdetail, tests); no commits, branch not pushed, no PR; no Java/Gradle process running",
+    "2026-10-21T14:30:58Z orchestrator: invoking developer T8 attempt 1 continuation (same attempt, not counted; precedent T6 re-run) to finish from the working tree. Budget 95/120 incl. this call",
+    "2026-10-21T15:15:45Z developer T8 continuation: DONE PR #25 (base feature, verified), commits 48f5661 feat(privacy) + 39c1740 test(privacy); 665 @Test, ci.sh green, changed-lines 98% (394), total 98.3%; manifest +ACCESS_NETWORK_STATE; no dependency change (MapLibre 13.6.1 already present per ADR 0003); Room v1",
+    "2026-10-21T15:15:45Z orchestrator: ANOMALY - PR #25 head is d4fc26f \"stage 8\" (local commit 14:58:39Z, 4 min after developer push, author greavemr-svg local config) adding README.md (owner change) + docs/runs state.json to the task branch; not made by orchestrator; developer says not its commit; non-Conventional, out of task scope (G3.6). Escalating to owner before tester",
+    "2026-10-21T15:16:18Z owner: stage 8 commit d4fc26f -> \"Revert it (Recommended)\"",
+    "2026-10-21T15:16:18Z orchestrator: invoking developer T8 to revert d4fc26f with a normal revert commit (no force-push), README change restored as uncommitted local change; same attempt. Budget 96/120 incl. this call",
+    "2026-10-21T15:24:48Z developer T8 revert: DONE, 777e0cb revert: remove stray stage 8 commit (#15), normal push; verified: PR #25 head 777e0cb, diff vs feature has no README/docs/runs, rollup build-test + governance SUCCESS, local README + state.json uncommitted and state.json identical to backup. Audit flag: origin of d4fc26f unexplained",
+    "2026-10-21T15:24:48Z orchestrator: invoking tester T8 (head 777e0cb). Budget 97/120 incl. this call",
+    "2026-10-21T15:42:16Z tester T8: PASSED head c34cc52, 670/670, ci.sh green x2, AppFlowIntegrationTest 5/5 deterministic, changed-lines 98% (394), total 98.3%; added RouteBoundsEdgeCaseTest (5); existing test changes ok; findings none (info: no prefs store; logs no coordinates); PR comment issuecomment-6320026505 (head/CI/comment verified at this entry)",
+    "2026-10-21T15:42:16Z orchestrator: invoking reviewer T8 (head c34cc52). Budget 98/120 incl. this call",
+    "2026-10-21T15:53:31Z reviewer T8: VERDICT APPROVE on c34cc52, review 5602418810 (15:52:36Z, after last commit; verified at this entry). 5 Minor: M1 in-flight check save can land after clearAllTables; M2 delete in applicationScope, re-entered Privacy allows concurrent delete (idempotent); M3 attribution overlay overlaps MapLibre logo/attribution; M4 tile-only failure shows blank map without offline message (accept MVP, manual AC39); M5 PR body lacks recorded manual results AC38/AC48/AC49 (design says record in PR) - needed before G4/release. Out-of-list files accepted; net diff app/ only. Carry: device checks AC38/39/48/49, delete-while-recording, TalkBack map, perf MapLibre init/leaks/large route",
+    "2026-10-21T15:53:31Z orchestrator: invoking gatekeeper G3 for T8 PR #25 (head c34cc52). Budget 99/120 incl. this call",
+    "2026-10-21T15:55:30Z gatekeeper G3 T8: FAIL on c34cc52, failing [G3.4]: design Task 8 line 351 requires recorded manual results for AC38 (real map render, attribution), AC48 (backup/restore exclusion), AC49 (proxy: only api.met.no + tiles.openfreemap.org over HTTPS) in the PR; none recorded. G3.1-3, 5, 6 met. Recorded gates/G3-T8-c34cc52.md, posted GATE G3: FAIL on PR #25",
+    "2026-10-21T15:55:30Z orchestrator: T8 attempts 1 -> 2 (G3 FAIL). No device attached (adb devices empty), so no agent can run the device checks; escalating to owner",
+    "2026-10-21T15:56:14Z owner: T8 device checks -> \"Connect phone, tester runs\"; orchestrator waiting for owner to connect the Galaxy A35 (USB debugging) before invoking tester",
+    "2026-10-21T15:58:09Z owner asked \"can yiu sue android studio\"; orchestrator found Android Studio + AVD Medium_Phone_API_37.0; owner: \"Emulator now, phone later (Recommended)\" - AC38/AC48/AC49 on emulator recorded in PR #25 as emulator results; real-phone repeats added to pre-release device checks",
+    "2026-10-21T15:58:09Z orchestrator: invoking tester T8 device checks on emulator (attempt 2). Budget 100/120 incl. this call",
+    "2026-10-21T16:09:41Z tester T8 emulator checks: FAILED on c34cc52 (Medium_Phone_API_37.0, API 37). HIGH: walk detail crashes on open - ExceptionInInitializerError / MapLibreConfigurationException, MapLibreRuntime.ensureInitialised (MapLibreRouteMap.kt:129) calls HttpRequestUtil.setOkHttpClient before MapLibre.getInstance; reproduced x2. AC38 FAIL; AC48 PASS (emulator-limited: allowBackup=false, rules exclude all, bmgr not allowed, reinstall empty); AC49 NOT VERIFIED (tcpdump captured 1 packet; static: cleartext off, only https met.no + openfreemap URLs); AC39/Minor3 not run. LOW: 60 s injected walk shows 0:01 (likely emulator). PR comment issuecomment-6320612298; no commit",
+    "2026-10-21T16:09:41Z orchestrator: T8 attempts 2 -> 3 (tester FAILED, HIGH crash). Attempt limit reached: escalating to owner",
+    "2026-10-21T16:11:01Z owner: T8 attempt limit -> \"Give guidance and retry (Recommended)\" - one more attempt (4): developer fixes MapLibre init order + adds a test that would catch it; tester re-runs AC38/AC39 on emulator and redoes AC49 with a better capture",
+    "2026-10-21T16:11:01Z orchestrator: invoking developer T8 attempt 4 (owner-approved retry). Budget 101/120 incl. this call",
+    "2026-10-21T16:26:42Z developer T8 attempt 4: DONE head f363a5e fix(map): initialise MapLibre before setting its HTTP client (#15); MapLibreRuntime.start(startMapLibre, setHttpClient) seam, cache clearer uses same init; new MapLibreRuntimeTest.startsMapLibreBeforeSettingTheHttpClient (seam test; not proven to fail on old code); emulator smoke: detail opens, tiles + route drawn, logcat crash empty; Minor 3 not changed (overlay not seen); 671 @Test, ci.sh green; PR body updated",
+    "2026-10-21T16:26:42Z orchestrator: invoking tester T8 attempt 4 (unit + emulator AC38/AC39/AC49). Budget 102/120 incl. this call",
+    "2026-10-21T16:43:41Z tester T8 attempt 4: PASSED on f363a5e (no commit), 671/671, ci.sh green with base ref, changed-lines 98% (394), total 98.3%. Emulator (Medium_Phone_API_37.0, API 37): AC38 PASS (route visible, tiles, attribution readable), AC39 PASS (offline message), AC48 PASS (carried, emulator-limited), AC49 PASS via CONNECT-logging proxy (app: api.met.no:443, tiles.openfreemap.org:443 only; system Play services/FCM/connectivitycheck separated). Seam test cannot be strengthened in tests (static calls, native lib). INFO: MapLibre logo/i button not visible (hidden under app strip or not rendered). LOW UX: unlabelled h:mm (0:02). Duration 0:01 earlier explained by h:mm. PR comment issuecomment-6321346293",
+    "2026-10-21T16:43:41Z orchestrator: invoking reviewer T8 re-review (head f363a5e). Budget 103/120 incl. this call",
+    "2026-10-21T16:46:21Z reviewer T8 re-review: VERDICT APPROVE on f363a5e, review 5603096282 (16:45:39Z; verified at this entry). Fix correct and complete incl. delete-all path. Minors: 1 in-flight check write vs clearAllTables (open); 2 concurrent delete after re-entry (open); 3 attribution strip hides MapLibre logo/i button - one-line BottomEnd fix, should be done before release (ADR 0003 intent deviation, licences compliant); 4 tile-only failure blank map (MVP accepted); 5 A35 repeats due; 6 seam test does not cover ensureInitialised wiring (open). Carry: A35 AC38/39/48/49, logo visible after fix, cold-start crash checks",
+    "2026-10-21T16:46:21Z orchestrator: invoking gatekeeper G3 for T8 PR #25 (head f363a5e). Budget 104/120 incl. this call",
+    "2026-10-21T16:48:03Z gatekeeper G3 T8 re-run: PASS on f363a5e, G3.1-G3.6 met, failing []; recorded gates/G3-T8.md; posted on PR #25. Owed for G4/release: Galaxy A35 repeats AC38/39/48/49 + Minor 3 attribution fix",
+    "2026-10-21T16:48:03Z orchestrator: invoking release (integrate) PR #25. Budget 105/120 incl. this call",
+    "2026-10-21T16:49:24Z release integrate PR #25: DONE, squash 043b7f0 into feature (MERGED 16:48:34Z, verified), issue #15 closed manually with PR link (verified), task branch deleted; feature CI run 39638100819 in progress",
+    "2026-10-21T16:49:24Z orchestrator: T8 done (4 attempts, 4th owner-approved). All 8 tasks done. Stage 4 next. Budget 105/120 used, 15 left; pending owner decisions: reference-phone checks owed before G4 (design line ~351) and reviewer Minor 3 attribution fix before release"
   ],
   "bootstrap": true,
   "owner_answers": {
+    "t8_attempt_limit": {"at": "2026-10-21T16:11:01Z", "question": "Task 8 has used its 3 attempts. The emulator check found a crash when opening walk detail (map library set up in the wrong order). What should happen?", "answer": "Give guidance and retry (Recommended)"},
+    "t8_emulator": {"at": "2026-10-21T15:58:09Z", "question": "Should the tester run the Task 8 checks (AC38 map, AC48 backup/restore, AC49 network capture) on the Android Studio emulator (Medium_Phone_API_37.0) instead of the Galaxy A35?", "answer": "Emulator now, phone later (Recommended)"},
+    "t8_device_checks": {"at": "2026-10-21T15:56:14Z", "question": "Task 8 failed G3: AC38/AC48/AC49 phone-check results must be recorded in PR #25; no phone connected. How to proceed?", "answer": "Connect phone, tester runs"},
+    "t8_stage8_commit": {"at": "2026-10-21T15:16:18Z", "question": "PR #25 (Task 8) has an extra commit \"stage 8\" (d4fc26f) committing README.md and state.json onto the task branch. Did you make it, and how should it be handled?", "answer": "Revert it (Recommended)"},
     "plan_round1": {
       "at": "2026-10-19T12:21:39Z",
       "Q1": "Accept as proposed (Recommended)",
