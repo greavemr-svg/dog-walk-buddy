@@ -3,6 +3,7 @@
     <string name="app_name">Dog Walk Buddy</string>
     <string name="home_title">Dog Walk Buddy</string>
     <string name="home_dog_profile">Dog profile</string>
+    <string name="home_about">About this advice</string>
 
     <!-- Dog profile -->
     <string name="profile_title">Dog profile</string>
@@ -20,6 +21,7 @@
     <string name="profile_sensitivity_hint">Sensitive uses stricter heat and pavement limits.</string>
     <string name="profile_save">Save profile</string>
     <string name="profile_saved">Profile saved</string>
+    <string name="profile_load_failed">Couldn\'t load your dog\'s profile.</string>
     <string name="profile_save_failed">Couldn\'t save the profile. Try again.</string>
     <string name="profile_error_name_required">Name is required. Enter 1 to %1$s characters.</string>
     <string name="profile_error_name_too_long">Name is too long. Use %1$s characters or fewer.</string>
@@ -48,4 +50,60 @@
     <string name="best_window_range">%1$s-%2$s</string>
     <string name="best_window_best_available_caution">Best available: Caution</string>
     <string name="best_window_none">No good time in the next 12 hours</string>
+
+    <!-- Check card -->
+    <string name="check_title">Good time to walk?</string>
+    <string name="rating_go">Go</string>
+    <string name="rating_caution">Caution</string>
+    <string name="rating_avoid">Avoid</string>
+    <!-- Spoken as one phrase: the rating, then the reason (AC50). Example: "Caution. Windy." -->
+    <string name="check_rating_announcement">%1$s. %2$s.</string>
+    <string name="check_loading">Checking the weather</string>
+    <string name="check_cant_check">Can\'t check right now</string>
+    <string name="check_retry">Retry</string>
+    <string name="check_refresh">Refresh</string>
+    <string name="check_needs_location">The check needs your approximate location.</string>
+    <string name="check_grant_location">Allow approximate location</string>
+    <string name="check_open_settings">Open settings</string>
+    <string name="check_age_minutes">Checked %1$d min ago</string>
+    <string name="check_age_hours_minutes">Checked %1$d h %2$d min ago</string>
+    <string name="check_window_heading">Best walking window</string>
+    <string name="check_pollen_not_included">Pollen isn\'t included in this check</string>
+    <string name="check_default_sensitivity">Using normal heat sensitivity. Set up your dog\'s profile to change this.</string>
+    <string name="check_disclaimer">Guidance only, not veterinary advice. If you\'re worried about your dog, contact a vet.</string>
+    <string name="check_attribution">Weather data: MET Norway (CC BY 4.0)</string>
+
+    <!-- About this advice -->
+    <string name="about_title">About this advice</string>
+    <string name="about_back">Back</string>
+    <string name="about_thresholds_heading">Rating thresholds</string>
+    <string name="about_overall">The overall rating for an hour is the worst of these factors. Sensitivity changes only the heat and pavement limits.</string>
+    <string name="about_heat">Heat (air temperature). Normal: Go below 20 °C, Caution from 20 °C to below 25 °C, Avoid from 25 °C. Sensitive: Go below 16 °C, Caution from 16 °C to below 21 °C, Avoid from 21 °C.</string>
+    <string name="about_pavement">Hot pavement: rated only in daylight (between local sunrise and sunset) when the forecast cloud cover is below 50 percent. It uses the same temperature bands as heat.</string>
+    <string name="about_rain">Rain (precipitation rate): Go below 0.5 mm/h, Caution from 0.5 mm/h to 4 mm/h, Avoid above 4 mm/h.</string>
+    <string name="about_wind">Wind (mean speed): Go below 25 mph, Caution from 25 mph to below 39 mph, Avoid from 39 mph. Gusts are not rated.</string>
+    <string name="about_cold">Cold (air temperature): Caution at 0 °C or below. Cold never gives Avoid.</string>
+    <string name="about_sources_heading">Guidance sources</string>
+    <string name="about_sources_intro">The thresholds are based on this guidance. It is general guidance, and forecasts can be wrong.</string>
+    <string name="about_source_vets_now">Vets Now: heat-related illness can start above about 20 °C.</string>
+    <string name="about_source_four_paws">FOUR PAWS UK: asphalt reaches about 52 °C when the air is 25 °C.</string>
+    <string name="about_source_beaufort">The wind thresholds follow the Beaufort scale\'s mean wind speeds, as published by the Royal Meteorological Society.</string>
+    <string name="about_data_heading">Data</string>
+    <string name="about_licences_heading">Open-source licences</string>
+    <string name="about_licences">Dog Walk Buddy uses open-source software. The licence notices that these libraries require are shown in full below.</string>
+    <string name="about_licence_maplibre_heading">MapLibre Native Android 13.6.1 (BSD 2-Clause License)</string>
+    <string name="about_licence_native_third_party_heading">Third-party code in the MapLibre Native library</string>
+    <string name="about_licence_native_third_party_intro">The MapLibre Native library contains the following third-party code. Its licence file is shown in full.</string>
+    <string name="about_public_suffix_heading">Public Suffix List</string>
+    <string name="about_public_suffix_intro">OkHttp includes the Public Suffix List from https://publicsuffix.org, which is licensed under the Mozilla Public License 2.0, shown in full below. The list source is at https://github.com/publicsuffix/list.</string>
+    <string name="about_licence_gestures_heading">MapLibre Android Gestures 0.0.4 (BSD 2-Clause License)</string>
+    <string name="about_apache_libraries_heading">Libraries under the Apache License 2.0</string>
+    <string name="about_apache_libraries_intro">These libraries are included in the app and are licensed under the Apache License 2.0, shown in full after this list.</string>
+    <string name="about_apache_lib_androidx">AndroidX: Activity 1.11.0, Core 1.17.0, Lifecycle 2.9.4, Navigation 2.9.7, Room 2.8.4, SQLite 2.6.2, SavedState 1.3.2, Fragment 1.8.9, Collection 1.5.0, Annotation 1.9.1, Arch Core 2.2.0, Startup 1.2.0, Window 1.5.0, Emoji2 1.4.0, Profile Installer 1.4.0, Tracing 1.2.0, Concurrent Futures 1.1.0, Graphics Path 1.0.1, Autofill, Custom View, Interpolator, Loader, ViewPager and Versioned Parcelable.</string>
+    <string name="about_apache_lib_compose">Jetpack Compose (Compose BOM 2026.08.00): UI, Foundation 1.12.0, Animation, Runtime, Material 3 1.4.0 and Material Ripple.</string>
+    <string name="about_apache_lib_kotlin">Kotlin Standard Library 2.3.20, JetBrains Annotations 23.0.0, kotlinx.coroutines 1.10.2 and kotlinx.serialization 1.10.0.</string>
+    <string name="about_apache_lib_okhttp">OkHttp 5.1.0 and Okio 3.15.0.</string>
+    <string name="about_apache_lib_maplibre">MapLibre Native GeoJSON 6.0.1 and Turf 6.0.1.</string>
+    <string name="about_apache_lib_other">Gson 2.10.1, Timber 5.0.1, JSpecify 1.0.0 and Guava ListenableFuture 1.0.</string>
+    <string name="about_apache_text_heading">Apache License, Version 2.0</string>
 </resources>

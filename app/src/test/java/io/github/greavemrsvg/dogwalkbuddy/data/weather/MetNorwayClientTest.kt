@@ -172,6 +172,24 @@ class MetNorwayClientTest {
     }
 
     @Test
+    fun AC22_an_unexpected_failure_while_reading_a_response_ends_as_a_failed_fetch_and_never_hangs() {
+        stub.server.enqueue(
+            MockResponse
+                .Builder()
+                .code(WeatherConfig.HTTP_NON_AUTHORITATIVE)
+                .body(StubWeatherServer.fixtureText())
+                .build(),
+        )
+
+        val error =
+            assertThrows(WeatherFetchException::class.java) {
+                fetch(logStatus = { throw IllegalStateException("logging failed") })
+            }
+
+        assertTrue(error.message.orEmpty().contains("IllegalStateException"))
+    }
+
+    @Test
     fun AC23_a_200_response_logs_nothing() {
         stub.enqueueFixture()
         val logged = mutableListOf<Int>()

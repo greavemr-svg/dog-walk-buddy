@@ -64,11 +64,15 @@ class SourceManifestHardeningTest {
     }
 
     @Test
-    fun source_manifest_declares_only_internet() {
+    fun AC25_source_manifest_declares_exactly_internet_and_coarse_location() {
         val permissions =
             manifest.getElementsByTagName("uses-permission").elements().map { it.getAttributeNS(ANDROID_NS, "name") }
 
-        assertEquals(listOf("android.permission.INTERNET"), permissions)
+        // Exactly this set: no fine or background location, no storage or media permission yet.
+        assertEquals(
+            listOf("android.permission.INTERNET", "android.permission.ACCESS_COARSE_LOCATION"),
+            permissions,
+        )
     }
 
     private companion object {

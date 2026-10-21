@@ -38,6 +38,8 @@ data class ProfileUiState(
     val isSaving: Boolean = false,
     val justSaved: Boolean = false,
     val saveFailed: Boolean = false,
+    /** The stored profile could not be read, so the form is empty although a profile may exist. */
+    val loadFailed: Boolean = false,
     /** Counts refused saves, so the screen can move focus to the first field in error each time. */
     val refusedSaves: Int = 0,
 )
@@ -55,20 +57,30 @@ class ProfileViewModel(
 
     init {
         viewModelScope.launch {
-            val profile = repository.observeProfile().first()
-            if (profile != null) {
-                hasStoredPhoto = profile.photoFileName != null
-                val photo = repository.loadPhoto(profile)?.asImageBitmap()
-                mutableState.update {
-                    it.copy(
-                        name = profile.name,
-                        breed = profile.breed.orEmpty(),
-                        sensitivity = profile.heatSensitivity,
-                        photo = photo,
-                    )
+            try {
+                val profile = repository.observeProfile().first()
+                if (profile != null) {
+                    hasStoredPhoto = profile.photoFileName != null
+                    val photo = repository.loadPhoto(profile)?.asImageBitmap()
+                    mutableState.update {
+                        it.copy(
+                            name = profile.name,
+                            breed = profile.breed.orEmpty(),
+                            sensitivity = profile.heatSensitivity,
+                            photo = photo,
+                        )
+                    }
                 }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                // A failed load leaves an empty form the user can still fill in, and is shown as a message.
+                // Nothing about the profile is logged.
+                mutableState.update { it.copy(loadFailed = true) }
+            } finally {
+                // The form must never stay disabled because loading failed.
+                mutableState.update { it.copy(isLoaded = true) }
             }
-            mutableState.update { it.copy(isLoaded = true) }
         }
     }
 

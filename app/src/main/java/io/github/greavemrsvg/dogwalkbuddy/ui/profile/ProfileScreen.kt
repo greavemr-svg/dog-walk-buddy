@@ -287,6 +287,13 @@ private fun SensitivityGroup(
 @Composable
 private fun SaveStatus(state: ProfileUiState) {
     when {
+        state.loadFailed && !state.justSaved && !state.saveFailed ->
+            Text(
+                text = stringResource(R.string.profile_load_failed),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
         state.justSaved ->
             Text(
                 text = stringResource(R.string.profile_saved),

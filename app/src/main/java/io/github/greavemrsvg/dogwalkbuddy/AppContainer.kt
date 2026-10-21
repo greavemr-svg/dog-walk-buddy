@@ -3,6 +3,7 @@ package io.github.greavemrsvg.dogwalkbuddy
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.text.format.DateFormat
 import androidx.core.content.ContextCompat
 import androidx.room.Room
 import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
@@ -31,6 +32,8 @@ class AppContainer(
     val weatherHttpClient: OkHttpClient,
     val database: AppDatabase,
     val approximateLocationSource: ApproximateLocationSource,
+    val hasCoarseLocationPermission: () -> Boolean,
+    val is24HourFormat: () -> Boolean,
     val filesDir: File,
 ) {
     val checkRepository: CheckRepository by lazy {
@@ -49,13 +52,14 @@ class AppContainer(
             val httpClient =
                 MetNorwayClient.createHttpClient(File(appContext.cacheDir, WeatherConfig.HTTP_CACHE_DIRECTORY), userAgent)
             val database = Room.databaseBuilder(appContext, AppDatabase::class.java, AppDatabase.NAME).build()
+            val hasCoarsePermission = {
+                ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                    PackageManager.PERMISSION_GRANTED
+            }
             val locationSource =
                 LocationManagerApproximateSource(
                     locationManager = appContext.getSystemService(LocationManager::class.java),
-                    hasCoarsePermission = {
-                        ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                            PackageManager.PERMISSION_GRANTED
-                    },
+                    hasCoarsePermission = hasCoarsePermission,
                     clock = clock,
                     executor = ContextCompat.getMainExecutor(appContext),
                 )
@@ -66,6 +70,8 @@ class AppContainer(
                 weatherHttpClient = httpClient,
                 database = database,
                 approximateLocationSource = locationSource,
+                hasCoarseLocationPermission = hasCoarsePermission,
+                is24HourFormat = { DateFormat.is24HourFormat(appContext) },
                 filesDir = appContext.filesDir,
             )
         }
