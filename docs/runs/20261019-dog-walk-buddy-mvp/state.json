@@ -461,7 +461,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 95,
+    "agent_invocations": 94,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -705,9 +705,7 @@
     "2026-10-21T13:53:54Z orchestrator: invoking release (integrate) PR #24. Budget 93/120 incl. this call",
     "2026-10-21T14:00:19Z release integrate PR #24: DONE, squash 8784d4a into feature (MERGED 13:54:16Z, verified), issue #14 closed manually with PR link (verified CLOSED), task branch deleted; feature CI run 39612085755 success on 8784d4a (verified)",
     "2026-10-21T14:00:19Z orchestrator: T7 done (2 attempts). 7/8 tasks done. Next T8 (depends T5, T7 - done). Budget 93/120 used; remaining minimum ~5 for T8 + ~8 stages 4-6",
-    "2026-10-21T14:00:19Z orchestrator: invoking developer T8 attempt 1. Budget 94/120 incl. this call",
-    "2026-10-21T14:30:58Z developer T8 attempt 1: NO REPORT - agent hit its 80-turn limit; verified: local branch task/20261019-dog-walk-buddy-mvp-8-map-privacy with uncommitted work (manifest, AppContainer, PhotoStore, CheckViewModel, HistoryScreen, HomeScreen, NavHost, strings, new data/net, DeleteAllDataUseCase, map/, ui/privacy, ui/walkdetail, tests); no commits, branch not pushed, no PR; no Java/Gradle process running",
-    "2026-10-21T14:30:58Z orchestrator: invoking developer T8 attempt 1 continuation (same attempt, not counted; precedent T6 re-run) to finish from the working tree. Budget 95/120 incl. this call"
+    "2026-10-21T14:00:19Z orchestrator: invoking developer T8 attempt 1. Budget 94/120 incl. this call"
   ],
   "bootstrap": true,
   "owner_answers": {
