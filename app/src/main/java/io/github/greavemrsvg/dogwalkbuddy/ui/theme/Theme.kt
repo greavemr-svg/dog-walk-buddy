@@ -9,6 +9,9 @@ import androidx.compose.ui.unit.dp
 /** Minimum touch target (AC51). */
 val MinTouchTarget = 48.dp
 
+/** Minimum height of the full-width Start walk and Stop controls (AC51). */
+val StartStopMinHeight = 72.dp
+
 @Composable
 fun DogWalkBuddyTheme(content: @Composable () -> Unit) {
     val dark = isSystemInDarkTheme()

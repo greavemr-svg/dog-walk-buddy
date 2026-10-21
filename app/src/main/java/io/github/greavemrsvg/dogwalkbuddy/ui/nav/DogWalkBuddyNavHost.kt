@@ -16,11 +16,16 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.check.CheckViewModel
 import io.github.greavemrsvg.dogwalkbuddy.ui.home.HomeScreen
 import io.github.greavemrsvg.dogwalkbuddy.ui.profile.ProfileRoute
 import io.github.greavemrsvg.dogwalkbuddy.ui.profile.ProfileViewModel
+import io.github.greavemrsvg.dogwalkbuddy.ui.recording.RecordingRoute
+import io.github.greavemrsvg.dogwalkbuddy.ui.recording.RecordingViewModel
+import io.github.greavemrsvg.dogwalkbuddy.ui.recording.StartWalkRoute
+import io.github.greavemrsvg.dogwalkbuddy.ui.recording.StartWalkViewModel
 
 object Routes {
     const val HOME = "home"
     const val PROFILE = "profile"
     const val ABOUT = "about"
+    const val RECORDING = "recording"
 }
 
 /** The app's screens (design, Screens and navigation). Later tasks add their routes here. */
@@ -44,8 +49,21 @@ fun DogWalkBuddyNavHost(
                         onOpenProfile = { navController.navigate(Routes.PROFILE) },
                     )
                 },
+                startWalkContent = {
+                    StartWalkRoute(
+                        viewModel = viewModel(factory = StartWalkViewModel.factory(container)),
+                        onOpenRecording = { navController.navigate(Routes.RECORDING) },
+                    )
+                },
                 onOpenProfile = { navController.navigate(Routes.PROFILE) },
                 onOpenAbout = { navController.navigate(Routes.ABOUT) },
+            )
+        }
+        composable(Routes.RECORDING) {
+            RecordingRoute(
+                viewModel = viewModel(factory = RecordingViewModel.factory(container)),
+                clock = container.clock,
+                onClose = { navController.popBackStack() },
             )
         }
         composable(Routes.ABOUT) {

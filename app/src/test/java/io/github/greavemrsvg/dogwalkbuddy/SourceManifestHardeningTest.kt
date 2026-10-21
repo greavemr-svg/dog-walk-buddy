@@ -64,15 +64,35 @@ class SourceManifestHardeningTest {
     }
 
     @Test
-    fun AC25_source_manifest_declares_exactly_internet_and_coarse_location() {
+    fun AC25_AC28_source_manifest_declares_exactly_the_permissions_of_the_design() {
         val permissions =
             manifest.getElementsByTagName("uses-permission").elements().map { it.getAttributeNS(ANDROID_NS, "name") }
 
-        // Exactly this set: no fine or background location, no storage or media permission yet.
+        // Exactly this set (design, Manifest permissions, and ADR 0005): never background location, and no storage
+        // or media permission. ACCESS_NETWORK_STATE is not here yet: task 8 adds it with the connectivity check.
         assertEquals(
-            listOf("android.permission.INTERNET", "android.permission.ACCESS_COARSE_LOCATION"),
+            listOf(
+                "android.permission.INTERNET",
+                "android.permission.ACCESS_COARSE_LOCATION",
+                "android.permission.ACCESS_FINE_LOCATION",
+                "android.permission.FOREGROUND_SERVICE",
+                "android.permission.FOREGROUND_SERVICE_LOCATION",
+                "android.permission.POST_NOTIFICATIONS",
+            ),
             permissions,
         )
+        assertFalse(permissions.any { it.contains("BACKGROUND_LOCATION") })
+    }
+
+    @Test
+    fun AC28_the_recording_service_is_private_and_declares_the_location_type() {
+        val services = manifest.getElementsByTagName("service").elements()
+
+        assertEquals(listOf(".service.WalkRecordingService"), services.map { it.getAttributeNS(ANDROID_NS, "name") })
+        val service = services.single()
+        assertEquals("false", service.getAttributeNS(ANDROID_NS, "exported"))
+        assertEquals("location", service.getAttributeNS(ANDROID_NS, "foregroundServiceType"))
+        assertEquals(0, service.getElementsByTagName("intent-filter").length)
     }
 
     private companion object {

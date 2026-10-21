@@ -7,6 +7,9 @@ import io.github.greavemrsvg.dogwalkbuddy.AppContainer
 import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
 import io.github.greavemrsvg.dogwalkbuddy.data.location.ApproximateLocationSource
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LocationFix
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import org.junit.rules.TemporaryFolder
 import java.time.Instant
 import java.time.ZoneOffset
@@ -22,6 +25,10 @@ class TestAppContainer(
     val stub = StubWeatherServer(temporaryFolder.newFolder())
     val clock = MutableClock(start)
     var permissionGranted = true
+    var fineGranted = true
+    val walkSource = FakeWalkLocationSource()
+    val launcher = FakeWalkServiceLauncher()
+    private val scope = CoroutineScope(SupervisorJob())
     var location: LocationFix? = LocationFix(51.507351, -0.127758, accuracyM = 1000.0, timeUtc = start)
 
     val database: AppDatabase =
@@ -41,9 +48,14 @@ class TestAppContainer(
             hasCoarseLocationPermission = { permissionGranted },
             is24HourFormat = { true },
             filesDir = temporaryFolder.newFolder(),
+            walkLocationSource = walkSource,
+            hasFineLocationPermission = { fineGranted },
+            walkServiceLauncher = launcher,
+            applicationScope = scope,
         )
 
     fun close() {
+        scope.cancel()
         database.close()
         stub.close()
     }

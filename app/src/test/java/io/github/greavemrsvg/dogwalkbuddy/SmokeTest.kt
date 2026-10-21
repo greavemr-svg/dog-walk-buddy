@@ -6,6 +6,10 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
+import io.github.greavemrsvg.dogwalkbuddy.testutil.FakeWalkServiceLauncher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.emptyFlow
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import org.junit.Assert.assertEquals
@@ -56,6 +60,10 @@ class SmokeTest {
                 hasCoarseLocationPermission = { false },
                 is24HourFormat = { true },
                 filesDir = context.filesDir,
+                walkLocationSource = { emptyFlow() },
+                hasFineLocationPermission = { false },
+                walkServiceLauncher = FakeWalkServiceLauncher(),
+                applicationScope = CoroutineScope(SupervisorJob()),
             )
 
         assertEquals(Instant.parse("2026-10-19T12:00:00Z"), container.clock.instant())
