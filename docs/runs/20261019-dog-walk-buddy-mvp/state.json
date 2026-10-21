@@ -295,108 +295,11 @@
       "attempts": 3,
       "head": "a20dac5",
       "merge_commit": "8f66e9c",
-      "interrupted": "2026-10-20 ~11:2x-14:00Z developer attempt 1 hit API session limit; left local branch (not pushed) with uncommitted Theme.kt change + new untracked CheckOutcome.kt, CheckRater.kt, Color.kt; no commits, no PR. Continuation kept those files unchanged after review",
-      "interrupted_attempt3": "2026-10-20 ~16:2x Z developer attempt 3 hit API session limit (reset 20:00 Europe/London); found 2026-10-21T06:53:17Z: no commit/push (PR head still 3a36ad5); uncommitted changes to AboutScreen.kt, strings.xml, AboutScreenTest.kt + untracked res/raw/licence_maplibre_native_android.txt, res/raw/licence_mpl_2_0.txt",
-      "attempt3": {
-        "head": "a20dac5",
-        "status": "DONE (continuation after interruption)",
-        "fixes": "N1: res/raw/licence_maplibre_native_android.txt (platform/android/LICENSE.md at android-v13.6.1, commit c7506d6aff38, 76774 bytes, cmp identical) under heading 'Third-party code in the MapLibre Native library'; res/raw/licence_okhttp_notice.txt (223 bytes) from square/okhttp parent-5.1.0 (d2dd1806973f) okhttp/src/jvmTest/resources/okhttp3/internal/publicsuffix/NOTICE (root NOTICE 404 at tag; AAR has no NOTICE, only assets/PublicSuffixDatabase.list) under 'Public Suffix List'; res/raw/licence_mpl_2_0.txt (mozilla.org MPL 2.0 index.txt, 16726 bytes, cmp identical). All inline on About (no sub-screen). N3: PR body via gh api PATCH (397 tests, 95%, tester's 6 cases + flake fix, source URLs, two wrong statements corrected, N2 noted). N2 not fixed (optional; activity-level flow, not unit-testable safely) - carried forward",
-        "other_notices": "none beyond AndroidX META-INF/androidx/*/LICENSE.txt (Apache-2.0, covered); releaseRuntimeClasspath scanned",
-        "tests": "397 @Test (+3 AboutScreenTest: AC26_about_shows_the_third_party_notices_of_the_maplibre_native_library, AC26_about_shows_the_public_suffix_list_heading_and_the_mpl_text, AC52_the_third_party_and_mpl_notices_are_readable_at_the_largest_font_size); ci.sh green; changed-lines 95% (456 lines, 22 missed); total 97.3%; CI build-test run 39559501789 + governance run 39559501776 SUCCESS at a20dac5 (verified rollup); PR body has 397 (verified)",
-        "files": "AboutScreen.kt, strings.xml, AboutScreenTest.kt, res/raw licence_maplibre_native_android.txt, licence_mpl_2_0.txt, licence_okhttp_notice.txt (new)",
-        "to_verify": "OkHttp NOTICE taken from a jvmTest resources path in the okhttp repo - reviewer confirmed acceptable; ~93 KB inline licence text - reviewer accepted (Minor M1)"
-      },
-      "retest3": {
-        "status": "PASSED",
-        "head": "a20dac5",
-        "tests": "397/397, 0 skipped (ci.sh tasks UP-TO-DATE; counts from result XMLs at this head)",
-        "coverage_changed": "95% (456 lines, 22 missed); total 97.3% (1351/1389)",
-        "licence_cmp": "licence_maplibre_native_android.txt, licence_okhttp_notice.txt, licence_mpl_2_0.txt all byte-identical to upstream",
-        "okhttp_notice": "only NOTICE in parent-5.1.0 tree is the jvmTest one; root and main-resources paths 404; README has no PSL attribution; list ships in jvmMain resources + androidMain assets without a NOTICE beside it - jvmTest NOTICE judged the only upstream attribution text (shipped okhttp-android artifact not inspected by tester; developer reported the AAR has no NOTICE)",
-        "test_change_verdict": "git diff 3a36ad5..a20dac5 app/src/test additions only (34 added, 0 removed); 3 new tests; no deletion/skip/loosening",
-        "added": "none (no gap found)",
-        "ci": "build-test run 39559501789 + governance run 39560120791 SUCCESS at a20dac5 (orchestrator verified head)",
-        "comment": "https://github.com/greavemr-svg/dog-walk-buddy/pull/22#issuecomment-6310351463 (verified 07:16:42Z)",
-        "pr_body_count": "matches (397)",
-        "findings": "none; N2 unfixed as expected"
-      },
-      "developer": {
-        "head": "7299868",
-        "commits": "4616301 feat, 7299868 test",
-        "tests": "357 local, 0 failures/skips; ci.sh exit 0; changed-lines 98% (369 lines, 5 missed); total 98.4%; CI build-test run 39440229062 + governance run 39440229197 SUCCESS at 7299868 (verified rollup)",
-        "deviations": "AppContainer gains required hasCoarseLocationPermission + is24HourFormat; CheckViewModel takes hasProfile flow (observeProfile) in addition to observeSensitivity (AC45 needs no-profile vs Normal); in-memory result under 3h re-rated on return to Home with no request (AC44); AC52 helper checks max-lines/hidden line end/height instead of design's hasVisualOverflow (reports short text as overflowing); Home Start walk / History / Privacy links deferred to T6-T8 (not stubbed)",
-        "carry_ins": "1 AC15 UI done; 2 ACCESS_COARSE_LOCATION declared (design line ~145 'Manifest permissions'), SourceManifestHardeningTest exact set [INTERNET, ACCESS_COARSE_LOCATION], MissingPermission x2 removed (try/catch SecurityException), InlinedApi kept (FUSED_PROVIDER string constant, API 31+ only, minSdk 29); 3 12-hour selection in CheckRater; 4 consumed existing APIs, profile note -> Routes.PROFILE; 5 MetNorwayClient never-hang test; 6 ProfileViewModel load-failure test; 7 ContrastTest + WithFontScale/assertNoTextTruncation/assertAnnouncesRatingThenReason + AccessibilityAssertionsTest; 8 HomeScreen replaced",
-        "test_changes": "SourceManifestHardeningTest INTERNET-only -> exact set of 2 (renamed AC25_...); SmokeTest new AppContainer args; MetNorwayClientTest and ProfileViewModelTest +1 each; ProfileContrastTest comment only; AccessibilityAssertions helpers added",
-        "strings_not_verbatim_in_spec": "'Good time to walk?', 'Checking the weather', 'Retry', 'Refresh', 'The check needs your approximate location.', 'Allow approximate location', 'Best walking window', 'Checked N min ago', About wording restating spec thresholds and sources (listed in PR body for review)",
-        "manual": "TalkBack on check screen; 200% font visual check (AC52); system permission dialog on real phone",
-        "gaps_later": "no settings link after permanent location denial; SecurityException path in getCurrentLocation untested; later screens must use shared tokens + WithFontScale + assertNoTextTruncation; T6 adds Start walk below check card on Home"
-      },
-      "tester": {
-        "status": "PASSED",
-        "head": "4ca7022",
-        "tests": "366/366 (357 developer + 9 added), 0 skipped; ci.sh green",
-        "coverage_changed": "98% (369 lines, 5 missed: CheckCard.kt:96, CheckViewModel.kt:108-109, ProfileViewModel.kt:72-73)",
-        "added": "domain/check/CheckRaterTimeBoundaryTest (5: series starting in past, BST end 2026-10-25, spring forward 2027-03-28, across midnight, stored series ended before now -> CantCheck); ui/about/AboutScreenTest (4: 200% font, 48dp + labels, sources + attribution, back)",
-        "changed": "CheckViewModelTest: 4 tests now wait for re-rated state (assertions unchanged) - fixed a test-side race that failed CI once at 05a7fa2 (run 39442748833, AC21_a_result_that_is_a_few_minutes_old..., CheckViewModelTest.kt:439)",
-        "test_change_verdict": "all developer test changes ok (SourceManifestHardeningTest exact ordered list; MetNorwayClient never-hang truly hits catch(RuntimeException) path)",
-        "strings": "none untraceable to spec/design; no health/vet/breed advice",
-        "ci": "build-test run 39443741372 + governance run 39443741410 SUCCESS at 4ca7022 (tester verified; orchestrator verified rollup)",
-        "comment": "https://github.com/greavemr-svg/dog-walk-buddy/pull/22#issuecomment-6293941950",
-        "notes": "PR body says 357 - must be 366; About threshold text asserted against hard-coded strings, not RatingEngine constants (numbers match spec); AC51/AC52 Start/Stop 72dp belongs to T6",
-        "manual": "AC50 TalkBack on Galaxy A35 ('Caution. Windy.', best window as text, spoken labels); AC52 max font + display size on check + About; AC25 fresh install deny/grant/revoke-while-open; bright-sunlight legibility of 7:1 rating/reason"
-      },
-      "reviewer": {
-        "verdict": "APPROVE",
-        "sha": "a20dac5",
-        "review": "https://github.com/greavemr-svg/dog-walk-buddy/pull/22#pullrequestreview-5596426768",
-        "submitted_at": "2026-10-21T07:41:03Z",
-        "round1": "review 5587098366 at 4ca7022: CHANGES_REQUESTED R1-R3 Major, R4-R6 Minor, R7-R10 Nit",
-        "round2": "review 5588111700 at 3a36ad5 (2026-10-20T16:19:28Z): CHANGES_REQUESTED N1 Major (licence notices incomplete), N2 Minor (Open settings after first dialog dismissal, optional), N3 Minor (PR body count)",
-        "prior": "Round 3: N1 resolved (3 raw files shown in full under own headings; supercluster.hpp + FreeType present; cmp evidence from tester), N2 open and accepted (AC25 holds; follow-up issue suggested), N3 resolved",
-        "answers": "PSL attribution sufficient (MPL-2.0 s3.2: names list, licence, full text, source publicsuffix.org + github.com/publicsuffix/list; jvmTest NOTICE fine); ~93 KB inline acceptable (paragraph split, fontScale 2.0 test passes, headings marked); a20dac5 scope: AboutScreen.kt 7 lines, 4 strings, 3 raw files, 3 tests; no gradle/catalog/manifest/lint change, no suppression/secret/personal data",
-        "open_minor": [
-          "M1 AboutScreen.kt:33 scrolling Column measures every licence paragraph (a few hundred Texts) on first open - may stutter on low-end phones; optional LazyColumn or separate licences screen",
-          "M2 licence_maplibre_native_android.txt is Markdown so raw # and --- show on screen; acceptable under verbatim owner decision, no change",
-          "N2 Open settings may appear after only dismissing first permission dialog on Android 11+ (carried; follow-up candidate)"
-        ],
-        "notes": "listenablefuture 1.0 POM names no licence, treated as Guava Apache-2.0 per PR body; reviewer posted body inline via heredoc (no Write tool; hook blocks '>' and tee)"
-      },
-      "attempt2": {
-        "head": "6d56d0c",
-        "status": "DONE (da2e819 R1/R2/R4/R5/R6/R8/R9; continuation 6d56d0c R3 after owner allowed upstream fetch)",
-        "fixes": "R1 rated() returns CantCheck when !CachePolicy.isUsable; onShown() re-evaluates only (no request) via LifecycleStartEffect (lifecycle-runtime-compose, already on classpath); R2 CheckUiState.LocationPermissionBlocked + onPermissionResult(granted, canAskAgain) + 'Open settings' -> ACTION_APPLICATION_DETAILS_SETTINGS (ActivityNotFoundException caught), onShown re-checks permission; R3 res/raw licence_maplibre_native.txt (android-v13.6.1 LICENSE.md, c7506d6), licence_maplibre_gestures.txt (0.0.4 LICENSE.md, 823df84), licence_apache_2_0.txt (apache.org) verbatim, shown on About with headings + Apache library list (checked against releaseRuntimeClasspath + POMs); R4 PR body 388 tests; R5 LocationCurrentRevokedTest (new); R6 ProfileUiState.loadFailed + 'Couldn't load your dog's profile.' polite live region; R8 kept 'Checked 0 min ago' (spec pattern only); R9 injectable logError, class name only",
-        "new_strings": "check_open_settings 'Open settings'; profile_load_failed 'Couldn't load your dog's profile.'; About licence headings/library list",
-        "tests": "388 @Test; ci.sh green; changed-lines 94%; total 97.3%; CI build-test run 39451644719 + governance runs 39451644720/39451694548 SUCCESS at 6d56d0c (verified rollup); PR body has 388 + android-v13.6.1 source URLs (verified)",
-        "test_changes": "CheckCardTest show() gained onOpenSettings hook + extra AC52 state; CheckViewModelTest newViewModel() defaulted logError param; AboutScreenTest +4 (MapLibre native notice, gestures notice, Apache list + text, licences readable at fontScale 2.0); none deleted/skipped/loosened (tester verified)",
-        "flake_note": "CheckScreenIntegrationTest.AC25_without_permission... failed once locally (assertIsDisplayed right after setContent) - fixed by tester at 3a36ad5 (awaitText before unchanged assertions)",
-        "licence_notes": "platform/android/LICENSE.md (77 KB) not shipped - developer claimed it repeats BSD-2 (reviewer: wrong, it carries third-party C++ notices); listenablefuture 1.0 POM names no licence, listed under Apache (Guava); transitive Gson 2.10.1 and Timber 5.0.1 ship (Apache-2.0); OkHttp PublicSuffixDatabase.list (MPL-2.0) missed"
-      },
-      "retest2": {
-        "status": "PASSED",
-        "head": "3a36ad5",
-        "tests": "394/394 (388 + 6 added), 0 skipped; ci.sh green",
-        "coverage_changed": "95% (449 lines, 22 missed); total 97.3%",
-        "added": "CheckViewModelTest +6: AC22_a_result_1_second_short_of_3h_old_is_still_shown_and_makes_no_request, AC22_a_result_shown_after_3h_can_be_checked_again_with_a_refresh, AC24_returning_to_the_screen_while_a_check_is_loading_does_not_start_a_second_request, AC25_returning_from_settings_after_a_first_refusal_with_the_permission_granted_runs_the_check, AC25_a_permission_revoked_while_a_result_is_shown..., AC22_a_location_failure_with_a_message_holding_coordinates_never_logs_the_message",
-        "changed": "CheckScreenIntegrationTest.AC25_without_permission_... awaitText before unchanged assertions (flake fix, 3 forced reruns pass)",
-        "licence_diff": "res/raw files byte-identical (cmp) to upstream maplibre-native android-v13.6.1 LICENSE.md, maplibre-gestures-android 0.0.4 LICENSE.md, apache.org LICENSE-2.0.txt",
-        "library_list": "matches releaseRuntimeClasspath families/versions (not every Compose/Lifecycle artifact individually)",
-        "test_change_verdict": "git diff 4ca7022 6d56d0c -- app/src/test additions only; no deletion/skip/loosening",
-        "ci": "build-test run 39454516031 + governance run 39454516004 SUCCESS at 3a36ad5 (tester verified; orchestrator verified rollup)",
-        "comment": "https://github.com/greavemr-svg/dog-walk-buddy/pull/22#issuecomment-6295366881",
-        "note": "PR body says 388 tests; head has 394 - body needs updating",
-        "manual": "Open settings on real device + return granted; TalkBack announcement of profile load error; About length/scrolling on device; no-Settings-app case"
-      },
-      "carry_in": [
-        "From T2: AC15 UI ('Can't check right now' message + retry control) must be delivered here; T2 only provides RatingEngine.hasNoCoreData(hour)",
-        "From T3: declare ACCESS_COARSE_LOCATION in AndroidManifest.xml and update SourceManifestHardeningTest (currently INTERNET only); until then LocationManagerApproximateSource returns null. AndroidManifest.xml is not in T5's design file list - declare as out-of-list change with reason",
-        "From T3: parser keeps 48 periods (WeatherConfig.MAX_PERIODS_KEPT); T5 must select the 12 hourly periods starting at the one containing now",
-        "From T3: check flow is CheckRepository.check(fix: LocationFix?); CheckRepository.loadCached() available for no-network re-rate (AC44)",
-        "From T3 G3 note: reassess @SuppressLint(MissingPermission) x2 and InlinedApi in LocationManagerApproximateSource.kt once the manifest permission exists",
-        "From T3 re-review R2-2: harden MetNorwayClient onResponse to resume with WeatherFetchException on any RuntimeException (or runCatching around logStatus), with a test; out-of-list change in T5",
-        "From T4: ProfileRepository.observeSensitivity(): Flow<HeatSensitivity> (NORMAL when no profile, distinctUntilChanged) - consume for re-rating (AC44); 'Set up your dog's profile' note navigates to Routes.PROFILE",
-        "From T4: T5 owns shared high-contrast tokens + ContrastTest; move profile screen to shared tokens (Theme.kt now exposes LightColors/DarkColors and MinTouchTarget); reuse testutil/Wcag.contrastRatio; AC52 fontScale 2.0 overflow check and rating announcement check not yet in assertAccessibleScreen()",
-        "From T4: HomeScreen is a placeholder (title + Dog profile link, HomeScreen(onOpenProfile) default no-op) to be replaced",
-        "From T4 re-review N1: ProfileViewModel init must catch load failures and always set isLoaded (form otherwise disabled forever), with a test; out-of-list change in T5"
+      "summary": "3 attempts. Attempt 1 7299868 (tester 4ca7022, 366 tests) -> reviewer CHANGES_REQUESTED 5587098366 (R1 stale result, R2 dead permission button, R3 licence notices; R4-R10 minor). Attempt 2 da2e819 + 6d56d0c (licences fetched from upstream per owner decision t5_licence_text; tester 3a36ad5, 394 tests) -> reviewer CHANGES_REQUESTED 5588111700 (N1 incomplete notices, N2 optional, N3 PR body). Attempt 3 a20dac5 (MapLibre platform/android LICENSE.md, OkHttp PSL NOTICE, MPL-2.0; 397 tests, 95% changed-lines) -> tester PASSED issuecomment-6310351463 -> reviewer APPROVE 5596426768 -> G3 PASS issuecomment-6310832193 -> squash 8f66e9c, issue #12 closed. Full per-attempt detail in git history of this file (commit 2f3b112)",
+      "open_minor": [
+        "N2 Open settings may appear after only dismissing first permission dialog on Android 11+",
+        "M1 non-lazy licence list on About may stutter on low-end phones",
+        "M2 raw Markdown markers visible in MapLibre licence text (accepted under verbatim decision)"
       ],
       "G3": {
         "result": "PASS",
@@ -425,16 +328,68 @@
         5
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-6-walk-recording",
-      "pr": null,
-      "status": "in_progress",
-      "attempts": 1,
+      "pr": 23,
+      "status": "done",
+      "attempts": 2,
+      "head": "3c86cb0",
+      "merge_commit": "870ad7a",
       "carry_in": [
         "From T5: add Start walk below the check card on Home; use shared theme tokens and WithFontScale/assertNoTextTruncation helpers for AC51/AC52; Start/Stop full-width 72dp (AC51) is this task's",
         "From T5: SourceManifestHardeningTest asserts exact permission set [INTERNET, ACCESS_COARSE_LOCATION] - extend for any permission this task adds (per design 'Manifest permissions' / ADR 0005), never loosen",
         "From T5: if this task adds any shipped library or transitive dependency (needs ADR), update the About licence list/notices (res/raw + AboutScreenTest)",
         "From T4/T5: Room schema stays v1 while the app is unreleased (design line ~345); add walk tables to v1 and re-export 1.json"
       ],
-      "G3": null
+      "developer": {
+        "head": "b399653",
+        "commits": "4dc... feat(walk) + b399653 test(walk)",
+        "tests": "490 @Test (93 added); ci.sh green incl. assembleRelease; changed-lines 98% (505 lines, 8 missed); total 98.0%; CI build-test run 39568732778 + governance run 39568732763 SUCCESS at b399653 (verified rollup, base feature verified)",
+        "manifest": "+ACCESS_FINE_LOCATION, FOREGROUND_SERVICE, FOREGROUND_SERVICE_LOCATION, POST_NOTIFICATIONS; service .service.WalkRecordingService exported=false foregroundServiceType=location no intent filter; no ACCESS_BACKGROUND_LOCATION; ACCESS_NETWORK_STATE left for T8; SourceManifestHardeningTest exact list extended + no-background + service pin",
+        "schema": "Room v1 + walk (index status, start_utc_ms) + route_point (FK walk ON DELETE CASCADE, index walk_id,seq); route_point lat/lon/accuracy/time NOT NULL (stricter than ADR table); 1.json re-exported",
+        "dependencies": "none new",
+        "out_of_list": "WalkRecordingController, WalkServiceLauncher, LiveWalkFormat, StartWalkViewModel, StartWalkSection, ic_notification_walk.xml, CheckCard.kt (findActivity/openAppSettings private->internal), Theme.kt (StartStopMinHeight 72dp), NavHost recording route, AppContainer seams, DogWalkBuddyApp.container setter internal, test helpers WalkFakes/FakeActivityResults/Await/StartStopAssertions, TestAppContainer + SmokeTest args",
+        "deviations": "WalkLocationSource fun interface fixes(); jitter floor sqrt(a1^2+a2^2) vs last COUNTED fix (else design AC32 case fails); fix without accuracy rejected; controller publishes session before service starts (ADR says service publishes); Stop inside service; refused FGS start removes row; precise requested with approximate; POST_NOTIFICATIONS requested at Start after precise, recording runs regardless + hint; RECORDING SCREEN DISTANCE 2 DECIMALS (spec Assumption 7 line 188 says miles to 1 decimal place - orchestrator flagged to tester/reviewer); recovery test uses TRUNCATE journal (Robolectric WAL reopen on Windows)",
+        "strings_not_verbatim_in_spec": "Start walk; Walk in progress; Stop; Saving your walk; Recording your walk; Dog Walk Buddy is recording your walk.; Walk recording; Elapsed time; Distance; %1$s mi; Recording a walk needs precise location.; Allow precise location; Open settings; Back; Notifications are off. Your walk is still being recorded.",
+        "manual": "AC29 10 min locked in pocket; AC31 airplane mode + GPS 5 min; AC50 TalkBack Home + recording; AC52 max font + display size; Start-to-Recording under 1 s; battery 60 min; persistent notification; real Android 13+ refusal of precise/notifications; Android 14-16 FGS start rules (Robolectric sdk 34)",
+        "carry_forward": "T7: reuse WalkRepository/WalkDao (observe + delete), add DistanceFormat/DurationFormat, post-stop navigation not wired; T8: DeleteAllDataUseCase must stop active recording first (walkRecordingController.stop(), recordingStateHolder), ACCESS_NETWORK_STATE + exact SourceManifestHardeningTest; Stage 4/release: Play Console foreground-service (location) declaration is an owner task"
+      },
+      "tester": {
+        "status": "PASSED (with Medium finding F1)",
+        "head": "53325e6",
+        "tests": "497/497, 0 skipped; ci.sh green",
+        "coverage_changed": "98% (505 lines, 8 missed); total 98.0% (1856/1894)",
+        "added": "RouteDistanceCalculatorBoundaryTest (4 AC32 boundary, 1 AC34 resume-from-total, source scan: no Log/println mentions coordinates/fixes); WalkRecordingServiceEdgeTest (AC30 Stop before any fix: complete walk, 0 distance, no points, 0 network)",
+        "test_change_verdict": "ok - SourceManifestHardeningTest exact assertEquals kept + no-background + service test; SmokeTest/TestAppContainer constructor args + scope cleanup only",
+        "ac_map": "AC28-AC34, AC50-AC52 mapped; AC28 1 s not timed; AC29 locked phone, AC31 airplane mode, AC34 real process kill, AC50 TalkBack, AC52 device check manual",
+        "findings": [
+          "F1 Medium: LiveWalkFormat.kt:20 miles uses %.2f and LiveWalkFormatTest.AC28_distance_is_shown_in_miles_with_two_decimals pins it; spec Assumption 7 (line 188) and design line 83 say miles to 1 decimal place - developer to switch to %.1f and update test, or owner amends spec",
+          "F2 Low: first CI build-test at 53325e6 failed on pre-existing flaky CheckViewModelTest.AC15_retry_runs_a_new_check_that_can_succeed (T5 test, CheckViewModelTest.kt:245, timing); passed on re-run"
+        ],
+        "ci": "build-test run 39570919217 SUCCESS (after re-run of failed job) + governance run 39570919178 SUCCESS at 53325e6 (orchestrator verified rollup)",
+        "comment": "https://github.com/greavemr-svg/dog-walk-buddy/pull/23#issuecomment-6311934913 (verified 08:48:59Z)",
+        "pr_body_count": "mismatch: body 490, head 497",
+        "manual": "AC29 10-min locked phone; AC31 airplane mode 5 min GPS on; AC34 real process kill + relaunch; AC50 TalkBack; AC52 max font + display size; Android 13+ notification prompt; within-1 s start timing"
+      },
+      "reviewer": {
+        "verdict": "CHANGES_REQUESTED",
+        "sha": "53325e6",
+        "review": "https://github.com/greavemr-svg/dog-walk-buddy/pull/23#pullrequestreview-5597329678",
+        "submitted_at": "2026-10-21T09:03:16Z",
+        "deviations": "all accepted (fun interface; jitter floor vs last counted fix; no-accuracy fixes rejected; controller publishes session; Stop inside service; refused FGS start deletes row; precise with approximate; POST_NOTIFICATIONS flow; TRUNCATE journal in test; out-of-list files; ACCESS_NETWORK_STATE deferred to T8; NOT NULL route_point columns; strings) EXCEPT 2-decimal live distance",
+        "findings": [
+          "Major F1 LiveWalkFormat.kt:20 '%.2f' vs spec Assumption 7 (line 188) / design line 83 miles to 1 decimal place - owner chose follow the spec: use '%.1f', update LiveWalkFormatTest.AC28_distance_is_shown_in_miles_with_two_decimals",
+          "Major (new, undeclared) LiveWalkFormat.kt:11-13 elapsed time h:mm:ss vs Assumption 7 duration h:mm - owner chose follow the spec: h:mm floored to minutes (design line 84), update LiveWalkFormatTest.AC28_elapsed_time_is_shown_as_hours_minutes_and_seconds",
+          "Minor data/repo/RecoverInterruptedWalkUseCase.kt:13 returns 0 whenever any session is live - skip only the live walk id",
+          "Minor service/WalkRecordingService.kt:127-129 onDestroy clears state holder unconditionally - clear only when session walk id matches this service instance",
+          "Minor WalkRecordingService begin/discard: stopping without successful startForeground may crash on real phones - add to manual checks (Android 14+)",
+          "Minor RouteDistanceCalculatorTest.kt:125,135,145 + WalkRecordingServiceTest.kt:175 '2 km' tracks are 1.995/1.990 km - use 401 fixes at 5 m and 201 at 10 m",
+          "Minor ui/recording/RecordingScreen.kt:148 Stop enabled while saving - enabled = !stopping",
+          "Minor PR body 490 tests vs head 497",
+          "Nit data/repo/WalkRepository.kt:36 unreachable '?: 0.0' - requireNotNull",
+          "Nit RecordingStateHolder use MutableStateFlow.update for read-then-write"
+        ],
+        "notes": "posted body condensed (hook truncates long gh pr review commands); after fix commit a fresh VERDICT newer than last commit is needed; T7 DistanceFormat/DurationFormat single source, LiveWalkFormat should reuse/align; T7 new walks at top of history (rest of AC30); flaky CheckViewModelTest AC15 -> backlog"
+      },
+      "G3": {"result": "PASS", "at": "2026-10-21T12:28:24Z", "evidence": "gatekeeper G3 on 3c86cb0: G3.1-G3.6 met; failing []; gates/G3-T6.md; posted on PR #23 issuecomment-6315899725"}
     },
     {
       "n": 7,
@@ -458,7 +413,8 @@
       "status": "pending",
       "attempts": 0,
       "carry_in": [
-        "From T5: add History link on Home; use shared theme tokens and a11y helpers"
+        "From T5: add History link on Home; use shared theme tokens and a11y helpers",
+        "From T6: reuse WalkRepository/WalkDao (add observe + delete; dao.delete and dao.points exist); add DistanceFormat/DurationFormat (spec Assumption 7: miles to 1 decimal place, h:mm) as the single source for display formatting and make LiveWalkFormat reuse/align; post-stop navigation to History/detail not wired; new walks at top of history (rest of AC30)"
       ],
       "G3": null
     },
@@ -489,8 +445,9 @@
       "carry_in": [
         "From T3: ACCESS_NETWORK_STATE manifest declaration + SourceManifestHardeningTest update belong here; end-to-end AC24 test still to come",
         "From T4: Delete all my data must delete filesDir/profile/ (photo copies, incl. any *.partial) and the dog_profile row; no PhotoStore.deleteAll() yet (design assigns it to DeleteAllDataUseCase)",
-        "From T5: add Privacy link on Home; SourceManifestHardeningTest now asserts exact set [INTERNET, ACCESS_COARSE_LOCATION] - extend for any new permission",
-        "From T5: if T6-T8 add any shipped library or transitive dependency, update the About licence list/notices (res/raw + AboutScreenTest)"
+        "From T5: add Privacy link on Home; SourceManifestHardeningTest now asserts exact set - extend for any new permission",
+        "From T5: if T6-T8 add any shipped library or transitive dependency, update the About licence list/notices (res/raw + AboutScreenTest)",
+        "From T6: DeleteAllDataUseCase must stop any active recording first (ADR 0004) via walkRecordingController.stop() / recordingStateHolder; delete walk + route_point rows"
       ],
       "G3": null
     }
@@ -502,7 +459,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 75,
+    "agent_invocations": 84,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -697,7 +654,32 @@
     "2026-10-21T07:46:16Z orchestrator: invoking release (integrate) for PR #22",
     "2026-10-21T07:50:53Z release integrate PR #22: DONE, squash 8f66e9c into feature (MERGED 07:50:26Z, verified), issue #12 closed with link (verified CLOSED), task branch deleted; feature-head CI run 39564829108 in_progress at check; local checkout now feature branch at 8f66e9c",
     "2026-10-21T07:50:53Z orchestrator: T5 done (3 attempts). Budget: 75/120 used incl. next call, 5 of 8 tasks done. Remaining minimum ~3 tasks x5 + ~7 stage 4-6 = ~22, within 45 left. Next T6 (depends T5 - done)",
-    "2026-10-21T07:50:53Z orchestrator: invoking developer T6 attempt 1"
+    "2026-10-21T07:50:53Z orchestrator: invoking developer T6 attempt 1",
+    "2026-10-21T07:51:30Z orchestrator: run records committed 2f3b112 and pushed (state.json + gates/G3-T5.md); T5 task entry condensed to a summary in this file (full per-attempt detail preserved in 2f3b112)",
+    "2026-10-21T08:29:23Z developer T6 attempt 1: DONE PR #23 head b399653 (base feature, verified; rollup build-test + governance SUCCESS - verified), 2 commits; 490 @Test (93 new), changed-lines 98% (505 lines); manifest +FINE_LOCATION/FOREGROUND_SERVICE/FOREGROUND_SERVICE_LOCATION/POST_NOTIFICATIONS + non-exported location FGS (design/ADR 0005), no background location; Room v1 + walk/route_point; no new dependency. FLAG: recording screen distance uses 2 decimals but spec Assumption 7 (line 188, verified) says miles to 1 decimal place - forwarded to tester/reviewer. Other deviations (jitter floor vs last counted fix, controller publishes session, notification permission flow) for reviewer",
+    "2026-10-21T08:29:23Z orchestrator: invoking tester T6 (head b399653)",
+    "2026-10-21T08:49:21Z tester T6: PASSED head 53325e6 (verified PR head, rollup SUCCESS), 497/497 (+7: RouteDistanceCalculatorBoundaryTest, WalkRecordingServiceEdgeTest), changed-lines 98%; existing test changes ok; PR comment issuecomment-6311934913 (verified). Findings: F1 Medium LiveWalkFormat %.2f vs spec Assumption 7 / design line 83 '1 decimal place' (confirms orchestrator flag); F2 Low pre-existing flaky CheckViewModelTest.AC15_retry_runs_a_new_check_that_can_succeed failed first CI attempt, passed on re-run. PR body count 490 vs head 497",
+    "2026-10-21T08:49:21Z orchestrator: invoking reviewer T6 (head 53325e6)",
+    "2026-10-21T09:03:50Z reviewer T6: CHANGES_REQUESTED 53325e6, formal review 5597329678 (COMMENTED 09:03:16Z, commit_id 53325e6 - verified); all declared deviations accepted except 2-decimal distance; 2 Major (F1 live distance %.2f; new undeclared live elapsed time h:mm:ss vs Assumption 7 h:mm), 6 Minor (recovery skips whenever any session live; onDestroy clears holder unconditionally; stop-without-startForeground manual check; '2 km' test tracks short; Stop enabled while saving; PR body count), 2 Nit. Both Majors need one owner decision",
+    "2026-10-21T09:10:26Z owner: T6 live recording format \"Follow the spec (Recommended)\" - recording screen uses miles to 1 decimal place and h:mm, no spec change",
+    "2026-10-21T09:10:26Z orchestrator: invoking developer T6 attempt 2 of 3 with reviewer findings (2 Major per owner decision, 5 code/test Minor, PR body, Nits optional)",
+    "2026-10-21T11:40:33Z orchestrator (resumed session): developer T6 attempt 2 never reported (previous session ended); verified no new commits on PR #23 (head still 53325e6) and no uncommitted app changes; attempt 2 to be re-run, not counted as an extra attempt",
+    "2026-10-21T11:40:33Z orchestrator: preflight BLOCKER - gh authenticated as owner greavemr-svg (GH_TOKEN unset); no agent invoked until owner restarts with the bot token. Active limit 120 (feature branch), 78 used",
+    "2026-10-21T11:42:32Z owner: \"pause\" - run paused; resume from T6 developer attempt 2 once orchestrator restarted with bot GH_TOKEN",
+    "2026-10-21T11:55:51Z orchestrator (resumed session): owner said \"resume 20261019-dog-walk-buddy-mvp\"; preflight OK - gh authenticated as greavemr-bot via GH_TOKEN; PR #23 open, head still 53325e6, base feature; stage paused -> build",
+    "2026-10-21T11:55:51Z orchestrator: invoking developer T6 attempt 2 of 3 (re-run) with reviewer findings 5597329678 + owner decision t6_live_format. Budget 79/120 incl. this call",
+    "2026-10-21T12:13:23Z developer T6 attempt 2: DONE PR #23 head 3079569 (verified, base feature verified; rollup build-test + governance SUCCESS - verified); 1 commit fix(walk); findings 1-6, 8 fixed, 7 added to PR manual checks, nit 9 partial (MutableStateFlow.update done; requireNotNull reverted because WalkRepositoryTest pins 0.0 fallback); 500 @Test, ci.sh green, changed-lines 98% (509), total 98.0%; new RecordingStateHolder.clearIf; PR body PATCHed via gh api (gh pr edit fails on read:org scope)",
+    "2026-10-21T12:13:23Z orchestrator: invoking tester T6 (head 3079569). Budget 80/120 incl. this call",
+    "2026-10-21T12:22:55Z tester T6 attempt 2: PASSED head 3c86cb0 (verified PR head; rollup build-test + governance SUCCESS - verified), 503/503, ci.sh rc 0, changed-lines 98%, total 98.0%; +3 tests (LiveWalkFormatTest 2 boundary, RecordingStateHolderTest clearIf empty); existing test changes ok, none weakened; findings none (F1 resolved); PR comment issuecomment-6315792256 by greavemr-bot (verified)",
+    "2026-10-21T12:22:55Z orchestrator: invoking reviewer T6 (head 3c86cb0). Budget 81/120 incl. this call",
+    "2026-10-21T12:24:58Z reviewer T6 re-review: VERDICT APPROVE on 3c86cb0, review 5599586562 by greavemr-bot COMMENTED 12:24:33Z (verified; newer than last commit 12:15:41Z). Previous 1-7, 9 resolved/accepted; 8 not resolved. New: Minor PR body stale (500 tests vs 503; decision bullet still says 2 decimals); Nit service discard/abort/stop paths still use clear() (optional). Carry: T7 history 1 decimal + h:mm; T8 ACCESS_NETWORK_STATE; manual device checks to release verification",
+    "2026-10-21T12:24:58Z orchestrator: routing PR #23 body-only fix (reviewer Minor) to developer T6 before G3, no code change, not counted as a new attempt. Budget 82/120 incl. this call",
+    "2026-10-21T12:26:10Z developer T6 PR body fix: DONE, body PATCHed (test count 503; decision bullet now 1 decimal + h:mm per spec Assumption 7, owner decision); head unchanged 3c86cb0 (verified), nothing pushed",
+    "2026-10-21T12:26:10Z orchestrator: invoking gatekeeper G3 for T6 PR #23 (head 3c86cb0). Budget 83/120 incl. this call",
+    "2026-10-21T12:28:24Z gatekeeper G3 T6: PASS on 3c86cb0, G3.1-G3.6 met, failing []; recorded gates/G3-T6.md; posted on PR #23 issuecomment-6315899725",
+    "2026-10-21T12:28:24Z orchestrator: invoking release (integrate) PR #23. Budget 84/120 incl. this call",
+    "2026-10-21T12:30:30Z release integrate PR #23: DONE, squash 870ad7a into feature (MERGED 12:29:22Z, verified), issue #13 closed manually with PR link (verified CLOSED), task branch deleted (verified); feature-head CI run 39599997166 in_progress; local checkout feature 870ad7a",
+    "2026-10-21T12:30:30Z orchestrator: T6 done (2 attempts). 6/8 tasks done. Next T7 (depends T6 - done). Budget 84/120 used; remaining minimum ~2 tasks x5 + ~7 stage 4-6 = ~17"
   ],
   "bootstrap": true,
   "owner_answers": {
@@ -748,9 +730,14 @@
       "at": "2026-10-20T15:34:39Z",
       "question": "Task 5's About screen must show MapLibre's open-source licence notice (BSD-2, including its copyright lines) and the full Apache-2.0 licence and library list. The developer couldn't find MapLibre's exact licence text in the downloaded libraries and won't write it from memory. How should it get the text?",
       "answer": "Fetch from upstream (Recommended)"
+    },
+    "t6_live_format": {
+      "at": "2026-10-21T09:10:26Z",
+      "question": "The reviewer asked for changes on Task 6 (walk recording). The code is sound, but the live recording screen shows distance to 2 decimals (0.25 mi) and time as h:mm:ss (0:12:07), while the spec says miles to 1 decimal and time as h:mm everywhere. Which should the recording screen use?",
+      "answer": "Follow the spec (Recommended)"
     }
   },
-  "current_task": 6,
+  "current_task": 7,
   "toolchain": {
     "JAVA_HOME": "/c/Program Files/Eclipse Adoptium/jdk-17.0.20.101-hotspot",
     "python": "/c/Users/greav/AppData/Local/Programs/Python/Python312",
@@ -768,7 +755,8 @@
     "T4: dog photo copies stored under filesDir/profile/ (re-encoded, EXIF incl. GPS stripped per tester); dog_profile table in Room v1; include in Delete all my data (T8) and backup review (AC48)",
     "T4 review F11: ProfileValidator refuses only ISO control chars; bidi overrides (U+202E) and zero-width (U+200B) accepted - display-spoofing hardening for Stage 4 security to assess",
     "T5: ACCESS_COARSE_LOCATION declared (source manifest exact set INTERNET + COARSE); merged-manifest permissions (incl. MapLibre ACCESS_WIFI_STATE/NETWORK_STATE) to be checked at Stage 4",
-    "T5 licence compliance: MapLibre Native + gestures BSD-2 notices, Apache-2.0 text/list, MapLibre platform/android third-party C++ notices, OkHttp Public Suffix List NOTICE + MPL-2.0 text added at a20dac5 (attempt 3), reviewer round 3 judged complete; auditor/release to confirm completeness before G5"
+    "T5 licence compliance: MapLibre Native + gestures BSD-2 notices, Apache-2.0 text/list, MapLibre platform/android third-party C++ notices, OkHttp Public Suffix List NOTICE + MPL-2.0 text added at a20dac5 (attempt 3), reviewer round 3 judged complete; auditor/release to confirm completeness before G5",
+    "T6: manifest adds ACCESS_FINE_LOCATION, FOREGROUND_SERVICE, FOREGROUND_SERVICE_LOCATION, POST_NOTIFICATIONS and non-exported WalkRecordingService (foregroundServiceType=location, explicit intents, immutable PendingIntent - reviewer checked); no ACCESS_BACKGROUND_LOCATION; precise route points stored in Room walk/route_point (never logged; tester added source scan) - include in Delete all my data (T8) and backup review (AC48); Play Console foreground-service (location) declaration is an owner release task"
   ],
   "audit_carryover": [
     "T1 PR #16 optional Minor/Nit from final review left open (non-blocking)",
@@ -786,6 +774,20 @@
     "T5 attempt-3 tester took test counts from existing result XMLs (Gradle tasks UP-TO-DATE); CI build-test at a20dac5 ran fresh",
     "T5 round-3 reviewer posted review body inline via heredoc (no Write tool; hook blocks '>' and tee)",
     "T5 used all 3 attempts (reviewer CHANGES_REQUESTED twice); passed G3 on the final attempt; merged 8f66e9c",
-    "Manual checks pending before release: AC43 (gallery delete + restart) and AC50 (TalkBack, incl. polite announcements and focus-to-error) from T4; AC48 backup/restore from T1/T8; T5 TalkBack on check screen + profile load error announcement, 200% font visual check (AC52), system location permission dialog on real phone, Open settings flow after permanent denial (and return granted), About length/scrolling on device (incl. low-end phone stutter, reviewer M1)"
-  ]
+    "State file: T5 task entry condensed to a summary at 2026-10-21T07:51:30Z; full per-attempt records are in commit 2f3b112",
+    "Flaky test (backlog): CheckViewModelTest.AC15_retry_runs_a_new_check_that_can_succeed (T5, CheckViewModelTest.kt:245) failed first CI build-test attempt at T6 head 53325e6 (run 39570919217), passed on re-run - needs a deterministic fix (third CheckViewModelTest timing flake)",
+    "T6 tester could not write under app/build with the Write tool; posted the PR comment via heredoc stdin",
+    "T6 round-1 reviewer posted a condensed review body (hook truncates long gh pr review commands); full findings in state.json task 6 reviewer block",
+    "T6 developer did not declare live elapsed time h:mm:ss as a deviation (reviewer found it)",
+    "Manual checks pending before release: AC43 (gallery delete + restart) and AC50 (TalkBack, incl. polite announcements and focus-to-error) from T4; AC48 backup/restore from T1/T8; T5 TalkBack on check screen + profile load error announcement, 200% font visual check (AC52), system location permission dialog on real phone, Open settings flow after permanent denial (and return granted), About length/scrolling on device (incl. low-end phone stutter, reviewer M1); T6 AC29 10 min locked in pocket, AC31 airplane mode + GPS 5 min, AC34 real process kill + relaunch, AC50 TalkBack Home + recording, AC52 max font + display size, Start-to-Recording under 1 s, battery 60 min, persistent notification, Android 13+ refusal of precise/notifications, Android 14-16 FGS start rules incl. refused-foreground-start path (no startForeground crash), app swiped away during recording (Samsung process killing)"
+  ],
+  "paused": {
+    "at": "2026-10-21T11:42:32Z",
+    "by": "owner",
+    "owner_words": "pause",
+    "resume_from": "T6 developer attempt 2 (re-run), PR #23 head 53325e6",
+    "prerequisite": "restart orchestrator with GH_TOKEN set to the bot token",
+    "resumed_at": "2026-10-21T11:55:51Z",
+    "resumed_words": "resume 20261019-dog-walk-buddy-mvp"
+  }
 }
