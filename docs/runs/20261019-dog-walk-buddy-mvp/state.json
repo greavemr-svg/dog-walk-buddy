@@ -475,7 +475,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 110,
+    "agent_invocations": 116,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -765,7 +765,17 @@
     "2026-10-21T17:21:06Z gatekeeper G3 T9: PASS on d8c010f, G3.1-G3.6 met, failing []; recorded gates/G3-T9.md; posted on PR #27",
     "2026-10-21T17:21:06Z orchestrator: invoking release (integrate) PR #27. Budget 110/140 incl. this call",
     "2026-10-21T17:22:17Z release integrate PR #27: DONE, squash 0187222 into feature (MERGED 17:21:28Z, verified), issue #26 closed manually with PR link (verified), task branch deleted",
-    "2026-10-21T17:22:17Z orchestrator: T9 done (1 attempt). All 9 tasks done. Stage 4 next: tester emulator device checks (owner: emulator now, phone after release), security, performance, G4"
+    "2026-10-21T17:22:17Z orchestrator: T9 done (1 attempt). All 9 tasks done. Stage 4 next: tester emulator device checks (owner: emulator now, phone after release), security, performance, G4",
+    "2026-10-21T17:22:38Z orchestrator: run records committed 5998981 and pushed; no physical device online; invoking security (feature 5998981) and tester emulator device checks in parallel. Budget 112/140 incl. these calls",
+    "2026-10-21T17:25:35Z security (feature 5998981): DONE, critical=0 high=0 medium=0 low=4 info=5; G4.3 MET. Low: S-01 in-flight check write after clearAllTables (coarse 2-dp location row may remain), S-02 concurrent delete after Privacy re-entry, S-03 dependabot lacks gradle ecosystem (owner, governance PR), S-04 minified release APK not smoke-tested (R8 keep rules). OSV: no advisories for OkHttp 5.1.0, MapLibre 13.6.1, Room 2.8.4, kotlinx-serialization 1.10.0, navigation 2.9.7. Stray d4fc26f not in feature branch. Report filed at docs/runs/.../security.md",
+    "2026-10-21T18:00:13Z tester pre-G4 emulator checks: NO REPORT - hit 60-turn limit; artefacts in scratchpad/art (AC29, AC31, AC34, AC43, AC52 screenshots + fix logs), no results file, no issue comment",
+    "2026-10-21T18:00:13Z orchestrator: invoking tester continuation to evaluate artefacts, finish AC50 + carried checks and write results (same step). Budget 113/140 incl. this call",
+    "2026-10-21T18:10:36Z tester pre-G4 emulator checks (continuation): PASSED on 5998981 (Medium_Phone_API_37.0). AC29 PASS (history 0:17, 0.6 mi for ~12 min injected - duration > injection window, noted), AC31 PASS, AC34 PASS (recovered walk shows 0:00), AC43 PASS (gallery-delete step not in retained images), AC50 PASS via TalkBack-on uiautomator dump (Normal radio lacks own label - low), AC52 PASS, delete-while-recording PASS, cold-start crash checks PASS. Deferred to Galaxy A35 by owner decision: real pocket walk, battery, TalkBack speech, real GPS, real gallery. Cosmetic: at max font+display size attribution box overlaps MapLibre logo. Filed docs/runs/.../device-checks.md; issue #7 comment 6323110730 (verified)",
+    "2026-10-21T18:10:36Z orchestrator: invoking performance on feature 5998981 (emulator; real-device NFRs deferred by owner decision). Budget 114/140 incl. this call",
+    "2026-10-21T18:44:42Z performance: NO REPORT - hit 50-turn limit; idle since 18:39Z; only Start-walk timing done (perfwork/startwalk_video.txt: 10 video runs ~240-384 ms tap to Recording, one 1783 ms outlier r8); no docs/perf output",
+    "2026-10-21T18:44:42Z orchestrator: invoking performance continuation (same step) to finish remaining metrics + release smoke and write docs/perf files. Budget 115/140 incl. this call",
+    "2026-10-21T19:01:02Z performance (continuation): DONE, RESULT PASS (emulator figures; NO baseline existed, proposed-baseline.json recorded for owner). Cold start median 913 ms p90 986; Start walk median 351 p90 383 (<=1 s PASS, r8 artefact excluded); History 500 walks median 725 p90 964 (<=1 s PASS, thin margin); check time median 1746 p90 1945 (n=8, broadband, not 4G); PSS Home 77.6 MB, recording 81.1, walk detail map 164.9. S-04 minified release smoke PASS (throwaway-signed, no crash). Deferred to A35: battery, 4G 20-run check time, all reference-phone figures. Files docs/perf/20261019-dog-walk-buddy-mvp/results.md + proposed-baseline.json",
+    "2026-10-21T19:01:02Z orchestrator: committing Stage 4 artefacts (security.md, device-checks.md, docs/perf/20261019-dog-walk-buddy-mvp/) to feature, then invoking gatekeeper G4. Budget 116/140 incl. this call"
   ],
   "bootstrap": true,
   "owner_answers": {
