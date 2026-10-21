@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class WalkDao {
@@ -51,6 +52,13 @@ abstract class WalkDao {
 
     @Query("SELECT COALESCE(MAX(seq) + 1, 0) FROM route_point WHERE walk_id = :walkId")
     abstract suspend fun nextSeq(walkId: Long): Int
+
+    /** Finished walks, newest first. Emits again whenever a walk is added or removed. */
+    @Query(
+        "SELECT id, start_utc_ms, end_utc_ms, distance_m FROM walk " +
+            "WHERE status = 'COMPLETE' AND end_utc_ms IS NOT NULL ORDER BY start_utc_ms DESC, id DESC",
+    )
+    abstract fun observeCompleted(): Flow<List<WalkSummaryRow>>
 
     @Query("DELETE FROM walk WHERE id = :walkId")
     abstract suspend fun delete(walkId: Long): Int

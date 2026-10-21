@@ -7,6 +7,31 @@
     <string name="home_start_walk">Start walk</string>
     <string name="home_walk_in_progress">Walk in progress</string>
 
+    <!-- Walk history -->
+    <string name="home_history">Walk history</string>
+    <string name="history_title">Walk history</string>
+    <string name="history_back">Back</string>
+    <string name="history_this_week">This week</string>
+    <string name="history_empty">No walks yet</string>
+    <plurals name="history_walk_count">
+        <item quantity="one">%d walk</item>
+        <item quantity="other">%d walks</item>
+    </plurals>
+    <string name="history_totals">%1$s, %2$s, %3$s mi</string>
+    <string name="history_week_range">%1$s to %2$s</string>
+    <string name="history_walk_when">%1$s at %2$s</string>
+    <string name="history_walk_stats">%1$s, %2$s mi</string>
+    <string name="history_delete">Delete</string>
+    <string name="history_delete_description">Delete walk on %1$s at %2$s</string>
+    <string name="history_delete_title">Delete this walk?</string>
+    <string name="history_delete_message">The walk on %1$s at %2$s and its route will be removed from this phone. This can\'t be undone.</string>
+    <string name="history_delete_confirm">Delete walk</string>
+    <string name="history_delete_cancel">Cancel</string>
+    <string name="history_delete_failed">Couldn\'t delete the walk. Try again.</string>
+    <string name="history_delete_failed_dismiss">OK</string>
+    <string name="history_load_failed">Couldn\'t load your walks.</string>
+    <string name="history_more">More</string>
+
     <!-- Walk recording -->
     <string name="walk_needs_precise_location">Recording a walk needs precise location.</string>
     <string name="walk_grant_precise_location">Allow precise location</string>

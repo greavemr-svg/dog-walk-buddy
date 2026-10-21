@@ -29,6 +29,16 @@ class NavigationTest {
     }
 
     @Test
+    fun AC35_home_opens_the_walk_history_and_back_returns_home() {
+        composeRule.onNodeWithText("Walk history").performClick()
+        composeRule.onNodeWithText("This week").assertIsDisplayed()
+
+        composeRule.onNodeWithText("Back").performClick()
+
+        composeRule.onNodeWithText("Dog Walk Buddy").assertIsDisplayed()
+    }
+
+    @Test
     fun AC51_the_home_link_to_the_profile_is_labelled_and_at_least_48dp() {
         composeRule.assertAccessibleScreen()
     }

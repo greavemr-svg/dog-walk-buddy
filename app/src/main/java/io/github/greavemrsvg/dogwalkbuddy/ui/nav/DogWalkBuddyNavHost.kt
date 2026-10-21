@@ -3,6 +3,7 @@ package io.github.greavemrsvg.dogwalkbuddy.ui.nav
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -13,6 +14,9 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.about.AboutScreen
 import io.github.greavemrsvg.dogwalkbuddy.ui.check.BestWindowFormatter
 import io.github.greavemrsvg.dogwalkbuddy.ui.check.CheckRoute
 import io.github.greavemrsvg.dogwalkbuddy.ui.check.CheckViewModel
+import io.github.greavemrsvg.dogwalkbuddy.ui.history.DebugTools
+import io.github.greavemrsvg.dogwalkbuddy.ui.history.HistoryRoute
+import io.github.greavemrsvg.dogwalkbuddy.ui.history.HistoryViewModel
 import io.github.greavemrsvg.dogwalkbuddy.ui.home.HomeScreen
 import io.github.greavemrsvg.dogwalkbuddy.ui.profile.ProfileRoute
 import io.github.greavemrsvg.dogwalkbuddy.ui.profile.ProfileViewModel
@@ -26,6 +30,7 @@ object Routes {
     const val PROFILE = "profile"
     const val ABOUT = "about"
     const val RECORDING = "recording"
+    const val HISTORY = "history"
 }
 
 /** The app's screens (design, Screens and navigation). Later tasks add their routes here. */
@@ -57,6 +62,7 @@ fun DogWalkBuddyNavHost(
                 },
                 onOpenProfile = { navController.navigate(Routes.PROFILE) },
                 onOpenAbout = { navController.navigate(Routes.ABOUT) },
+                onOpenHistory = { navController.navigate(Routes.HISTORY) },
             )
         }
         composable(Routes.RECORDING) {
@@ -64,6 +70,16 @@ fun DogWalkBuddyNavHost(
                 viewModel = viewModel(factory = RecordingViewModel.factory(container)),
                 clock = container.clock,
                 onClose = { navController.popBackStack() },
+            )
+        }
+        composable(Routes.HISTORY) {
+            val context = LocalContext.current
+            HistoryRoute(
+                viewModel = viewModel(factory = HistoryViewModel.factory(container)),
+                zoneId = container.zoneId,
+                is24Hour = container.is24HourFormat(),
+                onBack = { navController.popBackStack() },
+                debugActions = remember(container) { DebugTools.historyActions(context, container) },
             )
         }
         composable(Routes.ABOUT) {
