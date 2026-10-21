@@ -126,6 +126,40 @@ class AboutScreenTest {
     }
 
     @Test
+    fun AC26_about_shows_the_third_party_notices_of_the_maplibre_native_library() {
+        show()
+
+        listOf(
+            "supercluster.hpp",
+            "The FreeType Project LICENSE",
+        ).forEach(::assertTextPresent)
+        composeRule.onNodeWithText("Third-party code in the MapLibre Native library").assertExists()
+    }
+
+    @Test
+    fun AC26_about_shows_the_public_suffix_list_heading_and_the_mpl_text() {
+        show()
+
+        listOf(
+            "Public Suffix List",
+            "Mozilla Public License Version 2.0",
+            "Note that public_suffix_list.dat is compiled from The Public Suffix List:",
+            "https://publicsuffix.org",
+        ).forEach(::assertTextPresent)
+        composeRule.onNodeWithText("Public Suffix List").assertExists()
+    }
+
+    @Test
+    fun AC52_the_third_party_and_mpl_notices_are_readable_at_the_largest_font_size() {
+        show(fontScale = 2.0f)
+
+        composeRule.assertNoTextTruncation()
+        assertTextPresent("supercluster.hpp")
+        assertTextPresent("The FreeType Project LICENSE")
+        assertTextPresent("Mozilla Public License Version 2.0")
+    }
+
+    @Test
     fun AC26_back_returns_from_about() {
         show()
 

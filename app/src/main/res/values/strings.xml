@@ -92,6 +92,10 @@
     <string name="about_licences_heading">Open-source licences</string>
     <string name="about_licences">Dog Walk Buddy uses open-source software. The licence notices that these libraries require are shown in full below.</string>
     <string name="about_licence_maplibre_heading">MapLibre Native Android 13.6.1 (BSD 2-Clause License)</string>
+    <string name="about_licence_native_third_party_heading">Third-party code in the MapLibre Native library</string>
+    <string name="about_licence_native_third_party_intro">The MapLibre Native library contains the following third-party code. Its licence file is shown in full.</string>
+    <string name="about_public_suffix_heading">Public Suffix List</string>
+    <string name="about_public_suffix_intro">OkHttp includes the Public Suffix List from https://publicsuffix.org, which is licensed under the Mozilla Public License 2.0, shown in full below. The list source is at https://github.com/publicsuffix/list.</string>
     <string name="about_licence_gestures_heading">MapLibre Android Gestures 0.0.4 (BSD 2-Clause License)</string>
     <string name="about_apache_libraries_heading">Libraries under the Apache License 2.0</string>
     <string name="about_apache_libraries_intro">These libraries are included in the app and are licensed under the Apache License 2.0, shown in full after this list.</string>
