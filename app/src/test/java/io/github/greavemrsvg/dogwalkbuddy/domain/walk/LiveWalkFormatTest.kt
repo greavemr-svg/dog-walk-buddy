@@ -33,4 +33,20 @@ class LiveWalkFormatTest {
         assertEquals("0.1", LiveWalkFormat.miles(100.0))
         assertEquals("0.0", LiveWalkFormat.miles(-5.0))
     }
+
+    @Test
+    fun AC28_elapsed_time_boundaries_59_59_and_one_hour() {
+        assertEquals("0:59", LiveWalkFormat.elapsed(Duration.ofMinutes(59).plusSeconds(59)))
+        assertEquals("1:00", LiveWalkFormat.elapsed(Duration.ofHours(1)))
+        assertEquals("1:00", LiveWalkFormat.elapsed(Duration.ofHours(1).plusSeconds(59)))
+    }
+
+    @Test
+    fun AC28_distance_rounds_to_the_nearest_tenth_of_a_mile() {
+        assertEquals("0.0", LiveWalkFormat.miles(0.04 * 1609.344))
+        assertEquals("0.1", LiveWalkFormat.miles(0.06 * 1609.344))
+        assertEquals("0.9", LiveWalkFormat.miles(0.94 * 1609.344))
+        assertEquals("1.0", LiveWalkFormat.miles(0.96 * 1609.344))
+        assertEquals("10.0", LiveWalkFormat.miles(10 * 1609.344))
+    }
 }

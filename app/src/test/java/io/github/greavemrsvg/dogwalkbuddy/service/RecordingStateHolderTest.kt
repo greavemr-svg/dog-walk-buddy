@@ -80,4 +80,13 @@ class RecordingStateHolderTest {
         holder.clearIf(4)
         assertNull(holder.state.value)
     }
+
+    @Test
+    fun clearIf_on_an_empty_holder_stays_empty() {
+        val holder = RecordingStateHolder()
+
+        holder.clearIf(1)
+
+        assertNull(holder.state.value)
+    }
 }
