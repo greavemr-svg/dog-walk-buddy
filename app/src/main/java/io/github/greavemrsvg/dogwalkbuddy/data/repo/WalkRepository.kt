@@ -5,10 +5,13 @@ import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkDao
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkEntity
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkStatus
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LocationFix
+import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WalkSummary
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.time.Clock
 import java.time.Instant
 
-/** Walk storage used by recording (ADR 0004, ADR 0005). Task 7 adds history reads and delete. */
+/** Walk storage for recording (ADR 0004, ADR 0005), and for the history reads and delete. */
 class WalkRepository(
     private val dao: WalkDao,
     private val clock: Clock,
@@ -49,6 +52,24 @@ class WalkRepository(
         dao.delete(walkId)
     }
 
+    /** Finished walks, newest first, for the history. Emits again when a walk is added or deleted (AC30, AC35). */
+    fun observeSummaries(): Flow<List<WalkSummary>> =
+        dao.observeCompleted().map { rows ->
+            rows.map { row ->
+                WalkSummary(
+                    id = row.id,
+                    startUtc = Instant.ofEpochMilli(row.startUtcMs),
+                    durationSeconds = ((row.endUtcMs - row.startUtcMs) / MILLIS_PER_SECOND).coerceAtLeast(0),
+                    distanceM = row.distanceM,
+                )
+            }
+        }
+
+    /** Removes a saved walk and its route points (the points go with it by foreign key cascade, AC40). */
+    suspend fun deleteWalk(walkId: Long) {
+        dao.delete(walkId)
+    }
+
     suspend fun nextSeq(walkId: Long): Int = dao.nextSeq(walkId)
 
     suspend fun walk(walkId: Long): WalkEntity? = dao.get(walkId)
@@ -71,4 +92,8 @@ class WalkRepository(
         val id: Long,
         val startUtc: Instant,
     )
+
+    private companion object {
+        const val MILLIS_PER_SECOND = 1000L
+    }
 }

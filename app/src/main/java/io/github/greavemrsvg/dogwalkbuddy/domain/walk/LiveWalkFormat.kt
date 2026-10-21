@@ -1,18 +1,12 @@
 package io.github.greavemrsvg.dogwalkbuddy.domain.walk
 
 import java.time.Duration
-import java.util.Locale
 
-/** How the recording screen shows the walk so far. Pure Kotlin. */
+/** How the recording screen shows the walk so far. It uses the same formats as the history. Pure Kotlin. */
 object LiveWalkFormat {
-    private const val METRES_PER_MILE = 1609.344
-
     /** Elapsed time as `h:mm`, flooring to whole minutes. A negative duration (a clock set back) shows 0:00. */
-    fun elapsed(duration: Duration): String {
-        val total = duration.seconds.coerceAtLeast(0)
-        return String.format(Locale.UK, "%d:%02d", total / 3600, total % 3600 / 60)
-    }
+    fun elapsed(duration: Duration): String = DurationFormat.hoursMinutes(duration.seconds)
 
     /** Distance in miles to 1 decimal place (spec Assumption 7). */
-    fun miles(metres: Double): String = String.format(Locale.UK, "%.1f", metres.coerceAtLeast(0.0) / METRES_PER_MILE)
+    fun miles(metres: Double): String = DistanceFormat.miles(metres)
 }

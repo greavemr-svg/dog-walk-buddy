@@ -31,6 +31,7 @@ fun HomeScreen(
     startWalkContent: @Composable () -> Unit = {},
     onOpenProfile: () -> Unit = {},
     onOpenAbout: () -> Unit = {},
+    onOpenHistory: () -> Unit = {},
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -49,6 +50,9 @@ fun HomeScreen(
             )
             checkContent()
             startWalkContent()
+            OutlinedButton(onClick = onOpenHistory, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.home_history))
+            }
             OutlinedButton(onClick = onOpenProfile, modifier = Modifier.heightIn(min = MinTouchTarget)) {
                 Text(stringResource(R.string.home_dog_profile))
             }
