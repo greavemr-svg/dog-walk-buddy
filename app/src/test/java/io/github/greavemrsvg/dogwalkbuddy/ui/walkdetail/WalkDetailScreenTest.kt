@@ -2,11 +2,13 @@ package io.github.greavemrsvg.dogwalkbuddy.ui.walkdetail
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LatLon
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WalkSummary
@@ -19,6 +21,7 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.history.WalkDateFormats
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,6 +96,50 @@ class WalkDetailScreenTest {
 
         composeRule.onNodeWithText("© OpenStreetMap contributors", substring = true).assertIsDisplayed()
         composeRule.onNodeWithText("© OpenMapTiles", substring = true).assertIsDisplayed()
+    }
+
+    private fun assertAttributionKeepsMapLibreControlsClear(fontScale: Float) {
+        show(loaded(), fontScale = fontScale)
+
+        val map = composeRule.onNodeWithTag(WALK_MAP_AREA_TAG).getUnclippedBoundsInRoot()
+        val strip = composeRule.onNodeWithTag(WALK_MAP_ATTRIBUTION_TAG).getUnclippedBoundsInRoot()
+        // MapLibre draws its logo and "i" button at the bottom-start; the app strip must stay in the end part.
+        val mapWidth = map.right - map.left
+        assertTrue("attribution must start after 40% of the map width", strip.left - map.left >= mapWidth * 0.4f - 1.dp)
+        assertEquals("attribution must end at the map's end edge", map.right.value, strip.right.value, 0.5f)
+        composeRule.onNodeWithText("© OpenStreetMap contributors", substring = true).assertIsDisplayed()
+        composeRule.assertNoTextTruncation()
+    }
+
+    @Test
+    fun AC38_the_attribution_is_at_the_end_so_the_MapLibre_logo_and_button_stay_visible() {
+        assertAttributionKeepsMapLibreControlsClear(fontScale = 1f)
+    }
+
+    @Test
+    fun AC52_the_attribution_at_the_largest_font_size_still_leaves_the_MapLibre_controls_clear() {
+        assertAttributionKeepsMapLibreControlsClear(fontScale = 2.0f)
+    }
+
+    @Test
+    fun AC38_the_attribution_text_is_unchanged_and_uses_at_most_60_percent_of_the_map_width() {
+        show(loaded())
+
+        val map = composeRule.onNodeWithTag(WALK_MAP_AREA_TAG).getUnclippedBoundsInRoot()
+        val strip = composeRule.onNodeWithTag(WALK_MAP_ATTRIBUTION_TAG).getUnclippedBoundsInRoot()
+        composeRule.onNodeWithText("© OpenStreetMap contributors · © OpenMapTiles").assertIsDisplayed()
+        val mapWidth = map.right - map.left
+        assertTrue("attribution strip must be at most 60% wide", strip.right - strip.left <= mapWidth * 0.6f + 1.dp)
+    }
+
+    @Test
+    fun AC52_the_attribution_at_the_largest_font_size_stays_inside_the_map_bottom_edge() {
+        show(loaded(), fontScale = 2.0f)
+
+        val map = composeRule.onNodeWithTag(WALK_MAP_AREA_TAG).getUnclippedBoundsInRoot()
+        val strip = composeRule.onNodeWithTag(WALK_MAP_ATTRIBUTION_TAG).getUnclippedBoundsInRoot()
+        assertEquals("attribution must sit on the map's bottom edge", map.bottom.value, strip.bottom.value, 0.5f)
+        assertTrue("attribution must not leave the map at the top", strip.top >= map.top)
     }
 
     @Test
