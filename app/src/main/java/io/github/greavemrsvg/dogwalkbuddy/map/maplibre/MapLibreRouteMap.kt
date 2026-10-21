@@ -126,8 +126,19 @@ internal object MapLibreRuntime {
     ) {
         if (initialised) return
         // No API key and no account: the OpenFreeMap style needs none.
-        HttpRequestUtil.setOkHttpClient(httpClient)
-        MapLibre.getInstance(context.applicationContext)
+        start(
+            startMapLibre = { MapLibre.getInstance(context.applicationContext) },
+            setHttpClient = { HttpRequestUtil.setOkHttpClient(httpClient) },
+        )
         initialised = true
+    }
+
+    /** MapLibre must be started before its HTTP client is set: the client's class initialiser needs the instance. */
+    internal fun start(
+        startMapLibre: () -> Unit,
+        setHttpClient: () -> Unit,
+    ) {
+        startMapLibre()
+        setHttpClient()
     }
 }
