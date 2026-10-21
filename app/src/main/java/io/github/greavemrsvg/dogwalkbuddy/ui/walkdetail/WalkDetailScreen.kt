@@ -3,6 +3,7 @@ package io.github.greavemrsvg.dogwalkbuddy.ui.walkdetail
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -33,8 +34,10 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
 
 /** Test tag of the area where the map, or the message that replaces it, is shown. */
 const val WALK_MAP_AREA_TAG = "walk_map_area"
+const val WALK_MAP_ATTRIBUTION_TAG = "walk_map_attribution"
 
 private val MapHeight = 360.dp
+private const val ATTRIBUTION_MAX_WIDTH_FRACTION = 0.6f
 
 /**
  * One saved walk: its date, duration and distance, which are always shown, and the route on a street map with its
@@ -144,16 +147,26 @@ private fun MapArea(
                     modifier = Modifier.matchParentSize().semantics { contentDescription = description },
                 )
                 // The attribution the tile licences require, drawn by the app so it is always visible and readable.
-                Surface(
-                    color = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.align(Alignment.BottomStart),
+                // It sits at the end and takes at most 60% of the width, so MapLibre's own logo and attribution button
+                // (bottom-start) stay visible and are never covered; long text wraps instead of growing leftwards.
+                Row(
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .fillMaxWidth(ATTRIBUTION_MAX_WIDTH_FRACTION)
+                            .testTag(WALK_MAP_ATTRIBUTION_TAG),
+                    horizontalArrangement = Arrangement.End,
                 ) {
-                    Text(
-                        text = stringResource(R.string.map_attribution),
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    )
+                    Surface(
+                        color = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.map_attribution),
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        )
+                    }
                 }
             }
         }
