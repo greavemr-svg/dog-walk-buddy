@@ -10,7 +10,7 @@ import kotlin.math.cos
 
 /** A walk location source the test feeds by hand. */
 class FakeWalkLocationSource : WalkLocationSource {
-    private val flow = MutableSharedFlow<LocationFix>(extraBufferCapacity = 64)
+    private val flow = MutableSharedFlow<LocationFix>(extraBufferCapacity = 1024)
 
     /** How many collectors are listening, so a test can tell that updates are on or removed. */
     val subscriptions get() = flow.subscriptionCount.value
