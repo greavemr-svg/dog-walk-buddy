@@ -122,6 +122,27 @@ class WalkDetailScreenTest {
     }
 
     @Test
+    fun AC38_the_attribution_text_is_unchanged_and_uses_at_most_60_percent_of_the_map_width() {
+        show(loaded())
+
+        val map = composeRule.onNodeWithTag(WALK_MAP_AREA_TAG).getUnclippedBoundsInRoot()
+        val strip = composeRule.onNodeWithTag(WALK_MAP_ATTRIBUTION_TAG).getUnclippedBoundsInRoot()
+        composeRule.onNodeWithText("© OpenStreetMap contributors · © OpenMapTiles").assertIsDisplayed()
+        val mapWidth = map.right - map.left
+        assertTrue("attribution strip must be at most 60% wide", strip.right - strip.left <= mapWidth * 0.6f + 1.dp)
+    }
+
+    @Test
+    fun AC52_the_attribution_at_the_largest_font_size_stays_inside_the_map_bottom_edge() {
+        show(loaded(), fontScale = 2.0f)
+
+        val map = composeRule.onNodeWithTag(WALK_MAP_AREA_TAG).getUnclippedBoundsInRoot()
+        val strip = composeRule.onNodeWithTag(WALK_MAP_ATTRIBUTION_TAG).getUnclippedBoundsInRoot()
+        assertEquals("attribution must sit on the map's bottom edge", map.bottom.value, strip.bottom.value, 0.5f)
+        assertTrue("attribution must not leave the map at the top", strip.top >= map.top)
+    }
+
+    @Test
     fun AC38_the_date_duration_and_distance_are_shown_in_the_standard_formats() {
         show(loaded())
 
