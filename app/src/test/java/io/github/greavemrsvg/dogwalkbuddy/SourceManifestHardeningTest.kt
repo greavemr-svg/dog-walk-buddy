@@ -69,10 +69,11 @@ class SourceManifestHardeningTest {
             manifest.getElementsByTagName("uses-permission").elements().map { it.getAttributeNS(ANDROID_NS, "name") }
 
         // Exactly this set (design, Manifest permissions, and ADR 0005): never background location, and no storage
-        // or media permission. ACCESS_NETWORK_STATE is not here yet: task 8 adds it with the connectivity check.
+        // or media permission. ACCESS_NETWORK_STATE is for the offline check of the walk map (AC39).
         assertEquals(
             listOf(
                 "android.permission.INTERNET",
+                "android.permission.ACCESS_NETWORK_STATE",
                 "android.permission.ACCESS_COARSE_LOCATION",
                 "android.permission.ACCESS_FINE_LOCATION",
                 "android.permission.FOREGROUND_SERVICE",

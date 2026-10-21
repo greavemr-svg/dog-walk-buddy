@@ -116,6 +116,43 @@
     <string name="check_disclaimer">Guidance only, not veterinary advice. If you\'re worried about your dog, contact a vet.</string>
     <string name="check_attribution">Weather data: MET Norway (CC BY 4.0)</string>
 
+    <!-- Walk detail and map -->
+    <string name="history_open_walk">Open walk details</string>
+    <string name="walk_detail_title">Walk details</string>
+    <string name="walk_detail_back">Back</string>
+    <string name="walk_detail_when">%1$s at %2$s</string>
+    <string name="walk_detail_duration">Duration %1$s</string>
+    <string name="walk_detail_distance">Distance %1$s mi</string>
+    <string name="walk_detail_map_description">Map of the route you walked</string>
+    <string name="walk_detail_map_unavailable">Map not available offline</string>
+    <string name="walk_detail_no_route">No route was recorded for this walk</string>
+    <string name="walk_detail_not_found">This walk can\'t be found. It may have been deleted.</string>
+    <string name="walk_detail_load_failed">Couldn\'t load this walk.</string>
+    <string name="map_attribution">© OpenStreetMap contributors · © OpenMapTiles</string>
+
+    <!-- Privacy -->
+    <string name="home_privacy">Privacy</string>
+    <string name="privacy_title">Privacy</string>
+    <string name="privacy_back">Back</string>
+    <string name="privacy_weather_heading">Weather check</string>
+    <string name="privacy_weather">When a check runs, your approximate location (rounded to about 1 km) is sent to MET Norway, the weather provider. MET Norway also receives your phone\'s IP address. Nothing is sent to MET Norway at any other time.</string>
+    <string name="privacy_map_heading">Walk maps</string>
+    <string name="privacy_map">When you view a walk map, the map provider, OpenFreeMap (served through its CDN provider, Cloudflare), receives requests for the map area shown and your phone\'s IP address.</string>
+    <string name="privacy_local_heading">Your data stays on your phone</string>
+    <string name="privacy_local">Your walk routes, your dog\'s profile and your walk history never leave your phone. They are left out of Android cloud backup and device-to-device transfer, so they are not copied to a new phone.</string>
+    <string name="privacy_no_tracking">There are no accounts, analytics or tracking.</string>
+    <string name="privacy_delete_heading">Delete your data</string>
+    <string name="privacy_delete_explanation">This removes all your walks and routes, your dog\'s profile and photo, and the saved weather check from this phone.</string>
+    <string name="privacy_delete_all">Delete all my data</string>
+    <string name="privacy_delete_title">Delete all your data?</string>
+    <string name="privacy_delete_message">All your walks and routes, your dog\'s profile and photo, and the saved weather check will be removed from this phone. A walk being recorded will be stopped and removed. This can\'t be undone.</string>
+    <string name="privacy_delete_confirm">Delete everything</string>
+    <string name="privacy_delete_cancel">Cancel</string>
+    <string name="privacy_deleting">Deleting your data</string>
+    <string name="privacy_deleted">All your data has been deleted from this phone.</string>
+    <string name="privacy_delete_failed">Couldn\'t delete all your data. Try again.</string>
+    <string name="privacy_delete_failed_dismiss">OK</string>
+
     <!-- About this advice -->
     <string name="about_title">About this advice</string>
     <string name="about_back">Back</string>

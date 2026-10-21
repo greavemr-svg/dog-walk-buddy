@@ -32,6 +32,7 @@ fun HomeScreen(
     onOpenProfile: () -> Unit = {},
     onOpenAbout: () -> Unit = {},
     onOpenHistory: () -> Unit = {},
+    onOpenPrivacy: () -> Unit = {},
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -55,6 +56,9 @@ fun HomeScreen(
             }
             OutlinedButton(onClick = onOpenProfile, modifier = Modifier.heightIn(min = MinTouchTarget)) {
                 Text(stringResource(R.string.home_dog_profile))
+            }
+            OutlinedButton(onClick = onOpenPrivacy, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.home_privacy))
             }
             OutlinedButton(onClick = onOpenAbout, modifier = Modifier.heightIn(min = MinTouchTarget)) {
                 Text(stringResource(R.string.home_about))

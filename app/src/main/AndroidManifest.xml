@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Lets the walk detail tell whether the phone is online, so it can say the map is unavailable (AC39). -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Approximate location for the weather check only (AC25). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Precise location only while a walk is recorded (AC28, ADR 0005). No background location. -->

@@ -28,6 +28,9 @@ class TestAppContainer(
     var fineGranted = true
     val walkSource = FakeWalkLocationSource()
     val launcher = FakeWalkServiceLauncher()
+    val routeMap = FakeRouteMap()
+    val connectivity = FakeConnectivity()
+    val mapCache = FakeMapCacheClearer()
     private val scope = CoroutineScope(SupervisorJob())
     var location: LocationFix? = LocationFix(51.507351, -0.127758, accuracyM = 1000.0, timeUtc = start)
 
@@ -52,6 +55,9 @@ class TestAppContainer(
             hasFineLocationPermission = { fineGranted },
             walkServiceLauncher = launcher,
             applicationScope = scope,
+            connectivity = connectivity,
+            routeMap = routeMap,
+            mapCacheClearer = mapCache,
         )
 
     fun close() {

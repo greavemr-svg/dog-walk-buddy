@@ -1,5 +1,6 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.history
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,14 +19,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -46,6 +46,7 @@ import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DistanceFormat
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DurationFormat
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WalkSummary
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WeekGroup
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.ErrorSnackbarEffect
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
 import java.time.LocalDate
 import java.time.ZoneId
@@ -91,6 +92,7 @@ fun HistoryRoute(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     debugActions: List<DebugAction> = emptyList(),
+    onOpenWalk: (Long) -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val formats = remember(zoneId, is24Hour) { WalkDateFormats(zoneId, is24Hour) }
@@ -104,6 +106,7 @@ fun HistoryRoute(
         onConfirmDelete = viewModel::confirmDelete,
         onCancelDelete = viewModel::cancelDelete,
         onDismissDeleteFailure = viewModel::dismissDeleteFailure,
+        onOpenWalk = onOpenWalk,
         debugActions = debugActions,
         modifier = modifier,
     )
@@ -119,19 +122,18 @@ fun HistoryContent(
     onCancelDelete: () -> Unit,
     modifier: Modifier = Modifier,
     onDismissDeleteFailure: () -> Unit = {},
+    onOpenWalk: (Long) -> Unit = {},
     debugActions: List<DebugAction> = emptyList(),
 ) {
     val snackbarHost = remember { SnackbarHostState() }
-    val failureMessage = stringResource(R.string.history_delete_failed)
-    val failureDismiss = stringResource(R.string.history_delete_failed_dismiss)
-    // A failed delete is shown over the list where the user is, and announced (the snackbar is a polite live
-    // region). It stays until the user dismisses it.
-    LaunchedEffect(state.deleteFailed) {
-        if (state.deleteFailed) {
-            snackbarHost.showSnackbar(failureMessage, actionLabel = failureDismiss, duration = SnackbarDuration.Indefinite)
-            onDismissDeleteFailure()
-        }
-    }
+    // A failed delete is shown over the list where the user is, and announced. It stays until the user dismisses it.
+    ErrorSnackbarEffect(
+        host = snackbarHost,
+        show = state.deleteFailed,
+        message = stringResource(R.string.history_delete_failed),
+        dismissLabel = stringResource(R.string.history_delete_failed_dismiss),
+        onDismissed = onDismissDeleteFailure,
+    )
     Scaffold(
         modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0),
@@ -145,6 +147,7 @@ fun HistoryContent(
             onConfirmDelete,
             onCancelDelete,
             debugActions,
+            onOpenWalk,
             Modifier.padding(scaffoldPadding),
         )
     }
@@ -159,6 +162,7 @@ private fun HistoryBody(
     onConfirmDelete: () -> Unit,
     onCancelDelete: () -> Unit,
     debugActions: List<DebugAction>,
+    onOpenWalk: (Long) -> Unit,
     modifier: Modifier,
 ) {
     Surface(modifier = modifier.fillMaxSize()) {
@@ -190,7 +194,7 @@ private fun HistoryBody(
                 }
                 state.weeks.forEach { week ->
                     item(key = "week-${week.weekStart}") { WeekHeader(week, formats) }
-                    items(week.walks, key = { it.id }) { walk -> WalkRow(walk, formats, onRequestDelete) }
+                    items(week.walks, key = { it.id }) { walk -> WalkRow(walk, formats, onOpenWalk, onRequestDelete) }
                 }
             }
         }
@@ -237,14 +241,25 @@ private fun WeekHeader(
 private fun WalkRow(
     walk: WalkSummary,
     formats: WalkDateFormats,
+    onOpenWalk: (Long) -> Unit,
     onRequestDelete: (WalkSummary) -> Unit,
 ) {
     val description = stringResource(R.string.history_delete_description, formats.date(walk), formats.time(walk))
+    val openLabel = stringResource(R.string.history_open_walk)
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Column(modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {}) {
+        // The date, time, duration and distance are spoken as one label. Opening the walk is the row's action, and
+        // Delete stays a separate control beside it.
+        Column(
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .heightIn(min = MinTouchTarget)
+                    .clickable(onClickLabel = openLabel, role = Role.Button) { onOpenWalk(walk.id) }
+                    .semantics(mergeDescendants = true) {},
+        ) {
             Text(
                 stringResource(R.string.history_walk_when, formats.date(walk), formats.time(walk)),
                 style = MaterialTheme.typography.bodyLarge,

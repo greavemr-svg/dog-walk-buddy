@@ -3,6 +3,7 @@ package io.github.greavemrsvg.dogwalkbuddy
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.net.ConnectivityManager
 import android.text.format.DateFormat
 import androidx.core.content.ContextCompat
 import androidx.room.Room
@@ -11,13 +12,21 @@ import io.github.greavemrsvg.dogwalkbuddy.data.location.ApproximateLocationSourc
 import io.github.greavemrsvg.dogwalkbuddy.data.location.GpsWalkLocationSource
 import io.github.greavemrsvg.dogwalkbuddy.data.location.LocationManagerApproximateSource
 import io.github.greavemrsvg.dogwalkbuddy.data.location.WalkLocationSource
+import io.github.greavemrsvg.dogwalkbuddy.data.net.AndroidConnectivityStatus
+import io.github.greavemrsvg.dogwalkbuddy.data.net.ConnectivityStatus
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.CheckRepository
+import io.github.greavemrsvg.dogwalkbuddy.data.repo.DeleteAllDataUseCase
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.PhotoStore
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.ProfileRepository
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.RecoverInterruptedWalkUseCase
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.WalkRepository
 import io.github.greavemrsvg.dogwalkbuddy.data.weather.MetNorwayClient
 import io.github.greavemrsvg.dogwalkbuddy.data.weather.WeatherConfig
+import io.github.greavemrsvg.dogwalkbuddy.map.MapCacheClearer
+import io.github.greavemrsvg.dogwalkbuddy.map.MapConfig
+import io.github.greavemrsvg.dogwalkbuddy.map.RouteMap
+import io.github.greavemrsvg.dogwalkbuddy.map.maplibre.MapLibreCacheClearer
+import io.github.greavemrsvg.dogwalkbuddy.map.maplibre.MapLibreRouteMap
 import io.github.greavemrsvg.dogwalkbuddy.service.AndroidWalkServiceLauncher
 import io.github.greavemrsvg.dogwalkbuddy.service.RecordingStateHolder
 import io.github.greavemrsvg.dogwalkbuddy.service.WalkRecordingController
@@ -50,6 +59,9 @@ class AppContainer(
     val hasFineLocationPermission: () -> Boolean,
     val walkServiceLauncher: WalkServiceLauncher,
     val applicationScope: CoroutineScope,
+    val connectivity: ConnectivityStatus,
+    val routeMap: RouteMap,
+    val mapCacheClearer: MapCacheClearer,
     val recordingStateHolder: RecordingStateHolder = RecordingStateHolder(),
 ) {
     val checkRepository: CheckRepository by lazy {
@@ -71,6 +83,17 @@ class AppContainer(
         )
     }
 
+    val deleteAllDataUseCase: DeleteAllDataUseCase by lazy {
+        DeleteAllDataUseCase(
+            recordingController = walkRecordingController,
+            recordingState = recordingStateHolder,
+            database = database,
+            photoStore = photoStore,
+            evictHttpCache = { weatherHttpClient.cache?.evictAll() },
+            mapCache = mapCacheClearer,
+        )
+    }
+
     companion object {
         fun createDefault(context: Context): AppContainer {
             val appContext = context.applicationContext
@@ -78,6 +101,7 @@ class AppContainer(
             val userAgent = WeatherConfig.userAgent(BuildConfig.VERSION_NAME)
             val httpClient =
                 MetNorwayClient.createHttpClient(File(appContext.cacheDir, WeatherConfig.HTTP_CACHE_DIRECTORY), userAgent)
+            val mapClient = MapConfig.httpClient(httpClient)
             val database = Room.databaseBuilder(appContext, AppDatabase::class.java, AppDatabase.NAME).build()
             val hasCoarsePermission = {
                 ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
@@ -114,6 +138,9 @@ class AppContainer(
                 hasFineLocationPermission = hasFinePermission,
                 walkServiceLauncher = AndroidWalkServiceLauncher(appContext),
                 applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+                connectivity = AndroidConnectivityStatus(appContext.getSystemService(ConnectivityManager::class.java)),
+                routeMap = MapLibreRouteMap(appContext, mapClient),
+                mapCacheClearer = MapLibreCacheClearer(appContext, mapClient),
             )
         }
     }

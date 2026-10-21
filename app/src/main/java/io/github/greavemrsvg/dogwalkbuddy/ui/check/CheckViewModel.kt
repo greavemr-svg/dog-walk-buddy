@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -45,6 +46,8 @@ class CheckViewModel(
     private val locationTimeout: Duration = LOCATION_TIMEOUT,
     // Only the class name of an unexpected error is logged: no message, no coordinates.
     private val logError: (String) -> Unit = { name -> Log.println(Log.WARN, LOG_TAG, "Check step failed: $name") },
+    // Emits when "Delete all my data" has run, so a result held in memory is forgotten like the stored one (AC47).
+    dataDeleted: Flow<Unit> = emptyFlow(),
 ) : ViewModel() {
     private sealed interface Source {
         data object Idle : Source
@@ -66,6 +69,15 @@ class CheckViewModel(
     // Bumped when the screen is shown again, so the state is recomputed with the current time (the age label).
     private val shown = MutableStateFlow(0)
     private var refreshJob: Job? = null
+
+    init {
+        viewModelScope.launch {
+            dataDeleted.collect {
+                refreshJob?.cancel()
+                source.value = Source.Idle
+            }
+        }
+    }
 
     val state: StateFlow<CheckUiState> =
         combine(source, sensitivity, hasProfile, shown) { current, heat, profileExists, _ -> toUiState(current, heat, profileExists) }
@@ -206,6 +218,7 @@ class CheckViewModel(
                         hasProfile = container.profileRepository.observeProfile().map { it != null },
                         hasCoarsePermission = container.hasCoarseLocationPermission,
                         clock = container.clock,
+                        dataDeleted = container.deleteAllDataUseCase.deletions,
                     )
                 }
             }
