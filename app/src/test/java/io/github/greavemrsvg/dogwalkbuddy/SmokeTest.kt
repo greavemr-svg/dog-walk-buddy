@@ -6,6 +6,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
+import io.github.greavemrsvg.dogwalkbuddy.testutil.FakeMapCacheClearer
+import io.github.greavemrsvg.dogwalkbuddy.testutil.FakeRouteMap
 import io.github.greavemrsvg.dogwalkbuddy.testutil.FakeWalkServiceLauncher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -64,6 +66,9 @@ class SmokeTest {
                 hasFineLocationPermission = { false },
                 walkServiceLauncher = FakeWalkServiceLauncher(),
                 applicationScope = CoroutineScope(SupervisorJob()),
+                connectivity = { true },
+                routeMap = FakeRouteMap(),
+                mapCacheClearer = FakeMapCacheClearer(),
             )
 
         assertEquals(Instant.parse("2026-10-19T12:00:00Z"), container.clock.instant())
