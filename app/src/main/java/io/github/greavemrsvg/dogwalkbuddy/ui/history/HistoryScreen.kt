@@ -3,6 +3,7 @@ package io.github.greavemrsvg.dogwalkbuddy.ui.history
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -16,10 +17,15 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +38,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DistanceFormat
@@ -86,6 +94,8 @@ fun HistoryRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val formats = remember(zoneId, is24Hour) { WalkDateFormats(zoneId, is24Hour) }
+    // The week boundary can pass while the app is in the background: recompute "This week" on return.
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refresh() }
     HistoryContent(
         state = state,
         formats = formats,
@@ -93,6 +103,7 @@ fun HistoryRoute(
         onRequestDelete = viewModel::requestDelete,
         onConfirmDelete = viewModel::confirmDelete,
         onCancelDelete = viewModel::cancelDelete,
+        onDismissDeleteFailure = viewModel::dismissDeleteFailure,
         debugActions = debugActions,
         modifier = modifier,
     )
@@ -107,7 +118,48 @@ fun HistoryContent(
     onConfirmDelete: () -> Unit,
     onCancelDelete: () -> Unit,
     modifier: Modifier = Modifier,
+    onDismissDeleteFailure: () -> Unit = {},
     debugActions: List<DebugAction> = emptyList(),
+) {
+    val snackbarHost = remember { SnackbarHostState() }
+    val failureMessage = stringResource(R.string.history_delete_failed)
+    val failureDismiss = stringResource(R.string.history_delete_failed_dismiss)
+    // A failed delete is shown over the list where the user is, and announced (the snackbar is a polite live
+    // region). It stays until the user dismisses it.
+    LaunchedEffect(state.deleteFailed) {
+        if (state.deleteFailed) {
+            snackbarHost.showSnackbar(failureMessage, actionLabel = failureDismiss, duration = SnackbarDuration.Indefinite)
+            onDismissDeleteFailure()
+        }
+    }
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0),
+        snackbarHost = { SnackbarHost(snackbarHost, modifier = Modifier.safeDrawingPadding()) },
+    ) { scaffoldPadding ->
+        HistoryBody(
+            state,
+            formats,
+            onBack,
+            onRequestDelete,
+            onConfirmDelete,
+            onCancelDelete,
+            debugActions,
+            Modifier.padding(scaffoldPadding),
+        )
+    }
+}
+
+@Composable
+private fun HistoryBody(
+    state: HistoryUiState,
+    formats: WalkDateFormats,
+    onBack: () -> Unit,
+    onRequestDelete: (WalkSummary) -> Unit,
+    onConfirmDelete: () -> Unit,
+    onCancelDelete: () -> Unit,
+    debugActions: List<DebugAction>,
+    modifier: Modifier,
 ) {
     Surface(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 16.dp)) {
@@ -128,9 +180,11 @@ fun HistoryContent(
                         modifier = Modifier.semantics { heading() },
                     )
                 }
-                item { ThisWeek(state.thisWeek) }
-                if (state.loadFailed) item { Text(stringResource(R.string.history_load_failed)) }
-                if (state.deleteFailed) item { Text(stringResource(R.string.history_delete_failed)) }
+                if (state.loadFailed) {
+                    item { Text(stringResource(R.string.history_load_failed)) }
+                } else {
+                    item { ThisWeek(state.thisWeek) }
+                }
                 if (state.isLoaded && state.isEmpty && !state.loadFailed) {
                     item { Text(stringResource(R.string.history_empty), style = MaterialTheme.typography.titleMedium) }
                 }

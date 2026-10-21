@@ -43,9 +43,10 @@ class HistoryViewModel(
 ) : ViewModel() {
     private val pendingDelete = MutableStateFlow<WalkSummary?>(null)
     private val deleteFailed = MutableStateFlow(false)
+    private val refreshes = MutableStateFlow(0)
 
     val state: StateFlow<HistoryUiState> =
-        combine(repository.observeSummaries(), pendingDelete, deleteFailed) { walks, pending, failed ->
+        combine(repository.observeSummaries(), pendingDelete, deleteFailed, refreshes) { walks, pending, failed, _ ->
             HistoryUiState(
                 isLoaded = true,
                 thisWeek = WeeklyTotals.thisWeek(walks, zoneId, clock.instant()),
@@ -81,6 +82,11 @@ class HistoryViewModel(
                 deleteFailed.update { true }
             }
         }
+    }
+
+    /** Recomputes "This week" against the current time, for when the screen is shown again (AC37). */
+    fun refresh() {
+        refreshes.update { it + 1 }
     }
 
     fun dismissDeleteFailure() {

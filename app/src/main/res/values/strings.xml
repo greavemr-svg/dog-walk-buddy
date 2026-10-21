@@ -28,6 +28,7 @@
     <string name="history_delete_confirm">Delete walk</string>
     <string name="history_delete_cancel">Cancel</string>
     <string name="history_delete_failed">Couldn\'t delete the walk. Try again.</string>
+    <string name="history_delete_failed_dismiss">OK</string>
     <string name="history_load_failed">Couldn\'t load your walks.</string>
     <string name="history_more">More</string>
 

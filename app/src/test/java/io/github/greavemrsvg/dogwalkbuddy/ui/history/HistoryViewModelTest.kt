@@ -30,6 +30,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -146,6 +147,17 @@ class HistoryViewModelTest {
         assertNull(seen!!.pendingDelete)
         failing.dismissDeleteFailure()
         awaitCondition("failure dismissed") { seen?.deleteFailed == false }
+    }
+
+    @Test
+    fun AC37_refreshing_recomputes_this_week_against_the_current_time() {
+        addWalk("2026-10-20T08:00:00Z")
+        await("this week has the walk") { it.thisWeek.count == 1 }
+
+        clock.advance(Duration.ofDays(7))
+        viewModel.refresh()
+
+        await("this week has rolled over") { it.thisWeek.count == 0 && it.weeks.size == 1 }
     }
 
     @Test

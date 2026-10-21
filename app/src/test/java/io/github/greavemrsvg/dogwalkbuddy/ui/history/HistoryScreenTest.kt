@@ -1,7 +1,11 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.history
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasText
@@ -10,9 +14,12 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkEntity
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkStatus
+import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WalkSummary
+import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WeeklyTotals
 import io.github.greavemrsvg.dogwalkbuddy.testutil.TestAppContainer
 import io.github.greavemrsvg.dogwalkbuddy.testutil.awaitCondition
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.WithFontScale
@@ -284,5 +291,87 @@ class HistoryScreenTest {
         composeRule.onNodeWithText("Do it").performClick()
 
         assertTrue(ran)
+    }
+
+    private fun contentState(
+        count: Int,
+        deleteFailed: Boolean = false,
+        loadFailed: Boolean = false,
+    ): HistoryUiState {
+        val start = Instant.parse("2026-10-19T08:00:00Z")
+        val walks = (0 until count).map { WalkSummary(it + 1L, start.minus(Duration.ofHours(it.toLong())), 1800, 1609.344) }
+        return HistoryUiState(
+            isLoaded = true,
+            thisWeek = WeeklyTotals.thisWeek(walks, ZoneOffset.UTC, start),
+            weeks = WeeklyTotals.group(walks, ZoneOffset.UTC),
+            deleteFailed = deleteFailed,
+            loadFailed = loadFailed,
+        )
+    }
+
+    private fun showContent(
+        state: MutableState<HistoryUiState>,
+        onDismissDeleteFailure: () -> Unit = {},
+    ) {
+        composeRule.setContent {
+            DogWalkBuddyTheme {
+                HistoryContent(
+                    state = state.value,
+                    formats = WalkDateFormats(ZoneOffset.UTC, true),
+                    onBack = {},
+                    onRequestDelete = {},
+                    onConfirmDelete = {},
+                    onCancelDelete = {},
+                    onDismissDeleteFailure = onDismissDeleteFailure,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun AC40_a_delete_that_fails_is_announced_over_a_scrolled_list_and_can_be_dismissed() {
+        val state = mutableStateOf(contentState(count = 40))
+        var dismissals = 0
+        showContent(state) {
+            dismissals++
+            state.value = state.value.copy(deleteFailed = false)
+        }
+        composeRule.onNodeWithTag(HISTORY_LIST_TAG).performScrollToIndex(30)
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertDoesNotExist()
+
+        state.value = state.value.copy(deleteFailed = true)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertIsDisplayed()
+        composeRule
+            .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion), useUnmergedTree = true)
+            .assertCountEquals(1)
+            .assertCountEquals(1)
+        composeRule.onNodeWithText("OK").performClick()
+        composeRule.waitForIdle()
+
+        assertEquals(1, dismissals)
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertDoesNotExist()
+    }
+
+    @Test
+    fun AC40_the_failure_message_goes_away_when_the_failure_is_cleared_elsewhere() {
+        val state = mutableStateOf(contentState(count = 1, deleteFailed = true))
+        showContent(state)
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertIsDisplayed()
+
+        state.value = state.value.copy(deleteFailed = false)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertDoesNotExist()
+    }
+
+    @Test
+    fun a_history_that_could_not_be_loaded_shows_the_error_and_no_zero_summary() {
+        val state = mutableStateOf(contentState(count = 0, loadFailed = true))
+        showContent(state)
+
+        composeRule.onNodeWithText("Couldn't load your walks.").assertIsDisplayed()
+        composeRule.onNodeWithTag(THIS_WEEK_TAG).assertDoesNotExist()
     }
 }
