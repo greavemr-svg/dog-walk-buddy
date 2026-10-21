@@ -90,6 +90,19 @@ class PhotoStore(
         withContext(dispatcher) { resolve(fileName)?.delete() }
     }
 
+    /**
+     * Removes every photo copy, including any half-written `.partial` file, by removing the whole `profile/`
+     * directory (ADR 0004, AC47). Throws if something is left, so "Delete all my data" cannot report success.
+     */
+    suspend fun deleteAll() {
+        withContext(dispatcher) {
+            if (directory.exists()) {
+                directory.deleteRecursively()
+                check(!directory.exists()) { "Cannot remove the photo directory" }
+            }
+        }
+    }
+
     // Only names this store generated resolve to a file, so a stored or supplied value cannot escape the directory.
     private fun resolve(fileName: String): File? = if (GENERATED_NAME.matches(fileName)) File(directory, fileName) else null
 
