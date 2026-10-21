@@ -1,4 +1,4 @@
-# <Project name>
+# dog-walk-buddy
 
 Built by a governed team of Claude Code agents. Product and stack details are in
 [`docs/project.md`](docs/project.md); how the agents work is in
