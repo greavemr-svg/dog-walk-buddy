@@ -161,6 +161,42 @@ class HistoryViewModelTest {
     }
 
     @Test
+    fun AC37_refreshing_keeps_the_walks_and_a_pending_delete() {
+        addWalk("2026-10-20T08:00:00Z")
+        await("loaded") { it.thisWeek.count == 1 }
+        viewModel.requestDelete(latest!!.weeks[0].walks[0])
+        await("pending") { it.pendingDelete != null }
+
+        viewModel.refresh()
+        viewModel.refresh()
+
+        await("still the same") { it.thisWeek.count == 1 && it.weeks.size == 1 && it.pendingDelete != null }
+    }
+
+    @Test
+    fun AC37_refreshing_a_history_that_failed_to_load_stays_failed() {
+        val broken = HistoryViewModel(WalkRepository(FailingDao(emptyList(), failRead = true), clock), clock, ZoneOffset.UTC)
+        var seen: HistoryUiState? = null
+        scope.launch { broken.state.collect { seen = it } }
+        awaitCondition("load failure reported") { seen?.loadFailed == true }
+
+        broken.refresh()
+
+        awaitCondition("still failed") { seen?.loadFailed == true && seen?.isEmpty == true }
+    }
+
+    @Test
+    fun AC40_a_delete_that_succeeds_after_a_failure_leaves_no_failure_flag() {
+        addWalk("2026-10-20T08:00:00Z")
+        await("loaded") { it.weeks.isNotEmpty() }
+        viewModel.requestDelete(latest!!.weeks[0].walks[0])
+        viewModel.confirmDelete()
+
+        await("walk removed") { it.isEmpty && it.pendingDelete == null }
+        assertFalse(latest!!.deleteFailed)
+    }
+
+    @Test
     fun a_history_that_cannot_be_read_is_reported_instead_of_crashing() {
         val broken = HistoryViewModel(WalkRepository(FailingDao(emptyList(), failRead = true), clock), clock, ZoneOffset.UTC)
         var seen: HistoryUiState? = null

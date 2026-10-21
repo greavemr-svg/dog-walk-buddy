@@ -374,4 +374,71 @@ class HistoryScreenTest {
         composeRule.onNodeWithText("Couldn't load your walks.").assertIsDisplayed()
         composeRule.onNodeWithTag(THIS_WEEK_TAG).assertDoesNotExist()
     }
+
+    @Test
+    fun AC40_a_second_failure_after_dismissal_announces_the_message_again() {
+        val state = mutableStateOf(contentState(count = 2, deleteFailed = true))
+        var dismissals = 0
+        showContent(state) {
+            dismissals++
+            state.value = state.value.copy(deleteFailed = false)
+        }
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertIsDisplayed()
+        composeRule.onNodeWithText("OK").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertDoesNotExist()
+
+        state.value = state.value.copy(deleteFailed = true)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertIsDisplayed()
+        assertEquals(1, dismissals)
+    }
+
+    @Test
+    fun AC40_no_failure_message_is_shown_when_nothing_failed() {
+        val state = mutableStateOf(contentState(count = 2))
+        showContent(state)
+
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertDoesNotExist()
+        composeRule.onNodeWithText("OK").assertDoesNotExist()
+    }
+
+    @Test
+    fun AC50_AC51_the_failure_snackbar_action_is_labelled_and_at_least_48dp_at_200_percent_font() {
+        val state = mutableStateOf(contentState(count = 3, deleteFailed = true))
+        composeRule.setContent {
+            DogWalkBuddyTheme {
+                WithFontScale(2f) {
+                    HistoryContent(
+                        state = state.value,
+                        formats = WalkDateFormats(ZoneOffset.UTC, true),
+                        onBack = {},
+                        onRequestDelete = {},
+                        onConfirmDelete = {},
+                        onCancelDelete = {},
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertIsDisplayed()
+        composeRule.onNodeWithText("OK").assertIsDisplayed()
+        composeRule.assertAccessibleScreen()
+    }
+
+    @Test
+    fun AC40_the_confirmation_dialog_and_the_failure_message_are_not_shown_together() {
+        val walk = WalkSummary(1, Instant.parse("2026-10-19T08:00:00Z"), 1800, 1609.344)
+        val state = mutableStateOf(contentState(count = 1).copy(pendingDelete = walk))
+        showContent(state)
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertDoesNotExist()
+
+        // The view model closes the confirmation as it reports the failure.
+        state.value = state.value.copy(pendingDelete = null, deleteFailed = true)
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertIsDisplayed()
+    }
 }
