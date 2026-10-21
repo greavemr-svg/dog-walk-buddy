@@ -97,4 +97,24 @@ class WalkHistoryRepositoryTest {
 
         assertEquals(listOf(id), summaries().map { it.id })
     }
+
+    @Test
+    fun AC35_walks_with_the_same_start_time_are_both_listed_newest_saved_first() {
+        val first = recordWalk(0, 100.0)
+        val second = recordWalk(0, 200.0)
+
+        assertEquals(listOf(second, first), summaries().map { it.id })
+    }
+
+    @Test
+    fun AC40_deleting_a_walk_twice_is_harmless() {
+        val id = recordWalk(10, 100.0)
+
+        runBlocking {
+            repository.deleteWalk(id)
+            repository.deleteWalk(id)
+        }
+
+        assertTrue(summaries().isEmpty())
+    }
 }
