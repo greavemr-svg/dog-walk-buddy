@@ -38,12 +38,16 @@ class WalkRecordingService : LifecycleService() {
         return START_NOT_STICKY
     }
 
+    /** The walk this service instance was started for, so that ending it never clears a newer walk's session. */
+    private var ownWalkId = NO_WALK
+
     private fun container() = (application as DogWalkBuddyApp).container
 
     private fun begin(
         walkId: Long,
         startId: Int,
     ) {
+        ownWalkId = walkId
         // Calling startForeground first keeps the system's promise to show the notification within seconds.
         if (!enterForeground()) {
             lifecycleScope.launch { discard(walkId, startId) }
@@ -126,7 +130,7 @@ class WalkRecordingService : LifecycleService() {
 
     override fun onDestroy() {
         // A service that ends without Stop leaves its row as RECORDING, which recovery saves on the next launch.
-        container().recordingStateHolder.clear()
+        container().recordingStateHolder.clearIf(ownWalkId)
         super.onDestroy()
     }
 

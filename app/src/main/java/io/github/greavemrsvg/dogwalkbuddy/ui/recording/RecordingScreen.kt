@@ -146,6 +146,7 @@ fun RecordingContent(
             }
             Button(
                 onClick = onStop,
+                enabled = !stopping,
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,

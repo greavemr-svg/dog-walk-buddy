@@ -84,7 +84,7 @@ class WalkRecordingControllerTest {
                     repository,
                     holder,
                     test.launcher,
-                    RecoverInterruptedWalkUseCase(repository) { false },
+                    RecoverInterruptedWalkUseCase(repository) { null },
                     logError = { logged += it },
                 )
 

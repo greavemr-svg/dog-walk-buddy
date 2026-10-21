@@ -2,7 +2,7 @@ package io.github.greavemrsvg.dogwalkbuddy.ui.recording
 
 import android.Manifest
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasText
@@ -140,8 +140,8 @@ class WalkRecordingScreensTest {
 
         assertEquals(1, recordingWalks().size)
         assertEquals(recordingWalks().single().id, test.launcher.started.single())
-        composeRule.onNodeWithTag(ELAPSED_TAG).assertTextContains("0:00:00")
-        composeRule.onNodeWithTag(DISTANCE_TAG).assertTextContains("0.00 mi")
+        composeRule.onNodeWithTag(ELAPSED_TAG).assertTextContains("0:00")
+        composeRule.onNodeWithTag(DISTANCE_TAG).assertTextContains("0.0 mi")
         // Precise location was already granted, so there was no location request. Notifications were granted too.
         assertTrue(registry.requests.isEmpty())
     }
@@ -152,14 +152,14 @@ class WalkRecordingScreensTest {
         tapStart()
         awaitText("Recording your walk")
 
-        test.clock.advance(Duration.ofSeconds(12))
+        test.clock.advance(Duration.ofMinutes(12))
         composeRule.mainClock.advanceTimeBy(2_000)
         test.container.recordingStateHolder.updateDistance(1609.344)
 
         composeRule.waitUntil(WAIT_MS) {
-            composeRule.onAllNodes(hasText("0:00:12", substring = true)).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodes(hasText("0:12", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.onNodeWithTag(DISTANCE_TAG).assertTextContains("1.00 mi")
+        composeRule.onNodeWithTag(DISTANCE_TAG).assertTextContains("1.0 mi")
     }
 
     @Test
@@ -172,7 +172,7 @@ class WalkRecordingScreensTest {
         composeRule.mainClock.advanceTimeBy(2_000)
 
         composeRule.waitUntil(WAIT_MS) {
-            composeRule.onAllNodes(hasText("0:10:00", substring = true)).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodes(hasText("0:10", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
     }
 
@@ -207,7 +207,10 @@ class WalkRecordingScreensTest {
 
         assertEquals(1, test.launcher.stopCount)
         composeRule.onNodeWithTag(STOP_WALK_TAG).assertTextEquals("Saving your walk")
-        composeRule.onNodeWithTag(STOP_WALK_TAG).assertIsEnabled()
+        composeRule.onNodeWithTag(STOP_WALK_TAG).assertIsNotEnabled()
+        // A second tap while saving does nothing.
+        composeRule.onNodeWithTag(STOP_WALK_TAG).performClick()
+        assertEquals(1, test.launcher.stopCount)
         // The service ends the walk and clears the session. The screen then returns to Home.
         test.container.recordingStateHolder.clear()
         awaitText("Dog Walk Buddy")

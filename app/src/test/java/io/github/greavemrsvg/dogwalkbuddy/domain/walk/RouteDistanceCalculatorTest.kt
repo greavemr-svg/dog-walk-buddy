@@ -122,7 +122,7 @@ class RouteDistanceCalculatorTest {
     fun AC32_a_clean_2_km_track_with_5_m_accuracy_is_within_2_percent() {
         val calculator = RouteDistanceCalculator()
 
-        SyntheticTrack.north(fixes = 400, stepM = 5.0, accuracyM = 5.0, start = start).forEach { calculator.add(it) }
+        SyntheticTrack.north(fixes = 401, stepM = 5.0, accuracyM = 5.0, start = start).forEach { calculator.add(it) }
 
         assertEquals(2000.0, calculator.distanceM, 40.0)
     }
@@ -132,7 +132,7 @@ class RouteDistanceCalculatorTest {
         val calculator = RouteDistanceCalculator()
 
         SyntheticTrack
-            .north(fixes = 400, stepM = 5.0, accuracyM = 10.0, start = start, noiseM = 0.5)
+            .north(fixes = 401, stepM = 5.0, accuracyM = 10.0, start = start, noiseM = 0.5)
             .forEach { calculator.add(it) }
 
         assertEquals(2000.0, calculator.distanceM, 40.0)
@@ -142,7 +142,7 @@ class RouteDistanceCalculatorTest {
     fun AC32_a_track_walked_at_10_m_steps_is_within_2_percent() {
         val calculator = RouteDistanceCalculator()
 
-        SyntheticTrack.north(fixes = 200, stepM = 10.0, accuracyM = 8.0, start = start).forEach { calculator.add(it) }
+        SyntheticTrack.north(fixes = 201, stepM = 10.0, accuracyM = 8.0, start = start).forEach { calculator.add(it) }
 
         assertEquals(2000.0, calculator.distanceM, 40.0)
     }

@@ -60,7 +60,7 @@ class RecoverInterruptedWalkUseCaseTest {
             first.close()
 
             val repository = WalkRepository(open().walkDao(), clock)
-            val recovered = RecoverInterruptedWalkUseCase(repository) { false }()
+            val recovered = RecoverInterruptedWalkUseCase(repository) { null }()
 
             assertEquals(1, recovered)
             val row = repository.walk(walk.id)!!
@@ -76,7 +76,7 @@ class RecoverInterruptedWalkUseCaseTest {
             val repository = WalkRepository(open().walkDao(), clock)
             val walk = repository.startWalk()
 
-            RecoverInterruptedWalkUseCase(repository) { false }()
+            RecoverInterruptedWalkUseCase(repository) { null }()
 
             val row = repository.walk(walk.id)!!
             assertEquals(WalkStatus.COMPLETE, row.status)
@@ -89,10 +89,24 @@ class RecoverInterruptedWalkUseCaseTest {
             val repository = WalkRepository(open().walkDao(), clock)
             val walk = repository.startWalk()
 
-            val recovered = RecoverInterruptedWalkUseCase(repository) { true }()
+            val recovered = RecoverInterruptedWalkUseCase(repository) { walk.id }()
 
             assertEquals(0, recovered)
             assertEquals(WalkStatus.RECORDING, repository.walk(walk.id)!!.status)
+        }
+
+    @Test
+    fun a_live_walk_is_skipped_but_other_interrupted_walks_are_still_recovered() =
+        runBlocking {
+            val repository = WalkRepository(open().walkDao(), clock)
+            val stale = repository.startWalk()
+            val live = repository.startWalk()
+
+            val recovered = RecoverInterruptedWalkUseCase(repository) { live.id }()
+
+            assertEquals(1, recovered)
+            assertEquals(WalkStatus.COMPLETE, repository.walk(stale.id)!!.status)
+            assertEquals(WalkStatus.RECORDING, repository.walk(live.id)!!.status)
         }
 
     @Test
@@ -104,7 +118,7 @@ class RecoverInterruptedWalkUseCaseTest {
             repository.finishWalk(walk.id)
             val end = repository.walk(walk.id)!!.endUtcMs
 
-            assertEquals(0, RecoverInterruptedWalkUseCase(repository) { false }())
+            assertEquals(0, RecoverInterruptedWalkUseCase(repository) { null }())
 
             assertEquals(end, repository.walk(walk.id)!!.endUtcMs)
         }

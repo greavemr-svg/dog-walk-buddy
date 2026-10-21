@@ -68,4 +68,16 @@ class RecordingStateHolderTest {
 
         assertNull(holder.state.value)
     }
+
+    @Test
+    fun clearIf_clears_only_the_matching_walk() {
+        val holder = RecordingStateHolder()
+        holder.begin(4, start)
+
+        holder.clearIf(5)
+        assertEquals(4L, holder.state.value?.walkId)
+
+        holder.clearIf(4)
+        assertNull(holder.state.value)
+    }
 }

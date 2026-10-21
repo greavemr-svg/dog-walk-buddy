@@ -7,15 +7,12 @@ import java.util.Locale
 object LiveWalkFormat {
     private const val METRES_PER_MILE = 1609.344
 
-    /** Elapsed time as `h:mm:ss`, flooring to whole seconds. A negative duration (a clock set back) shows 0:00:00. */
+    /** Elapsed time as `h:mm`, flooring to whole minutes. A negative duration (a clock set back) shows 0:00. */
     fun elapsed(duration: Duration): String {
         val total = duration.seconds.coerceAtLeast(0)
-        return String.format(Locale.UK, "%d:%02d:%02d", total / 3600, total % 3600 / 60, total % 60)
+        return String.format(Locale.UK, "%d:%02d", total / 3600, total % 3600 / 60)
     }
 
-    /**
-     * Distance in miles with 2 decimals, so it visibly changes during a short walk. The history shows 1 decimal
-     * (design, Walk flow).
-     */
-    fun miles(metres: Double): String = String.format(Locale.UK, "%.2f", metres.coerceAtLeast(0.0) / METRES_PER_MILE)
+    /** Distance in miles to 1 decimal place (spec Assumption 7). */
+    fun miles(metres: Double): String = String.format(Locale.UK, "%.1f", metres.coerceAtLeast(0.0) / METRES_PER_MILE)
 }

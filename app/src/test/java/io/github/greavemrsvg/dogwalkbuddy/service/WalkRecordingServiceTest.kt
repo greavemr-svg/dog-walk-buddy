@@ -172,10 +172,10 @@ class WalkRecordingServiceTest {
     @Test
     fun AC32_a_2_km_track_through_the_service_is_saved_within_2_percent() {
         startWalk()
-        val track = SyntheticTrack.north(fixes = 400, stepM = 5.0, accuracyM = 8.0, start = test.clock.instant(), noiseM = 0.5)
+        val track = SyntheticTrack.north(fixes = 401, stepM = 5.0, accuracyM = 8.0, start = test.clock.instant(), noiseM = 0.5)
 
         track.forEach { test.walkSource.emit(it) }
-        awaitCondition("400 fixes stored") { points().size == 400 }
+        awaitCondition("401 fixes stored") { points().size == 401 }
         stopWalk()
 
         assertEquals(2000.0, row()!!.distanceM, 40.0)
@@ -266,5 +266,17 @@ class WalkRecordingServiceTest {
 
         assertNull(test.container.recordingStateHolder.state.value)
         assertEquals(WalkStatus.RECORDING, row()!!.status)
+    }
+
+    @Test
+    fun destroying_an_old_service_does_not_clear_the_session_of_a_newer_walk() {
+        startWalk()
+        val newer = RecordingSession(walkId + 1, test.clock.instant())
+        test.container.recordingStateHolder.clear()
+        test.container.recordingStateHolder.begin(newer.walkId, newer.startUtc)
+
+        service.destroy()
+
+        assertEquals(newer, test.container.recordingStateHolder.state.value)
     }
 }

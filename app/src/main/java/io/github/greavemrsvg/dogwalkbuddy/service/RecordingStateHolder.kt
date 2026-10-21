@@ -3,6 +3,7 @@ package io.github.greavemrsvg.dogwalkbuddy.service
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.time.Instant
 
 /** The walk being recorded right now. Elapsed time is `clock.now - startUtc`, never a sum of fixes (AC29). */
@@ -28,14 +29,19 @@ class RecordingStateHolder {
         walkId: Long,
         startUtc: Instant,
     ) {
-        mutableState.value = mutableState.value?.takeIf { it.walkId == walkId } ?: RecordingSession(walkId, startUtc)
+        mutableState.update { current -> current?.takeIf { it.walkId == walkId } ?: RecordingSession(walkId, startUtc) }
     }
 
     fun updateDistance(distanceM: Double) {
-        mutableState.value = mutableState.value?.copy(distanceM = distanceM)
+        mutableState.update { it?.copy(distanceM = distanceM) }
     }
 
     fun clear() {
         mutableState.value = null
+    }
+
+    /** Clears the session only if it is for [walkId], so a late end of an old service cannot drop a newer walk. */
+    fun clearIf(walkId: Long) {
+        mutableState.update { current -> current?.takeUnless { it.walkId == walkId } }
     }
 }

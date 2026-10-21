@@ -67,7 +67,7 @@ class AppContainer(
             repository = walkRepository,
             holder = recordingStateHolder,
             launcher = walkServiceLauncher,
-            recovery = RecoverInterruptedWalkUseCase(walkRepository) { recordingStateHolder.isRecording },
+            recovery = RecoverInterruptedWalkUseCase(walkRepository) { recordingStateHolder.state.value?.walkId },
         )
     }
 
