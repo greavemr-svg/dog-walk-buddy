@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
  * Destructive migration is forbidden because it would silently delete walk history.
  */
 @Database(
-    entities = [CachedCheckEntity::class, DogProfileEntity::class],
+    entities = [CachedCheckEntity::class, DogProfileEntity::class, WalkEntity::class, RoutePointEntity::class],
     version = AppDatabase.VERSION,
     exportSchema = true,
 )
@@ -16,6 +16,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun cachedCheckDao(): CachedCheckDao
 
     abstract fun dogProfileDao(): DogProfileDao
+
+    abstract fun walkDao(): WalkDao
 
     companion object {
         const val VERSION = 1

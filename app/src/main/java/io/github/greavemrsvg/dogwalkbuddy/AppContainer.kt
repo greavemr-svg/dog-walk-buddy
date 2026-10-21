@@ -8,12 +8,23 @@ import androidx.core.content.ContextCompat
 import androidx.room.Room
 import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
 import io.github.greavemrsvg.dogwalkbuddy.data.location.ApproximateLocationSource
+import io.github.greavemrsvg.dogwalkbuddy.data.location.GpsWalkLocationSource
 import io.github.greavemrsvg.dogwalkbuddy.data.location.LocationManagerApproximateSource
+import io.github.greavemrsvg.dogwalkbuddy.data.location.WalkLocationSource
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.CheckRepository
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.PhotoStore
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.ProfileRepository
+import io.github.greavemrsvg.dogwalkbuddy.data.repo.RecoverInterruptedWalkUseCase
+import io.github.greavemrsvg.dogwalkbuddy.data.repo.WalkRepository
 import io.github.greavemrsvg.dogwalkbuddy.data.weather.MetNorwayClient
 import io.github.greavemrsvg.dogwalkbuddy.data.weather.WeatherConfig
+import io.github.greavemrsvg.dogwalkbuddy.service.AndroidWalkServiceLauncher
+import io.github.greavemrsvg.dogwalkbuddy.service.RecordingStateHolder
+import io.github.greavemrsvg.dogwalkbuddy.service.WalkRecordingController
+import io.github.greavemrsvg.dogwalkbuddy.service.WalkServiceLauncher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import java.io.File
@@ -35,6 +46,11 @@ class AppContainer(
     val hasCoarseLocationPermission: () -> Boolean,
     val is24HourFormat: () -> Boolean,
     val filesDir: File,
+    val walkLocationSource: WalkLocationSource,
+    val hasFineLocationPermission: () -> Boolean,
+    val walkServiceLauncher: WalkServiceLauncher,
+    val applicationScope: CoroutineScope,
+    val recordingStateHolder: RecordingStateHolder = RecordingStateHolder(),
 ) {
     val checkRepository: CheckRepository by lazy {
         CheckRepository(MetNorwayClient(weatherBaseUrl, weatherHttpClient), database.cachedCheckDao(), clock)
@@ -43,6 +59,17 @@ class AppContainer(
     val photoStore: PhotoStore by lazy { PhotoStore(filesDir) }
 
     val profileRepository: ProfileRepository by lazy { ProfileRepository(database.dogProfileDao(), photoStore) }
+
+    val walkRepository: WalkRepository by lazy { WalkRepository(database.walkDao(), clock) }
+
+    val walkRecordingController: WalkRecordingController by lazy {
+        WalkRecordingController(
+            repository = walkRepository,
+            holder = recordingStateHolder,
+            launcher = walkServiceLauncher,
+            recovery = RecoverInterruptedWalkUseCase(walkRepository) { recordingStateHolder.state.value?.walkId },
+        )
+    }
 
     companion object {
         fun createDefault(context: Context): AppContainer {
@@ -63,6 +90,16 @@ class AppContainer(
                     clock = clock,
                     executor = ContextCompat.getMainExecutor(appContext),
                 )
+            val hasFinePermission = {
+                ContextCompat.checkSelfPermission(appContext, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                    PackageManager.PERMISSION_GRANTED
+            }
+            val walkSource =
+                GpsWalkLocationSource(
+                    locationManager = appContext.getSystemService(LocationManager::class.java),
+                    hasFinePermission = hasFinePermission,
+                    executor = ContextCompat.getMainExecutor(appContext),
+                )
             return AppContainer(
                 clock = clock,
                 zoneId = ZoneId.systemDefault(),
@@ -73,6 +110,10 @@ class AppContainer(
                 hasCoarseLocationPermission = hasCoarsePermission,
                 is24HourFormat = { DateFormat.is24HourFormat(appContext) },
                 filesDir = appContext.filesDir,
+                walkLocationSource = walkSource,
+                hasFineLocationPermission = hasFinePermission,
+                walkServiceLauncher = AndroidWalkServiceLauncher(appContext),
+                applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
             )
         }
     }

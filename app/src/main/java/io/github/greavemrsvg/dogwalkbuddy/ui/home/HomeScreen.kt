@@ -22,12 +22,13 @@ import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
 
 /**
- * The first screen: the check card at the top, then the links. The Start walk button joins it with walk
- * recording (task 6), below the check card, so the primary actions stay on the first screen.
+ * The first screen: the check card at the top, then the full-width Start walk control, then the links, so the
+ * primary actions are on the first screen and usable one-handed.
  */
 @Composable
 fun HomeScreen(
     checkContent: @Composable () -> Unit,
+    startWalkContent: @Composable () -> Unit = {},
     onOpenProfile: () -> Unit = {},
     onOpenAbout: () -> Unit = {},
 ) {
@@ -47,6 +48,7 @@ fun HomeScreen(
                 modifier = Modifier.semantics { heading() },
             )
             checkContent()
+            startWalkContent()
             OutlinedButton(onClick = onOpenProfile, modifier = Modifier.heightIn(min = MinTouchTarget)) {
                 Text(stringResource(R.string.home_dog_profile))
             }

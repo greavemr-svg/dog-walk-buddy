@@ -96,7 +96,7 @@ fun CheckRoute(
     )
 }
 
-private tailrec fun Context.findActivity(): Activity? =
+internal tailrec fun Context.findActivity(): Activity? =
     when (this) {
         is Activity -> this
         is ContextWrapper -> baseContext.findActivity()
@@ -104,7 +104,7 @@ private tailrec fun Context.findActivity(): Activity? =
     }
 
 /** Opens this app's page in system Settings, where the permission can be granted. It needs no permission. */
-private fun Context.openAppSettings() {
+internal fun Context.openAppSettings() {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))
     if (this !is Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     try {
