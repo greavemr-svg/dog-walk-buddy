@@ -2,7 +2,7 @@
   "run_id": "20261019-dog-walk-buddy-mvp",
   "idea": "Dog Walk Buddy: an Android app that helps UK dog owners decide when it's safe and pleasant to walk their dog, and keeps a simple record of their walks.\n\nUsers: everyday dog owners in the UK, using the app quickly before heading out, often one-handed.\n\nFirst release (MVP):\n1. \"Good time to walk?\" check for the user's current location:\n   - Combines temperature, rain, wind, a hot-pavement warning (estimated from air temperature and sunshine) and pollen level.\n   - Shows one clear result: Go / Caution / Avoid, with the main reason in plain words.\n   - Shows the best walking window in the next 12 hours.\n2. One-tap walk logging:\n   - Start/stop a walk; records duration, distance and route via GPS.\n   - Walk history list and weekly totals (walks, time, distance).\n   - Walk logging must work offline.\n3. Dog profile: name, breed, photo, and a heat-sensitivity setting (normal / sensitive) that makes heat warnings stricter.\n\nConstraints:\n- Android only, phones only.\n- Only free data sources that need no paid API keys.\n- Location and walk data stay on the device; no accounts, no backend, no analytics or tracking.\n- Accessible: large touch targets, readable in bright sunlight, works with TalkBack.\n- Safety advice is framed as guidance, not veterinary advice.\n\nLater releases (not this one): dog-friendly routes nearby, multiple dogs, walk reminders, sharing walks, Wear OS.\n",
   "status": "in_progress",
-  "stage": "verify",
+  "stage": "release",
   "created_at": "2026-10-19T12:17:05Z",
   "epic_issue": 7,
   "feature_branch": "feature/20261019-dog-walk-buddy-mvp",
@@ -19,6 +19,7 @@
     "audit": ""
   },
   "gates": {
+    "G4": {"result": "PASS", "at": "2026-10-21T19:11:11Z", "evidence": "gatekeeper G4 on 1abdcae: G4.1-G4.5 met; failing []; G4.4 NO_BASELINE + proposed baseline; gates/G4.md"},
     "G1": {
       "result": "PASS",
       "at": "2026-10-19T14:33:26Z",
@@ -475,7 +476,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 116,
+    "agent_invocations": 117,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -775,7 +776,10 @@
     "2026-10-21T18:44:42Z performance: NO REPORT - hit 50-turn limit; idle since 18:39Z; only Start-walk timing done (perfwork/startwalk_video.txt: 10 video runs ~240-384 ms tap to Recording, one 1783 ms outlier r8); no docs/perf output",
     "2026-10-21T18:44:42Z orchestrator: invoking performance continuation (same step) to finish remaining metrics + release smoke and write docs/perf files. Budget 115/140 incl. this call",
     "2026-10-21T19:01:02Z performance (continuation): DONE, RESULT PASS (emulator figures; NO baseline existed, proposed-baseline.json recorded for owner). Cold start median 913 ms p90 986; Start walk median 351 p90 383 (<=1 s PASS, r8 artefact excluded); History 500 walks median 725 p90 964 (<=1 s PASS, thin margin); check time median 1746 p90 1945 (n=8, broadband, not 4G); PSS Home 77.6 MB, recording 81.1, walk detail map 164.9. S-04 minified release smoke PASS (throwaway-signed, no crash). Deferred to A35: battery, 4G 20-run check time, all reference-phone figures. Files docs/perf/20261019-dog-walk-buddy-mvp/results.md + proposed-baseline.json",
-    "2026-10-21T19:01:02Z orchestrator: committing Stage 4 artefacts (security.md, device-checks.md, docs/perf/20261019-dog-walk-buddy-mvp/) to feature, then invoking gatekeeper G4. Budget 116/140 incl. this call"
+    "2026-10-21T19:01:02Z orchestrator: committing Stage 4 artefacts (security.md, device-checks.md, docs/perf/20261019-dog-walk-buddy-mvp/) to feature, then invoking gatekeeper G4. Budget 116/140 incl. this call",
+    "2026-10-21T19:11:11Z orchestrator: committed 1abdcae; feature CI run 39657910806 success on 1abdcae (verified)",
+    "2026-10-21T19:11:11Z gatekeeper G4: PASS on 1abdcae; G4.1-G4.5 met, failing []; G4.4 NO_BASELINE with proposed baseline recorded; all 53 ACs traced; deferred reference-phone checks accepted as owner decision pre_stage4 superseding design sequencing (gatekeeper waived nothing). Recorded gates/G4.md",
+    "2026-10-21T19:11:11Z orchestrator: stage verify -> release; invoking release (prepare). Budget 117/140 incl. this call"
   ],
   "bootstrap": true,
   "owner_answers": {
