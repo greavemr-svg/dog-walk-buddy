@@ -409,14 +409,16 @@
         6
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-7-walk-history",
-      "pr": null,
-      "status": "pending",
-      "attempts": 0,
+      "pr": 24,
+      "status": "done",
+      "attempts": 2,
+      "head": "ca63ee3",
+      "merge_commit": "8784d4a",
       "carry_in": [
         "From T5: add History link on Home; use shared theme tokens and a11y helpers",
         "From T6: reuse WalkRepository/WalkDao (add observe + delete; dao.delete and dao.points exist); add DistanceFormat/DurationFormat (spec Assumption 7: miles to 1 decimal place, h:mm) as the single source for display formatting and make LiveWalkFormat reuse/align; post-stop navigation to History/detail not wired; new walks at top of history (rest of AC30)"
       ],
-      "G3": null
+      "G3": {"result": "PASS", "at": "2026-10-21T13:53:54Z", "evidence": "gatekeeper G3 on ca63ee3: G3.1-G3.6 met; failing []; gates/G3-T7.md; posted on PR #24"}
     },
     {
       "n": 8,
@@ -440,8 +442,8 @@
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-8-map-privacy",
       "pr": null,
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "carry_in": [
         "From T3: ACCESS_NETWORK_STATE manifest declaration + SourceManifestHardeningTest update belong here; end-to-end AC24 test still to come",
         "From T4: Delete all my data must delete filesDir/profile/ (photo copies, incl. any *.partial) and the dog_profile row; no PhotoStore.deleteAll() yet (design assigns it to DeleteAllDataUseCase)",
@@ -459,7 +461,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 84,
+    "agent_invocations": 94,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -679,7 +681,31 @@
     "2026-10-21T12:28:24Z gatekeeper G3 T6: PASS on 3c86cb0, G3.1-G3.6 met, failing []; recorded gates/G3-T6.md; posted on PR #23 issuecomment-6315899725",
     "2026-10-21T12:28:24Z orchestrator: invoking release (integrate) PR #23. Budget 84/120 incl. this call",
     "2026-10-21T12:30:30Z release integrate PR #23: DONE, squash 870ad7a into feature (MERGED 12:29:22Z, verified), issue #13 closed manually with PR link (verified CLOSED), task branch deleted (verified); feature-head CI run 39599997166 in_progress; local checkout feature 870ad7a",
-    "2026-10-21T12:30:30Z orchestrator: T6 done (2 attempts). 6/8 tasks done. Next T7 (depends T6 - done). Budget 84/120 used; remaining minimum ~2 tasks x5 + ~7 stage 4-6 = ~17"
+    "2026-10-21T12:30:30Z orchestrator: T6 done (2 attempts). 6/8 tasks done. Next T7 (depends T6 - done). Budget 84/120 used; remaining minimum ~2 tasks x5 + ~7 stage 4-6 = ~17",
+    "2026-10-21T12:31:30Z orchestrator: run records committed b431f14 and pushed; T7 in_progress; invoking developer T7 attempt 1. Budget 85/120 incl. this call",
+    "2026-10-21T13:02:49Z orchestrator: feature CI 870ad7a run 39599997166 cancelled (superseded by b431f14 push); b431f14 run 39600218177 success (verified)",
+    "2026-10-21T13:02:49Z developer T7 attempt 1: DONE PR #24 head e230719 (verified, base feature, title feat(history) (#14); rollup build-test + governance SUCCESS - verified); 540 @Test (37 new), ci.sh green, changed-lines 98% (241 lines), total 98.0%; no schema/manifest/dependency change; out-of-list files WalkDao, WalkSummaryRow, WalkSummary, LiveWalkFormat (delegates), NavHost, HomeScreen, debug strings, release DebugTools stub; deviations: rows not tappable (detail is T8), Stop returns Home, confirm dialog, debug-only seed action",
+    "2026-10-21T13:02:49Z orchestrator: invoking tester T7 (head e230719). Budget 86/120 incl. this call",
+    "2026-10-21T13:19:13Z tester T7: PASSED head 6dbac40 (verified PR head; rollup build-test + governance SUCCESS - verified), 550/550, ci.sh green, changed-lines 98% (241), total 98.0%; added WalkHistoryEdgeCasesTest (report says 7 but lists 8 names) + 2 WalkHistoryRepositoryTest; existing tests unchanged/ok; findings none; release DebugTools stub verified by reading + CI release build only; PR comment issuecomment-6317072993 by greavemr-bot (verified)",
+    "2026-10-21T13:19:13Z orchestrator: invoking reviewer T7 (head 6dbac40). Budget 87/120 incl. this call",
+    "2026-10-21T13:22:00Z reviewer T7: CHANGES_REQUESTED on 6dbac40, review 5600347355. Major HistoryScreen deleteFailed inline Text not visible when scrolled, no live region, dismissDeleteFailure never called from UI (fix: Snackbar or dialog + Compose test). Minor PR body test count 540/37 vs 550/47. Minor thisWeek only recomputed on DB emit (optional recompute on resume). Minor loadFailed still shows zero This week summary (optional hide). Deviations all accepted. Carry T8: rows open walk/{id}, combined row label; release manual checks AC50/NFR history/AC52",
+    "2026-10-21T13:22:00Z orchestrator: T7 attempts 1 -> 2; invoking developer T7 attempt 2 with reviewer findings. Budget 88/120 incl. this call",
+    "2026-10-21T13:36:46Z developer T7 attempt 2: DONE PR #24 head 2e94a23 (fix(history)); Major fixed via Scaffold SnackbarHost (Indefinite, OK dismiss -> dismissDeleteFailure, polite live region); PR body count 554 (51 new); optional thisWeek refresh on ON_RESUME + hide summary on loadFailed done; 554 @Test (4 new), ci.sh green, changed-lines 98% (236), total 98.0%; no dependency; head + CI to be verified",
+    "2026-10-21T13:36:46Z orchestrator: invoking tester T7 attempt 2 (head 2e94a23). Budget 89/120 incl. this call",
+    "2026-10-21T13:49:08Z orchestrator: verified developer T7 attempt-2 head 2e94a23 rollup SUCCESS (earlier)",
+    "2026-10-21T13:49:08Z tester T7 attempt 2: PASSED head ca63ee3, 561/561 (+7 tester), ci.sh green, changed-lines 98% (272), total 98.0%; existing test changes ok (none removed); findings none; gap: ON_RESUME wiring not unit-tested; PR comment issuecomment-6317706168 (head/CI/comment to verify)",
+    "2026-10-21T13:49:08Z orchestrator: invoking reviewer T7 re-review (head ca63ee3). Budget 90/120 incl. this call",
+    "2026-10-21T13:50:51Z orchestrator: verified tester T7 head ca63ee3, rollup SUCCESS, comment 6317706168 by greavemr-bot",
+    "2026-10-21T13:50:51Z reviewer T7 re-review: VERDICT APPROVE on ca63ee3, review 5600778956 (13:50:11Z, after last commit; to verify). 1,3,4 resolved; 2 PR body count 554 vs 561 not resolved (Minor). New Minor: failed load cannot be retried by refresh (acceptable MVP). Carry: device check ON_RESUME recompute; later retry for failed load",
+    "2026-10-21T13:50:51Z orchestrator: routing PR #24 body-only count fix to developer T7 before G3, no commit, not a new attempt. Budget 91/120 incl. this call",
+    "2026-10-21T13:51:58Z orchestrator: verified review 5600778956 VERDICT APPROVE on ca63ee3 by greavemr-bot 13:50:11Z, newer than last commit 13:41:09Z",
+    "2026-10-21T13:51:58Z developer T7 PR body fix: DONE, body PATCHed (561 @Test: 503 base, developer +41, tester +17; manual check ON_RESUME added); head unchanged ca63ee3, nothing pushed",
+    "2026-10-21T13:51:58Z orchestrator: invoking gatekeeper G3 for T7 PR #24 (head ca63ee3). Budget 92/120 incl. this call",
+    "2026-10-21T13:53:54Z gatekeeper G3 T7: PASS on ca63ee3, G3.1-G3.6 met, failing []; recorded gates/G3-T7.md; posted on PR #24",
+    "2026-10-21T13:53:54Z orchestrator: invoking release (integrate) PR #24. Budget 93/120 incl. this call",
+    "2026-10-21T14:00:19Z release integrate PR #24: DONE, squash 8784d4a into feature (MERGED 13:54:16Z, verified), issue #14 closed manually with PR link (verified CLOSED), task branch deleted; feature CI run 39612085755 success on 8784d4a (verified)",
+    "2026-10-21T14:00:19Z orchestrator: T7 done (2 attempts). 7/8 tasks done. Next T8 (depends T5, T7 - done). Budget 93/120 used; remaining minimum ~5 for T8 + ~8 stages 4-6",
+    "2026-10-21T14:00:19Z orchestrator: invoking developer T8 attempt 1. Budget 94/120 incl. this call"
   ],
   "bootstrap": true,
   "owner_answers": {
@@ -737,7 +763,7 @@
       "answer": "Follow the spec (Recommended)"
     }
   },
-  "current_task": 7,
+  "current_task": 8,
   "toolchain": {
     "JAVA_HOME": "/c/Program Files/Eclipse Adoptium/jdk-17.0.20.101-hotspot",
     "python": "/c/Users/greav/AppData/Local/Programs/Python/Python312",
