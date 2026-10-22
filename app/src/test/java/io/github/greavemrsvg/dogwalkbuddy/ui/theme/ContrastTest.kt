@@ -153,6 +153,20 @@ class ContrastTest {
         }
 
     @Test
+    fun UX_AC6_recording_error_roles_are_the_dark_field_kit_error_roles_and_meet_their_floors() {
+        assertEquals(DarkFieldKitColors.error, RecordingColorScheme.error)
+        assertEquals(DarkFieldKitColors.onError, RecordingColorScheme.onError)
+        assertEquals(DarkFieldKitColors.errorOutline, RecordingColorScheme.errorContainer)
+        assertEquals(DarkFieldKitColors.errorText, RecordingColorScheme.onErrorContainer)
+        with(RecordingColorScheme) {
+            assertRatio("recording error on background", error, background, AA_TEXT)
+            assertRatio("recording error on card", error, surfaceContainer, AA_TEXT)
+            assertRatio("recording onError on error", onError, error, KEY_TEXT)
+            assertRatio("recording onErrorContainer on errorContainer", onErrorContainer, errorContainer, AA_TEXT)
+        }
+    }
+
+    @Test
     fun UX_AC6_the_material_schemes_meet_the_mvp_floors_with_the_field_kit_mapping() {
         assertTextContrast(LightColors, "light")
         assertTextContrast(DarkColors, "dark")

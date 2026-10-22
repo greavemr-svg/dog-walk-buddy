@@ -50,6 +50,10 @@ abstract class WalkDao {
     @Query("SELECT * FROM route_point WHERE walk_id = :walkId ORDER BY seq")
     abstract suspend fun points(walkId: Long): List<RoutePointEntity>
 
+    /** A walk's points in order. Emits again after each stored fix, for the live route line (AC35). */
+    @Query("SELECT * FROM route_point WHERE walk_id = :walkId ORDER BY seq")
+    abstract fun observePoints(walkId: Long): Flow<List<RoutePointEntity>>
+
     @Query("SELECT COALESCE(MAX(seq) + 1, 0) FROM route_point WHERE walk_id = :walkId")
     abstract suspend fun nextSeq(walkId: Long): Int
 

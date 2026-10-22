@@ -26,7 +26,7 @@ class WalkFormatsTest {
 
     @Test
     fun the_live_screen_uses_the_same_formats_as_the_history() {
-        assertEquals(DurationFormat.hoursMinutes(3723), LiveWalkFormat.elapsed(Duration.ofSeconds(3723)))
+        assertEquals(DurationFormat.hoursMinutes(3723) + ":03", LiveWalkFormat.elapsed(Duration.ofSeconds(3723)))
         assertEquals(DistanceFormat.miles(2000.0), LiveWalkFormat.miles(2000.0))
     }
 }

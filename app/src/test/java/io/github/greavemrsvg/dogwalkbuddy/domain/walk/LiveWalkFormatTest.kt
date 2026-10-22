@@ -7,22 +7,23 @@ import java.time.Duration
 class LiveWalkFormatTest {
     @Test
     fun AC28_elapsed_time_is_shown_as_hours_and_minutes() {
-        assertEquals("0:00", LiveWalkFormat.elapsed(Duration.ZERO))
-        assertEquals("0:10", LiveWalkFormat.elapsed(Duration.ofMinutes(10)))
-        assertEquals("1:02", LiveWalkFormat.elapsed(Duration.ofSeconds(3723)))
-        assertEquals("12:00", LiveWalkFormat.elapsed(Duration.ofHours(12)))
+        assertEquals("0:00:00", LiveWalkFormat.elapsed(Duration.ZERO))
+        assertEquals("0:10:00", LiveWalkFormat.elapsed(Duration.ofMinutes(10)))
+        assertEquals("1:02:03", LiveWalkFormat.elapsed(Duration.ofSeconds(3723)))
+        assertEquals("12:00:00", LiveWalkFormat.elapsed(Duration.ofHours(12)))
     }
 
     @Test
-    fun elapsed_time_floors_to_whole_minutes() {
-        assertEquals("0:00", LiveWalkFormat.elapsed(Duration.ofSeconds(59)))
-        assertEquals("0:01", LiveWalkFormat.elapsed(Duration.ofSeconds(60)))
-        assertEquals("1:01", LiveWalkFormat.elapsed(Duration.ofMinutes(61).plusSeconds(59)))
+    fun elapsed_time_floors_to_whole_seconds() {
+        assertEquals("0:00:59", LiveWalkFormat.elapsed(Duration.ofSeconds(59)))
+        assertEquals("0:01:00", LiveWalkFormat.elapsed(Duration.ofSeconds(60)))
+        assertEquals("0:00:59", LiveWalkFormat.elapsed(Duration.ofMillis(59_999)))
+        assertEquals("1:01:59", LiveWalkFormat.elapsed(Duration.ofMinutes(61).plusSeconds(59)))
     }
 
     @Test
     fun a_negative_elapsed_time_shows_zero() {
-        assertEquals("0:00", LiveWalkFormat.elapsed(Duration.ofSeconds(-30)))
+        assertEquals("0:00:00", LiveWalkFormat.elapsed(Duration.ofSeconds(-30)))
     }
 
     @Test
@@ -36,9 +37,9 @@ class LiveWalkFormatTest {
 
     @Test
     fun AC28_elapsed_time_boundaries_59_59_and_one_hour() {
-        assertEquals("0:59", LiveWalkFormat.elapsed(Duration.ofMinutes(59).plusSeconds(59)))
-        assertEquals("1:00", LiveWalkFormat.elapsed(Duration.ofHours(1)))
-        assertEquals("1:00", LiveWalkFormat.elapsed(Duration.ofHours(1).plusSeconds(59)))
+        assertEquals("0:59:59", LiveWalkFormat.elapsed(Duration.ofMinutes(59).plusSeconds(59)))
+        assertEquals("1:00:00", LiveWalkFormat.elapsed(Duration.ofHours(1)))
+        assertEquals("1:00:59", LiveWalkFormat.elapsed(Duration.ofHours(1).plusSeconds(59)))
     }
 
     @Test

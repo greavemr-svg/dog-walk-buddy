@@ -171,7 +171,7 @@ class AppFlowIntegrationTest {
         awaitText("There are no accounts, analytics or tracking.")
         backFromPrivacyToToday()
         composeRule.onNodeWithTag(START_WALK_TAG).assertIsDisplayed().performClick()
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
         composeRule.onNodeWithTag(STOP_WALK_TAG).performScrollTo().performClick()
         test.container.recordingStateHolder.clear()
         awaitText("Allow approximate location")

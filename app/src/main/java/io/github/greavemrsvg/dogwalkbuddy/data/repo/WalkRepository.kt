@@ -4,6 +4,7 @@ import io.github.greavemrsvg.dogwalkbuddy.data.db.RoutePointEntity
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkDao
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkEntity
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkStatus
+import io.github.greavemrsvg.dogwalkbuddy.domain.location.LatLon
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LocationFix
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WalkSummary
 import kotlinx.coroutines.flow.Flow
@@ -75,6 +76,10 @@ class WalkRepository(
     suspend fun walk(walkId: Long): WalkEntity? = dao.get(walkId)
 
     suspend fun routePoints(walkId: Long): List<RoutePointEntity> = dao.points(walkId)
+
+    /** The positions of a walk's route in order. Emits again after each stored fix (AC35). Personal data, never logged. */
+    fun observeRoutePoints(walkId: Long): Flow<List<LatLon>> =
+        dao.observePoints(walkId).map { points -> points.map { LatLon(it.lat, it.lon) } }
 
     /** Walks still marked `RECORDING`: more than one only if an earlier recovery failed. */
     suspend fun recordingWalks(): List<WalkEntity> = dao.recording()

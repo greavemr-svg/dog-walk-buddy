@@ -238,6 +238,8 @@ class HistoryViewModelTest {
 
         override suspend fun points(walkId: Long): List<RoutePointEntity> = unused()
 
+        override fun observePoints(walkId: Long): Flow<List<RoutePointEntity>> = unused()
+
         override suspend fun nextSeq(walkId: Long): Int = unused()
 
         private fun unused(): Nothing = error("not used by the history")
