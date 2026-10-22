@@ -138,10 +138,17 @@
       "depends_on": [
         2
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "branch": "task/20261022-ux-redesign-5-recording-restyle-route-line",
-      "pr": null
+      "pr": 44,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-22T19:46:21Z",
+        "head": "74d395a",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T5.md"
+      },
+      "merge_commit": "2029884"
     },
     {
       "n": 6,
@@ -153,8 +160,8 @@
         4,
         5
       ],
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "branch": "task/20261022-ux-redesign-6-walks-tab",
       "pr": null
     },
@@ -195,7 +202,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 55,
+    "agent_invocations": 62,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -325,7 +332,22 @@
     "2026-10-22T18:00:17Z gatekeeper G3 T4 (opus): PASS on 37fe5f7. Record gates/G3-T4.md; posting on PR #43",
     "2026-10-22T18:00:17Z orchestrator: T4 invoking release integrate (opus). Budget 54/200 incl. this call",
     "2026-10-22T18:05:52Z release integrate T4 (opus): PR #43 squash-merged as e1b221f (match-head 37fe5f7); issue #35 closed (comment 6347657508); branches deleted; feature CI 39827664513 in progress. T4 done",
-    "2026-10-22T18:05:52Z orchestrator: T5 attempt 1: invoking developer (opus) incl. carry-forwards (Recording status bar in light mode; RecordingTheme error roles). Budget 55/200 incl. this call"
+    "2026-10-22T18:05:52Z orchestrator: T5 attempt 1: invoking developer (opus) incl. carry-forwards (Recording status bar in light mode; RecordingTheme error roles). Budget 55/200 incl. this call",
+    "2026-10-22T18:36:41Z developer T5 attempt 1 (opus): BLOCKED; branch pushed at 31b8748 (test sources do not compile without fake override); no PR; 916 tests pass locally with the line; carry-forwards done; route line on Compose Canvas (no MapLibre/tiles)",
+    "2026-10-22T18:36:41Z owner: t5_test_edits -> \"Approve both\" (HistoryViewModelTest FailingDao observePoints override; WalkFormatsTest L29 h:mm:ss)",
+    "2026-10-22T18:36:41Z orchestrator: T5 continue attempt 1 (owner unblock): developer adds line, ci, PR, emulator screenshots. Budget 56/200 incl. this call",
+    "2026-10-22T18:53:02Z developer T5 (continue attempt 1, opus): DONE; PR #44 head aee748f (fake line 7110db6, screenshots aee748f); 916 tests, 98.4%, changed 94%; 4 screenshots (empty + route line, system light/dark), status bar light in both; CI pass",
+    "2026-10-22T18:53:02Z orchestrator: viewed screenshots (route line + empty panel OK). T5 invoking tester (opus). Budget 57/200 incl. this call",
+    "2026-10-22T19:38:13Z tester T5 (opus): PASSED on 74d395a (+15 tests 962bad1; flaky RecordingSystemBarsTest harness fixed 74d395a with in-memory TestAppContainer, assertions unchanged); 931/0/0; 98.8%, changed 100%; audit clean. Comment 6349607588. Process note for auditor: tester's Write to scratchpad was hook-blocked so it wrote the comment body there via bash",
+    "2026-10-22T19:38:13Z orchestrator: T5 developer PR-body refresh to 74d395a before review. Budget 58/200 incl. this call",
+    "2026-10-22T19:40:01Z developer T5 body refresh (opus): DONE; body at 74d395a (931 tests, 98.8%, changed 100%; tester tests mapped; harness change noted); CI pass",
+    "2026-10-22T19:40:01Z orchestrator: T5 invoking reviewer (opus). Budget 59/200 incl. this call",
+    "2026-10-22T19:43:05Z reviewer T5 (opus): APPROVE (head 74d395a), review 5619897466; 2 Minor (timer drift skips a second every few minutes; 12/24h setting read once) + 1 Nit, non-blocking",
+    "2026-10-22T19:43:05Z orchestrator: T5 invoking gatekeeper G3 (opus). Budget 60/200 incl. this call",
+    "2026-10-22T19:46:21Z gatekeeper G3 T5 (opus): PASS on 74d395a. Record gates/G3-T5.md; posting on PR #44",
+    "2026-10-22T19:46:21Z orchestrator: T5 invoking release integrate (opus). Budget 61/200 incl. this call",
+    "2026-10-22T19:52:21Z release integrate T5 (opus): PR #44 squash-merged as 2029884 (match-head 74d395a); issue #36 closed (comment 6349789851); branches deleted; feature CI 39843066266 in progress. T5 done",
+    "2026-10-22T19:52:21Z orchestrator: T6 attempt 1: invoking developer (opus). Budget 62/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
@@ -435,6 +457,11 @@
         "named title wraps to two lines",
         "'Checked 0 min ago' under a minute"
       ]
+    },
+    "t5_test_edits": {
+      "at": "2026-10-22T18:36:41Z",
+      "question": "Task 5 needs your OK for two small test edits that aren't word-for-word on the approved list. (1) Adding a new route query means one fake test helper (HistoryViewModelTest ~L238) needs one extra line so it compiles. No check changes. (2) A walk-formats test (WalkFormatsTest L29) checks the Recording timer, which now shows seconds: \"1:02\" becomes \"1:02:03\". It's covered by the spec's approved timer change, but the design didn't name that file. It stays an exact check. Approve both?",
+      "answer": "Approve both"
     }
   },
   "carry_forward": [
@@ -492,6 +519,21 @@
       "from": "T4 review 5618579128 (Nit)",
       "to": "later",
       "item": "HourLabelFormat.kt:19 Locale.UK hard-coded; add comment (English-only app)"
+    },
+    {
+      "from": "T5 tester",
+      "to": "later / G4 watch",
+      "item": "ThemeSwitchTest (T1) starts MainActivity with the real on-disk DB like RecordingSystemBarsTest did (flaked 2/21); not observed flaky in 16 runs; consider TestAppContainer"
+    },
+    {
+      "from": "T5 review 5619897466 (Minor)",
+      "to": "fix task or backlog (user-visible)",
+      "item": "RecordingScreen rememberNow: delay(1000) after clock read drifts, timer skips a second every few minutes; align to next whole second since session.startUtc"
+    },
+    {
+      "from": "T5 review 5619897466 (Minor)",
+      "to": "backlog",
+      "item": "DogWalkBuddyNavHost.kt:112 StartedTimeFormat reads is24HourFormat once per container; key on configuration"
     }
   ]
 }
