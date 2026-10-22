@@ -71,6 +71,23 @@ object RatingEngine {
         }
     }
 
+    /**
+     * The pavement factor on its own, for the Today factor grid (AC17). It uses the same rule and thresholds as the
+     * pavement part of [rate], which it does not change: [PavementFactor.NotRated] at night, or when cloud cover is
+     * 50 % or more or missing; [PavementFactor.NoData] when the rule applies but the temperature is missing.
+     */
+    fun pavementFactor(
+        hour: HourlyConditions,
+        sensitivity: HeatSensitivity,
+        isDaylight: Boolean,
+    ): PavementFactor {
+        val cloud = hour.cloudCoverPercent
+        if (!isDaylight || cloud == null || cloud >= SUNNY_CLOUD_BELOW_PERCENT) return PavementFactor.NotRated
+        val temperature = hour.temperatureC ?: return PavementFactor.NoData
+        val factor = heat(temperature, sensitivity.offsetC, Reason.PAVEMENT_WARM, Reason.PAVEMENT_TOO_HOT)
+        return PavementFactor.Rated(factor.rating)
+    }
+
     private fun heat(
         temperature: Double?,
         s: Double,
@@ -106,4 +123,18 @@ object RatingEngine {
         } else {
             goFactor
         }
+}
+
+/** The pavement factor of one hour, as the Today factor grid shows it (AC17). */
+sealed interface PavementFactor {
+    /** The pavement rule does not apply: night, cloud cover 50 % or more, or cloud cover missing. */
+    data object NotRated : PavementFactor
+
+    /** The rule applies but the temperature is missing. */
+    data object NoData : PavementFactor
+
+    /** The pavement factor's own rating, by the same thresholds as heat. */
+    data class Rated(
+        val rating: Rating,
+    ) : PavementFactor
 }

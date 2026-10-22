@@ -50,11 +50,15 @@ object CheckRater {
                 val isDaylight = SunCalculator.isDaylight(conditions.startUtc, data.latitude, data.longitude)
                 RatingEngine.rate(conditions, sensitivity, isDaylight)
             }
+        val currentIsDaylight = SunCalculator.isDaylight(current.startUtc, data.latitude, data.longitude)
         return CheckOutcome.Rated(
             current = ratings.first(),
             window = BestWindowFinder.find(ratings),
             fetchedAt = data.fetchedAt,
             isCached = data.isCached,
+            hours = ratings,
+            conditions = current,
+            pavement = RatingEngine.pavementFactor(current, sensitivity, currentIsDaylight),
         )
     }
 }

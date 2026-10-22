@@ -118,6 +118,25 @@
     <string name="check_default_sensitivity">Using normal heat sensitivity. Set up your dog\'s profile to change this.</string>
     <string name="check_disclaimer">Guidance only, not veterinary advice. If you\'re worried about your dog, contact a vet.</string>
     <string name="check_attribution">Weather data: MET Norway (CC BY 4.0)</string>
+    <!-- Today, task 3 of the UX redesign: C1, C12, D1, D2 and D3. -->
+    <string name="check_title_named">Good time to walk %1$s?</string>
+    <string name="check_meta_just_now">Your area · checked just now</string>
+    <string name="check_banner_offline_lead">You\'re offline.</string>
+    <string name="check_banner_cached">Showing your last check. It\'s kept for up to 3 hours.</string>
+    <string name="check_sensitive_thresholds">Heat-sensitive thresholds (%1$s)</string>
+    <string name="check_factor_air">Air</string>
+    <string name="check_factor_rain">Rain</string>
+    <string name="check_factor_wind">Wind</string>
+    <string name="check_factor_pavement">Pavement</string>
+    <string name="check_factor_temperature_value">%1$d°C</string>
+    <string name="check_factor_rain_value">%1$d mm/h</string>
+    <string name="check_factor_wind_value">%1$d mph</string>
+    <string name="check_factor_not_rated">Not rated</string>
+    <string name="check_factor_no_data">No data</string>
+    <string name="check_pavement_cool">Cool</string>
+    <string name="check_pavement_warm">Warm</string>
+    <string name="check_pavement_hot">Hot</string>
+    <string name="check_factor_spoken">%1$s %2$s</string>
 
     <!-- Walk detail and map -->
     <string name="history_open_walk">Open walk details</string>

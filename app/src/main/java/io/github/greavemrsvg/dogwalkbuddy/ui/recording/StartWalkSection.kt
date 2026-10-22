@@ -29,10 +29,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.ui.check.findActivity
 import io.github.greavemrsvg.dogwalkbuddy.ui.check.openAppSettings
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.StartWalkButton
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
-import io.github.greavemrsvg.dogwalkbuddy.ui.theme.StartStopMinHeight
 
-/** Test tag of the full-width Start walk (or "Walk in progress") button on Home. */
+/** Test tag of the full-width Start walk (or "Walk in progress") button on Today. */
 const val START_WALK_TAG = "start_walk"
 
 /**
@@ -105,12 +105,12 @@ fun StartWalkContent(
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         val label =
             if (state == StartWalkUiState.InProgress) R.string.home_walk_in_progress else R.string.home_start_walk
-        Button(
+        StartWalkButton(
+            label = stringResource(label),
+            icon = R.drawable.ic_play,
             onClick = onStart,
-            modifier = Modifier.fillMaxWidth().heightIn(min = StartStopMinHeight).testTag(START_WALK_TAG),
-        ) {
-            Text(stringResource(label), style = MaterialTheme.typography.titleLarge)
-        }
+            modifier = Modifier.testTag(START_WALK_TAG),
+        )
         when (state) {
             StartWalkUiState.NeedsPreciseLocation -> PrecisePrompt(R.string.walk_grant_precise_location, onGrantPrecise)
             StartWalkUiState.PreciseLocationBlocked -> PrecisePrompt(R.string.walk_open_settings, onOpenSettings)

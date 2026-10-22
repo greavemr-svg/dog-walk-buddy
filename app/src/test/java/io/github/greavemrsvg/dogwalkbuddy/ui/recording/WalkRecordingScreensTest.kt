@@ -98,7 +98,7 @@ class WalkRecordingScreensTest {
         }
     }
 
-    private fun tapStart() = composeRule.onNodeWithTag(START_WALK_TAG).performScrollTo().performClick()
+    private fun tapStart() = composeRule.onNodeWithTag(START_WALK_TAG).assertIsDisplayed().performClick()
 
     private fun recordingWalks() = runBlocking { test.container.walkRepository.recordingWalks() }
 
@@ -253,7 +253,7 @@ class WalkRecordingScreensTest {
         awaitText("Walk in progress")
         composeRule.onNodeWithTag(NAV_TODAY_TAG).assertIsSelected()
         composeRule.onNodeWithTag(START_WALK_TAG).assertTextEquals("Walk in progress")
-        composeRule.onNodeWithTag(START_WALK_TAG).performScrollTo().performClick()
+        composeRule.onNodeWithTag(START_WALK_TAG).assertIsDisplayed().performClick()
         awaitText("Elapsed time")
         assertEquals(1, recordingWalks().size)
         assertEquals(1, test.launcher.started.size)
