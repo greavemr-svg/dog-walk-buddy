@@ -501,7 +501,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 120,
+    "agent_invocations": 121,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -820,7 +820,11 @@
     "2026-10-22T04:16:35Z orchestrator: STATE REPAIR - working-copy state.json had gates.G4 = null: the committed file (4b511ea) carried a duplicate \"G4\" key (PASS on line 22, null on line 38) and an earlier reformat kept the null. Restored the G4 PASS record verbatim from HEAD line 22 and dropped the duplicate key. A scripted edit was blocked by the permission classifier; per owner answer state_fix_method this file was rewritten with the Write tool",
     "2026-10-22T04:16:35Z orchestrator: auditor output accepted (docs/runs/20261019-dog-walk-buddy-mvp/audit.md, 27 owner flags; High: R-02, A-01, E-01, R-01, G-05, S-08, S-09, E-03, E-04). A-01 (Gate B design approval not found) is an auditor misreading: the pipeline has no human design gate; Gate B is release approval, and the bootstrap stack checkpoint is recorded in gates.stack_approval",
     "2026-10-22T04:16:35Z owner: G5.3 reference-phone checks -> \"Waive, do after release\" (recorded in owner_answers.g5_3_phone_checks); phone checks remain a residual risk/follow-up for v0.1.0",
-    "2026-10-22T04:16:35Z orchestrator: committing audit.md + state.json to feature; then invoking release (prepare, follow-up) to resolve R-02/R-01 on PR #28 (checklist: audit link, owner G5.3 waiver, audit flags, CI green only once true). Budget 120/140 incl. this call"
+    "2026-10-22T04:16:35Z orchestrator: committing audit.md + state.json to feature; then invoking release (prepare, follow-up) to resolve R-02/R-01 on PR #28 (checklist: audit link, owner G5.3 waiver, audit flags, CI green only once true). Budget 120/140 incl. this call",
+    "2026-10-22T04:17:00Z orchestrator: committed 2e47d34 (audit.md + state.json) and pushed",
+    "2026-10-22T04:25:45Z release prepare follow-up: BLOCKED on owner decision. Commit 3695516 docs(release): update v0.1.0 PR body with audit flags and waiver state (#7) (docs/releases/v0.1.0-pr.md only); PR #28 body PATCHed. Cause of R-02 confirmed from .github/workflows/governance.yml step 5: release PR fails on any '- [ ]' line; no waiver state. Audit complete ticked (audit.md link, 27 flags pasted, A-01 orchestrator note); Manual checks left unticked and marked waived; CI green unticked. Governance run 39722148555 FAILURE on 3695516; build-test 39722148547 pending. Agent declined to use a non-space marker to dodge the regex (would be a control workaround). Also flagged as open before G5: G-05, S-08/S-09, Dependabot PRs #1-#4 (owner .github)",
+    "2026-10-22T04:25:45Z owner: waiver checkbox -> \"Tick it, marked WAIVED\" (owner_answers.g5_3_checkbox): tick Manual checks with explicit 'WAIVED by owner ... NOT done' wording citing g5_3_phone_checks, then tick CI green only once build-test and governance are both green",
+    "2026-10-22T04:25:45Z orchestrator: invoking release (prepare, follow-up 2) to apply owner decision g5_3_checkbox on PR #28. Budget 121/140 incl. this call"
   ],
   "bootstrap": true,
   "owner_answers": {
@@ -925,6 +929,11 @@
       "at": "2026-10-22T04:16:35Z",
       "question": "Gate G5.3 needs the manual checks to be done or explicitly waived. The checks on the reference phone (Galaxy A35) were never run: AC29, AC31, AC43, AC48, AC49, AC50, battery, 4G and the NFRs. Only the emulator was used (audit flags E-01, E-02, E-04). Do you waive the phone checks for v0.1.0?",
       "answer": "Waive, do after release"
+    },
+    "g5_3_checkbox": {
+      "at": "2026-10-22T04:25:45Z",
+      "question": "The release agent stopped and needs your decision. PR #28's governance check fails whenever any checklist box in the PR body is unticked (`- [ ]`); it has no way to record a waiver. 'Manual checks done' is unticked because the phone checks were waived, not done, and 'CI green' can't be ticked until governance passes. How should the waiver be recorded?",
+      "answer": "Tick it, marked WAIVED"
     }
   },
   "current_task": 9,
@@ -970,7 +979,8 @@
     "T6 round-1 reviewer posted a condensed review body (hook truncates long gh pr review commands); full findings in state.json task 6 reviewer block",
     "T6 developer did not declare live elapsed time h:mm:ss as a deviation (reviewer found it)",
     "Manual checks pending before release: AC43 (gallery delete + restart) and AC50 (TalkBack, incl. polite announcements and focus-to-error) from T4; AC48 backup/restore from T1/T8; T5 TalkBack on check screen + profile load error announcement, 200% font visual check (AC52), system location permission dialog on real phone, Open settings flow after permanent denial (and return granted), About length/scrolling on device (incl. low-end phone stutter, reviewer M1); T6 AC29 10 min locked in pocket, AC31 airplane mode + GPS 5 min, AC34 real process kill + relaunch, AC50 TalkBack Home + recording, AC52 max font + display size, Start-to-Recording under 1 s, battery 60 min, persistent notification, Android 13+ refusal of precise/notifications, Android 14-16 FGS start rules incl. refused-foreground-start path (no startForeground crash), app swiped away during recording (Samsung process killing)",
-    "2026-10-22: G4 PASS record lost from working-copy state.json via duplicate-key reformat; restored from HEAD by orchestrator (see log 04:16:35Z)"
+    "2026-10-22: G4 PASS record lost from working-copy state.json via duplicate-key reformat; restored from HEAD by orchestrator (see log 04:16:35Z)",
+    "2026-10-22: governance check has no waiver state for the release checklist; owner chose to tick 'Manual checks' with explicit WAIVED / NOT done wording (g5_3_checkbox). Candidate owner follow-up: add a waiver state to .github/workflows/governance.yml + docs/governance/release-checklist.md"
   ],
   "paused": {
     "at": "2026-10-22T04:04:53Z",
