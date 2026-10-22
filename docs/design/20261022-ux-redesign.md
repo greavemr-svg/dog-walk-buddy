@@ -9,6 +9,12 @@
   - `docs/adr/0008-icons-as-bundled-material-symbols-vector-drawables.md` (Accepted)
   - ADR 0001-0005 still apply unchanged.
 - Owner decisions on this design: OD1 (test changes E1-E8 approved) and OD2 (row Delete moves into a "More" menu), both 2026-10-22T10:59:00Z. See "Owner decisions (design)".
+- Revision: design attempt 2 (G2 fix, `docs/runs/20261022-ux-redesign/gates/G2-attempt1.md`).
+  - The Task breakdown AC column now matches the Traceability table for every AC (AC40, AC53, AC64, AC66 and AC67 rows corrected).
+  - The task-2 home-link row lists every affected test line, including `CheckScreenIntegrationTest.kt` L245.
+  - E3 says where the ProfileScreenTest L321 assertion goes.
+  - Task 1 is smaller: icons other than the three rating icons move to the task that first uses each (ADR 0008), `FieldKitBottomSheet` moves to task 4, and the accessibility helper extensions move to task 2.
+  - The contrast rounding wording and the ADR 0008 file header are corrected.
 
 ## Approach
 This run is a presentation change on top of the finished MVP app. The domain rules, the data layer, the recording service, the permissions model and the hosts do not change (spec A1, Out of scope). The work has five layers:
@@ -16,7 +22,7 @@ This run is a presentation change on top of the finished MVP app. The domain rul
 1. **Foundations** (ADR 0006, 0007, 0008).
    - A token-named theme: `FieldKitColors`, `RatingPalettes`, `RecordingPalette`, `FieldKitTypography`, `FieldKitShapes`, `FieldKitSpacing` and `FieldKitSizes`.
    - A Material 3 `ColorScheme` derived from those roles.
-   - Two bundled variable fonts and about 30 bundled Material Symbols vector drawables.
+   - Two bundled variable fonts and about 30 bundled Material Symbols vector drawables. Each icon is added by the task that first uses it (ADR 0008).
    - Dark mode follows the system theme. The activity handles `uiMode` itself, so a theme switch only recomposes.
 2. **App shell.** One `Scaffold` holds the `NavHost` and a custom bottom navigation bar with three top-level destinations: Today, Walks and the dog.
    - The bar appears only on top-level destinations.
@@ -52,9 +58,11 @@ Paths are under `app/src/main/java/io/github/greavemrsvg/dogwalkbuddy/` and `app
 | Component / module | Change | Task(s) |
 |---|---|---|
 | `ui/theme/` (`Color.kt`, `Theme.kt`, `Type.kt`, new `Dimens.kt` and `RecordingTheme.kt`) | Field Kit token objects, Material 3 mapping, typography with bundled fonts, shapes, spacing, sizes, dark mode, the always-dark recording theme (ADR 0006, 0007) | 1 |
-| `res/font/`, `res/raw/licence_ofl_*.txt`, `res/drawable/ic_*.xml`, `res/values/themes.xml`, new `res/values-night/themes.xml` | Two font files, two licence texts, about 30 icon vectors (three rating icons replaced), light and night window themes (ADR 0006, 0008) | 1 |
+| `res/font/`, `res/raw/licence_ofl_*.txt`, `res/values/themes.xml`, new `res/values-night/themes.xml` | Two font files, two licence texts, light and night window themes (ADR 0006) | 1 |
+| `res/drawable/ic_*.xml` | Three rating icons replaced (1). Every other icon is added by the task that first uses it, as planned in ADR 0008, because Lint `UnusedResources` fails on an unreferenced drawable | 1-8 |
 | `AndroidManifest.xml` | `android:configChanges="uiMode"` on `MainActivity` only | 1 |
-| `ui/common/` (new) | Shared components: `FieldKitBottomSheet`, `BackButton`, `PrimaryButton` / `StartWalkButton`, `InfoBanner`, `PermissionExplainer`, `StatCard`, `SpokenDuration`, `ConfirmSheet`, `DestructiveOutlinedButton` | 1-7 (each in the first task that needs it) |
+| `ui/common/` (new) | Shared components: `FieldKitBottomSheet`, `BackButton`, `PrimaryButton` / `StartWalkButton`, `InfoBanner`, `PermissionExplainer`, `StatCard`, `SpokenDuration`, `ConfirmSheet`, `DestructiveOutlinedButton` | 2-7 (each in the first task that needs it) |
+| `ui/a11y/AccessibilityAssertions.kt` (test helper) | Extended helpers: `assertHeadingsMarked(...)`, `assertHiddenFromAccessibility(tag)`, `assertNoTextTruncation(allowEllipsisTags)` | 2 |
 | `ui/nav/`, `MainActivity.kt`, `ui/home/` (deleted) | `AppScaffold`, `FieldKitNavBar`, `AppChromeViewModel`, `TOP_LEVEL` routes; Home screen removed | 2 |
 | `domain/rating/`, `domain/check/` | Additive only: `pavementFactor`, `FactorRounding`, `driverOf` / `FactorCell`, new `CheckOutcome.Rated` fields. `rate()` unchanged | 3 |
 | `ui/check/` | Today rebuilt: header, banner, hero and factor grid, footnote, loading (3); best-window card, 12-hour strip, Can't check, location states (4) | 3, 4 |
@@ -143,17 +151,19 @@ Material 3 `Shapes`: small = input 16, medium = button 18, large = card 22, extr
 
 ### Icons
 Bundled Material Symbols Rounded vector drawables, listed in ADR 0008. The MVP `ic_rating_avoid.xml` (circle with a cross) is replaced by `dangerous` (octagon with a cross), as AC18 requires.
+- Task 1 replaces only the three rating icons, which the MVP code already uses, and records the source commit.
+- Every other icon is added by the task that first uses it, from that commit (ADR 0008 "Planned task" column). Lint `UnusedResources` runs with `warningsAsErrors = true`, so a drawable cannot land before its first use.
 
 ### Shared components (in `ui/common/`)
 Each component is created by the first task that needs it.
 
 | Component | Task | Spec |
 |---|---|---|
-| `FieldKitBottomSheet` | 1 | Material 3 `ModalBottomSheet`, `skipPartiallyExpanded = true`, top radius 30, drag handle, Field Kit scrim. Closes on scrim tap, system Back or drag |
 | `BackButton` | 2 | 48 dp circular icon button, `ic_back`, content description "Back" (the existing `*_back` string). Variant `floating = true`: `surface` fill and a soft shadow, for the map |
 | `FieldKitNavBar` | 2 | See Navigation |
 | `PrimaryButton` / `StartWalkButton` | 3 | Start: full width in the 16 dp gutter, min height 72, radius 22, `primary` / `onPrimary`, play icon + "Start walk" (20 / 700) |
 | `InfoBanner` | 3 | `surfaceMuted`, radius 16, icon + text (13 sp). Optional bold lead span |
+| `FieldKitBottomSheet` | 4 | Material 3 `ModalBottomSheet`, `skipPartiallyExpanded = true`, top radius 30, drag handle, Field Kit scrim. Closes on scrim tap, system Back or drag. First used by the precise-location sheet |
 | `PermissionExplainer` | 4 | Decorative illustration (hidden from accessibility), heading, body, check-mark bullets, primary button (min 60), optional link |
 | `StatCard` | 5 | One accessibility node (`mergeDescendants`): caption + value. Recording uses the recording palette; Walk detail uses `surface` |
 | `ConfirmSheet` | 6 | On `FieldKitBottomSheet`: tinted delete-icon circle, title (display 26 / 800), body (15), full-width buttons at least 56 high: destructive (`error` / `onError`), then Cancel (`surfaceMuted` / `onSurface`) |
@@ -172,6 +182,7 @@ Each component is created by the first task that needs it.
   - `surface` fill, 1 dp top border `outlineVariant`, `heightIn(min = 78.dp)` plus the navigation-bar inset.
   - Three equal-weight items, each `Modifier.selectable(selected, role = Role.Tab)` with merged descendants. Each is at least 80 x 56, so well over 48 x 48.
   - Item content: a 60 x 32 pill in `navIndicator` behind the 22 dp icon when selected; then the label in navLabel, coloured `primaryPressed` at weight 700 when selected and `onSurfaceVariant` at 600 otherwise.
+  - **Test tags.** `NAV_TODAY_TAG`, `NAV_WALKS_TAG` and `NAV_DOG_TAG` on the three items, so tests can tap the dog item whatever its label (the saved name or "Dog").
   - **Dog label (AC9, AC15, AC60).** The saved name, or "Dog" with no profile (`nav_dog`).
     - `AppChromeViewModel` reads it from `ProfileRepository.observeProfile().map { it?.name }`. "Dog" shows until the name has loaded.
     - The name label has `maxLines = 1` and `overflow = TextOverflow.Ellipsis`. The "Today", "Walks" and "Dog" labels have no line limit.
@@ -181,8 +192,9 @@ Each component is created by the first task that needs it.
   - Privacy is reached through the dog tab → "Privacy & data" tile (2 taps, AC13) and through Today's location explainer link "How your data is used".
   - About is reached through Today's footnote link (1 tap) and the dog tab → "About the advice" tile (AC14).
   - The no-profile footnote line navigates to the dog tab using the tab navigation, so the dog item becomes selected.
-  - Task 2 adds the two tiles to the existing profile screen, because the Home links that reached Privacy and About are deleted in the same task. Task 8 restyles them.
-- **Deleted.** `ui/home/HomeScreen.kt` and the strings only it used (`home_title`, `home_history`, `home_dog_profile`, `home_privacy`). `app_name` stays as the launcher label.
+  - Task 2 adds the two tiles, with their `ic_shield` and `ic_info` icons, to the existing profile screen, because the Home links that reached Privacy and About are deleted in the same task. Task 8 restyles them.
+  - Back from Privacy or About returns to the screen they were opened from. Opened from the dog tab, that is the dog tab.
+- **Deleted.** `ui/home/HomeScreen.kt` and the strings only it used (`home_title`, `home_history`, `home_dog_profile`, `home_privacy`). `home_about` stays, because the check footnote uses it. `app_name` stays as the launcher label.
 
 ## Screen-by-screen changes
 
@@ -462,17 +474,17 @@ Wrapped in `RecordingTheme`, so it is always dark (AC4, AC33). There is no botto
   - `HistoryUiState` gains `thisWeekDays`.
   - `WalkDetailViewModel` gains `requestDelete`, `confirmDelete`, `cancelDelete`, `deleteFailed` and `deleted` (it navigates back on `deleted`).
   - `StartWalkViewModel` gains `onExplanationDismissed()`.
-- **Navigation:** route strings are unchanged. `TOP_LEVEL` is added. `HomeScreen` is removed. `DogWalkBuddyNavHost` becomes the content of `AppScaffold`.
+- **Navigation:** route strings are unchanged. `TOP_LEVEL` is added. `HomeScreen` is removed. `DogWalkBuddyNavHost` becomes the content of `AppScaffold`. `NAV_TODAY_TAG`, `NAV_WALKS_TAG` and `NAV_DOG_TAG` are added.
 - **Manifest:** `MainActivity` adds `android:configChanges="uiMode"`. Nothing else changes: no new permission, component or exported flag.
 - **Resources:**
-  - `res/font/` (2 files), `res/raw/licence_ofl_*.txt` (2 files), about 30 `res/drawable/ic_*.xml`, and `res/values-night/themes.xml`.
+  - `res/font/` (2 files), `res/raw/licence_ofl_*.txt` (2 files), about 30 `res/drawable/ic_*.xml` (spread over tasks 1-8, ADR 0008), and `res/values-night/themes.xml`.
   - `strings.xml` gets new strings for the approved copy and changed values for C2, C4, C5, C6, C7, C8, C9, C10, C11, D5 and D10.
-  - Strings the redesign no longer displays are **deleted** in the task that stops using them, because Android Lint `UnusedResources` fails the build under `warningsAsErrors`. Deleting an unused string is not a text change.
+  - Strings the redesign no longer displays are **deleted** in the task that stops using them, because Android Lint `UnusedResources` fails the build under `warningsAsErrors`. Deleting an unused string is not a text change. The same rule is why each icon is added only with its first use.
   - AC-fixed texts are never deleted or changed.
 - **Reversal:** every change is UI or resources. Reverting the run's commits restores the MVP. No stored data changes shape.
 
 ## Contrast (AC6, AC40, AC67)
-Ratios use the WCAG 2.1 relative-luminance formula, the same as `testutil/Wcag.kt`, rounded down to 2 decimals. `ContrastTest` asserts the floors (4.5, 7 or 3), not these numbers.
+Ratios use the WCAG 2.1 relative-luminance formula, the same as `testutil/Wcag.kt`, rounded to the nearest 0.01. `ContrastTest` asserts the floors (4.5, 7 or 3), not these numbers, so rounding cannot move a pair across its floor.
 
 Every pair below is added to `ContrastTest` in task 1. A later task that introduces any other text/fill pair must add it there first.
 
@@ -525,12 +537,13 @@ Every pair meets its floor. Bars, dots, dividers, the live dot and decorative bo
 ## Risks and mitigations
 | Risk | Mitigation |
 |---|---|
-| **Test churn breaks or quietly weakens MVP tests** (Medium) | Every allowed change is listed in "Test assertion changes", with old and new assertions. New tests use the `UX_AC` prefix. A changed assertion must stay exact: no substring, regex or existence check. The reviewer checks each diff against the list. E1-E8 are owner-approved (OD1); any other unlisted change still needs the owner's confirmation before it is merged. |
+| **Test churn breaks or quietly weakens MVP tests** (Medium) | Every allowed change is listed in "Test assertion changes", with old and new assertions and, for the home-link row, every affected line. New tests use the `UX_AC` prefix. A changed assertion must stay exact: no substring, regex or existence check. The reviewer checks each diff against the list. E1-E8 are owner-approved (OD1); any other unlisted change still needs the owner's confirmation before it is merged. |
 | **The token `outline` fails the MVP 3:1 border test** | The Material 3 `outline` maps to `iconMuted` (ADR 0007). The token `outline` is used only for decorative borders. The difference is listed for AC66. |
 | **Today does not fit the disclaimer in the default viewport** (AC25, MVP AC26 and AC27) | The fixed order puts the footnote above the best-window card (estimated link bottom about 585 dp against a 717 dp viewport). A layout test covers the four AC25 cases at `w411dp-h891dp-xxhdpi`. If it fails, spacing is tightened inside the token ranges. Font sizes are never reduced below the tokens. |
 | **12-hour strip labels collide** (AC23) | Unconstrained, centred labels. The widest pair is about 27 dp against a 28.9 dp pitch. A test checks label bounds do not intersect in both formats. Above font scale 1.3 the decorative strip thins its labels. |
 | **Robolectric text measurement differs from a device** | Layout tests assert relative bounds, not pixel values. The manual AC66 comparison on the emulator is the visual authority. Any layout test that cannot be made deterministic is reported as BLOCKED, never loosened. |
 | **Variable fonts fail to load in Robolectric** | The theme builds `FontFamily` objects lazily, and Compose falls back to the system font if loading fails. If Robolectric throws instead, task 1 reports BLOCKED with the stack trace; the architect then amends ADR 0006 (for example, to static instances). |
+| **An icon or string lands before its first use and Lint fails the build** | Each icon is added by the task that first uses it (ADR 0008), and strings are added and deleted with their use. Task 1 adds only resources it uses: the fonts, the OFL texts and font headings (About licence sections) and the three replaced rating icons. |
 | **`clearAndSetSemantics` on the hero and summary cards hides child nodes from tests** | The MVP hero already uses it, and the MVP tests find children with `useUnmergedTree = true`. The same pattern is kept. |
 | **The live route line drains the battery** | The Room Flow is collected only while Recording is visible. The Canvas redraws only on a new fix (every 3 s) and the timer ticks every 1 s, as in the MVP. The battery is checked on the reference phone (≤ 8 % per 60 min). |
 | **A theme switch recreates the activity** (AC7) | `configChanges="uiMode"`, plus an integration test that the activity instance and entered form text survive a night-mode change. |
@@ -545,7 +558,7 @@ Unchanged from `docs/governance/security-standards.md` and the MVP review.
   - The route line reads the device's own Room data.
   - A unit test asserts that `androidx.compose.ui.text.googlefonts.GoogleFont` is not on the classpath. The manual proxy check (AC65) repeats MVP AC49.
 - **Supply chain:**
-  - The developer downloads the font and icon files only from the google/fonts and google/material-design-icons GitHub repositories, at one recorded commit each, and records SHA-256 checksums in the PR.
+  - The developer downloads the font and icon files only from the google/fonts and google/material-design-icons GitHub repositories, at one recorded commit each. Task 1 records both commits; later tasks copy icons from the same icon commit. Each PR that adds files records their SHA-256 checksums.
   - The licences are checked against the actual files. G4 re-checks them.
 - **Personal data:**
   - The dog's name now also appears in the nav label, the check title and the Sensitive footnote line. It stays on the device and is never logged. The existing logging rule (class names only) is unchanged.
@@ -587,7 +600,7 @@ The MVP proposed baseline (`docs/perf/20261019-dog-walk-buddy-mvp/proposed-basel
 - **Integration (Robolectric Compose, `w411dp-h891dp-xxhdpi` unless stated):**
   - every screen and state in the traceability table, in light **and** with the `+night` qualifier
   - `assertAccessibleScreen()` on each (AC58)
-  - an extended `assertHeadingsMarked(...)` and `assertHiddenFromAccessibility(tag)` for decorative graphics
+  - an extended `assertHeadingsMarked(...)` and `assertHiddenFromAccessibility(tag)` for decorative graphics (added in task 2)
   - `assertNoTextTruncation()` at 200 % (AC27, AC38, AC60). It gains an optional `allowEllipsisTags` parameter, used only by the AC60 nav-label test. The default behaviour is unchanged.
   - Nav and back behaviour with the real `MainActivity` (AC9-AC16).
   - Room-backed tests for the route Flow (AC35) and delete (AC44, AC48).
@@ -603,7 +616,7 @@ The MVP proposed baseline (`docs/perf/20261019-dog-walk-buddy-mvp/proposed-basel
   - AC65 (proxy host list)
   - AC66 (screenshots of every screen and state, light and dark, compared with the artboards, with each difference from the list below recorded).
 
-  Each screen task's PR includes emulator screenshots in both themes and its list of differences. The reference-phone session at release records AC27, AC38, AC52, AC56, AC59, AC60, AC61 and AC65, the battery check, and the MVP checks still owed (spec "Dependencies and risks").
+  Each screen task's PR (tasks 3-8) includes emulator screenshots in both themes and its list of differences. The reference-phone session at release records AC27, AC38, AC52, AC56, AC59, AC60, AC61 and AC65, the battery check, and the MVP checks still owed (spec "Dependencies and risks").
 - **Coverage:** at least 80 % of changed lines (`bash scripts/coverage.sh origin/feature/20261022-ux-redesign`). Logic is kept in pure classes (rounding, projection, dates, spoken duration, label formats, day dots) so it is unit-covered. The MapLibre adapter stays excluded (ADR 0001); its new layers are checked by hand (AC45).
 
 ### MVP AC tests stay in force (AC63, AC64)
@@ -614,13 +627,13 @@ Every test for MVP AC1-AC53 keeps running in `./gradlew --no-daemon testDebugUni
 | AC1-AC14 (rating rules) | `domain/rating/RatingEngine*Test`, `domain/check/CheckRater*Test`, `domain/sun/SunCalculatorTest` | None. `rate()` is untouched. New tests cover `pavementFactor`. |
 | AC15, AC21-AC24 (check flow, cache, offline) | `data/repo/CheckRepository*Test`, `domain/check/CachePolicyTest`, `data/weather/*Test`, `ui/check/CheckViewModel*Test`, `ui/check/CheckScreenIntegrationTest`, `ui/check/CheckCardTest` | "Retry" → "Try again" (C4). New `Rated` fields are filled in test builders. |
 | AC16-AC19 (best window) | `domain/window/BestWindowFinder*Test`, `ui/check/BestWindowFormatter*Test`, `ui/check/CheckCardTest` | Heading text (C2) only. The formatter is unchanged. |
-| AC20, AC26, AC27, AC44, AC45 | `ui/check/CheckCardTest`, `ui/check/CheckScreenIntegrationTest`, `ui/about/AboutScreenTest` | The rating announcement gains the factor cells (E1). Home-link and Back changes (E2, E3, E4). C1 and C9 copy. |
+| AC20, AC26, AC27, AC44, AC45 | `ui/check/CheckCardTest`, `ui/check/CheckScreenIntegrationTest`, `ui/about/AboutScreenTest` | The rating announcement gains the factor cells (E1). Home-link and Back changes (home-link row, E2, E3, E4, E7). C1 and C9 copy. |
 | AC25 (location permission) | `data/location/*Test`, `ui/check/CheckCardTest`, `ui/check/CheckScreenIntegrationTest` | D5 heading without the full stop. |
 | AC28-AC34 (recording) | `service/*Test`, `ui/recording/*Test`, `domain/walk/LiveWalkFormatTest`, `domain/walk/RouteDistanceCalculator*Test`, `data/repo/RecoverInterruptedWalkUseCaseTest` | C5 and C6 copy; elapsed time h:mm → h:mm:ss. The notification title test is unchanged. |
 | AC35-AC37, AC40 (history) | `domain/walk/WeeklyTotalsTest`, `domain/walk/WalkHistoryEdgeCasesTest`, `domain/walk/WalkFormatsTest`, `data/repo/WalkHistoryRepositoryTest`, `ui/history/*Test` | D7 date and totals formats. Delete is reached through the row's "More" menu (OD2, E6). Domain totals tests are unchanged. |
 | AC38, AC39 (walk detail) | `ui/walkdetail/*Test`, `map/*Test` | D8 and C14 formats; no "Walk details" title (E4). `map/` tests are unchanged. |
 | AC41-AC45 (profile) | `ui/profile/*Test`, `data/repo/ProfileRepositoryTest`, `data/repo/PhotoStore*Test`, `domain/profile/ProfileValidatorTest` | C9, C10 and C11 copy; Back on the tab (E3). Validation is unchanged. |
-| AC46-AC48 (privacy, delete-all, backup) | `ui/privacy/*Test`, `data/repo/DeleteAllDataUseCaseTest`, `ui/nav/AppFlowIntegrationTest` | Two taps through the dog tab. D10 heading (E5). The dialog becomes a sheet with the same texts. |
+| AC46-AC48 (privacy, delete-all, backup) | `ui/privacy/*Test`, `data/repo/DeleteAllDataUseCaseTest`, `ui/nav/AppFlowIntegrationTest` | Two taps through the dog tab (home-link row). D10 heading (E5). The dialog becomes a sheet with the same texts. |
 | AC49 (hosts) | `ManifestSecurityTest`, `SourceManifestHardeningTest`, `map/MapConfigTest`, `data/weather/MetNorwayClientTest` | None. |
 | AC50-AC53 (accessibility) | `ui/a11y/*`, `ui/theme/ContrastTest`, `ui/profile/ProfileContrastTest`, plus every screen test | Extended only. Existing assertions are unchanged, because the theme mapping keeps them true (ADR 0007). |
 
@@ -628,7 +641,7 @@ Every test for MVP AC1-AC53 keeps running in `./gradlew --no-daemon testDebugUni
 ### From the spec's list (owner-approved), with the task that makes each change
 | Task | File and lines (at `a8b4506`) | Old → new (exact) | Source |
 |---|---|---|---|
-| 2 | `ui/nav/AppFlowIntegrationTest.kt`, `ui/nav/NavigationTest.kt`, home-link taps ("Walk history", "Dog profile", "Privacy", "About this advice") | Home-link taps → taps on the "Walks" or dog nav item, or the "Privacy & data" / "About the advice" tiles | AC10 |
+| 2 | **Home-link taps**, and the returns from Privacy that ended on Home. Complete list, from a scan of `app/src/test` (there is no `app/src/androidTest`):<br>• `ui/nav/NavigationTest.kt` L23 "Dog profile"; L33 "Walk history"<br>• `ui/nav/AppFlowIntegrationTest.kt` L141, L192, L216, L233, L287 "Walk history"; L144, L290 "Dog profile"; L150, L176, L263, L303, L320 "Privacy"; L152, L180, L285 `back()` from Privacy, after which the next step expects Today<br>• `ui/check/CheckScreenIntegrationTest.kt` L245 "Dog profile"<br>The Home "About this advice" link tap (`CheckScreenIntegrationTest.kt` L143) is E7. | • "Walk history" → `performClick()` on the "Walks" nav item (`NAV_WALKS_TAG`).<br>• "Dog profile" → `performClick()` on the dog nav item (`NAV_DOG_TAG`; its label is the saved name or "Dog").<br>• "Privacy" → the dog nav item, then the "Privacy & data" tile (two taps, AC13).<br>• L152, L180, L285: Back from Privacy now returns to the dog tab, where Privacy was opened. After `back()` the test asserts the dog nav item `assertIsSelected()`, then taps the "Today" nav item (`NAV_TODAY_TAG`) before its unchanged next step. At L180 this keeps "back returns there" exact: it returns to the screen Privacy was opened from.<br>• Nav items are tapped without `performScrollTo()`, because the bar is outside the scroll.<br>• Every assertion that followed each tap stays as it is, apart from changes listed in other rows.<br>These follow the spec's own allowance in AC64 ("a tap on a nav item instead of a home link"), so they are not a new owner decision. | AC10, AC13, AC64 |
 | 3 | `ui/check/CheckScreenIntegrationTest.kt` L149 | Unchanged with no profile, plus a new assertion "Good time to walk Biscuit?" with a profile | C1 |
 | 4 | `ui/check/CheckCardTest.kt` L168, L265; `ui/check/CheckScreenIntegrationTest.kt` L179 | "Best walking window" → "Best window, next 12 hours" | C2 |
 | 4 | `ui/check/CheckCardTest.kt` L158; `ui/check/CheckScreenIntegrationTest.kt` L192, L203 | "Retry" → "Try again" | C4 |
@@ -656,7 +669,7 @@ The owner approved E1-E8 exactly as listed below ("Approve E1–E8", OD1, 2026-1
 |---|---|---|---|---|
 | E1 | 3 | `ui/check/CheckCardTest.kt` L244-245, L255-257; helper `ui/a11y/AccessibilityAssertions.kt` L110-114; `ui/a11y/AccessibilityAssertionsTest.kt` L70 | The rating node's spoken text equals "<Rating>. <Reason>." → equals "<Rating>. <Reason>. Air …, Rain …, Wind …, Pavement …" in full. The helper gains a `factors` argument and still uses `assertContentDescriptionEquals`, never a prefix. | AC19, K8 |
 | E2 | 2 | `SmokeTest.kt` L35; `ui/nav/NavigationTest.kt` L28, L38; `ui/nav/AppFlowIntegrationTest.kt` L181; `ui/recording/WalkRecordingScreensTest.kt` L216 | "Dog Walk Buddy" (the Home title) displayed → the "Today" nav item `assertIsSelected()` **and** the check title displayed. The Home screen and its title no longer exist; `app_name` remains the launcher label. | AC9, AC10 |
-| E3 | 2 | `ui/nav/NavigationTest.kt` L26, L36; `ui/check/CheckScreenIntegrationTest.kt` L251; `ui/history/HistoryScreenTest.kt` L273; `ui/nav/AppFlowIntegrationTest.kt` `back()` where it leaves History or Profile; `ui/profile/ProfileScreenTest.kt` L321 | Tap "Back" on History or Profile → system Back (`onBackPressedDispatcher.onBackPressed()`) or a tap on the "Today" nav item. L321 asserts the 48 x 48 touch target on the dog nav item, the control that replaces Back. | AC11, AC39, AC50 |
+| E3 | 2 | `ui/nav/NavigationTest.kt` L26, L36; `ui/check/CheckScreenIntegrationTest.kt` L251; `ui/history/HistoryScreenTest.kt` L273; `ui/nav/AppFlowIntegrationTest.kt` `back()` where it leaves History or Profile (L143, L149, L289); `ui/profile/ProfileScreenTest.kt` L321 | Tap "Back" on History or Profile → system Back (`onBackPressedDispatcher.onBackPressed()`) or a tap on the "Today" nav item.<br>**ProfileScreenTest L321** (`onNodeWithText("Back")` at least 48 x 48). `ProfileScreenTest` hosts the screen alone, with no nav bar, so the assertion moves to where the dog nav item, the control that replaces Back, exists:<br>• `ui/nav/NavigationTest.kt`, in `AC41_home_opens_the_dog_profile_and_back_returns_home` (hosts `MainActivity` with the nav bar), while the dog tab is shown: `onNodeWithTag(NAV_DOG_TAG).assertIsSelected()` and `onNodeWithTag(NAV_DOG_TAG).assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)`. Same helper and threshold as L321.<br>• In `ProfileScreenTest`, L321 is replaced by the same `assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)` on the "Privacy & data" and "About the advice" tiles, the screen's new controls, so that test checks as many controls as before.<br>(Placement clarified at G2 attempt 2; this is the change OD1 approved.) | AC11, AC39, AC50 |
 | E4 | 2 (7 for the detail-specific lines) | `ui/walkdetail/WalkDetailScreenTest.kt` L215-216, L224; `ui/recording/WalkRecordingScreensTest.kt` L226; `ui/about/AboutScreenTest.kt` L166; `ui/privacy/PrivacyScreenTest.kt` L120; `ui/check/CheckScreenIntegrationTest.kt` L147; `ui/nav/AppFlowIntegrationTest.kt` L110 | `onNodeWithText("Back")` → `onNodeWithContentDescription("Back")`, the same exact label, because the back control is an icon button. WalkDetailScreenTest L215 "Walk details" displayed → heading "Monday 19 October" displayed (AC46 removes the title). | AC12, AC46 |
 | E5 | 7 | `ui/nav/AppFlowIntegrationTest.kt` L178 | "Weather check" displayed → "MET Norway · when the check runs" displayed (exact) | D10 |
 | E6 | 6 | `ui/history/HistoryScreenTest.kt` L200, L216, L232, L256-257; `ui/history/HistoryRowOpenTest.kt` L135 | Click the "Delete walk on …" control directly → first open that row's "More" menu, then the item with the same exact content description | AC44, OD2 |
@@ -667,6 +680,10 @@ Kept unchanged on purpose:
 - "Rating thresholds" (the table heading), "No photo" (the placeholder caption) and "Delete your data" stay visible, so `AboutScreenTest` L44, `CheckScreenIntegrationTest` L144, `ProfileScreenTest` L210 and L214 and any Privacy heading assertion need no change.
 - "Breed (optional)" stays one field label.
 - The "More" debug-menu assertions (`HistoryScreenTest` L282, L290) still hold, because the row "More" is an icon with a content description, not text.
+- Checked in the home-link scan and needing no change:
+  - `CheckScreenIntegrationTest` L101, L114, L133 use `onAllNodesWithAboutLink()[0]`. That is the footnote link, which comes before the Home links today and is the only match afterwards.
+  - `CheckCardTest` L109 taps the card's own footnote "About this advice", not a Home link.
+  - `NavigationTest` L42-44 (`assertAccessibleScreen()` on the first screen) is unchanged. It now also checks the nav items.
 
 ## Differences from the artboards (AC66)
 Each screen task records its own differences in its PR. The known ones are:
@@ -724,43 +741,46 @@ Eight tasks, in dependency order. That is the run limit and the spec's estimate.
 
 | # | Slug | Title | ACs | Likely files | Depends on | Size |
 |---|---|---|---|---|---|---|
-| 1 | `theme-foundations` | Field Kit theme, fonts, icons, dark mode and contrast | AC1, AC2, AC3, AC4 (palette), AC5, AC6, AC7, AC8, AC62, AC63 (test scaffold), AC65 (fonts), AC58 (helper extensions) | `ui/theme/Color.kt`, `Theme.kt`, `Type.kt`, `Dimens.kt` (new), `RecordingTheme.kt` (new); `ui/common/FieldKitBottomSheet.kt` (new); `res/font/*.ttf`, `res/raw/licence_ofl_*.txt`, `res/drawable/ic_*.xml`, `res/values/themes.xml`, `res/values-night/themes.xml`, `res/values/strings.xml`; `AndroidManifest.xml` (`configChanges`); `ui/about/AboutScreen.kt` (font sections only); tests `ui/theme/ContrastTest.kt` (extended), `ui/theme/FieldKitTokensTest.kt`, `ui/theme/FieldKitTypographyTest.kt`, `ui/theme/ThemeSwitchTest.kt`, `ui/about/AboutScreenTest.kt`, `ui/copy/FixedTextsTest.kt`, `ui/copy/ApprovedCopyTest.kt`, `ui/a11y/AccessibilityAssertions.kt` | — | M |
-| 2 | `bottom-nav-shell` | Bottom navigation, tabs, back controls and the dog-name label | AC9, AC10, AC11, AC12, AC13, AC14, AC15, AC16, AC60 (b, c), AC58, AC63 (C7, C16, D9 tiles), AC64 | `ui/nav/DogWalkBuddyNavHost.kt`, `ui/nav/AppScaffold.kt` (new), `ui/nav/FieldKitNavBar.kt` (new), `ui/nav/AppChromeViewModel.kt` (new), `ui/common/BackButton.kt` (new), `ui/home/HomeScreen.kt` (deleted, replaced by `ui/check/TodayScreen.kt` shell), `ui/history/HistoryScreen.kt` (remove back), `ui/profile/ProfileScreen.kt` (remove back, add tiles), `ui/recording/RecordingScreen.kt`, `ui/walkdetail/WalkDetailScreen.kt`, `ui/privacy/PrivacyScreen.kt`, `ui/about/AboutScreen.kt` (back control only), `MainActivity.kt`, `strings.xml`; tests `ui/nav/BottomNavTest.kt` (new), `ui/nav/FullScreenDestinationsTest.kt` (new), `ui/nav/NavigationTest.kt`, `ui/nav/AppFlowIntegrationTest.kt`, `SmokeTest.kt`, plus the E2, E3, E4 and E7 lines (OD1) | 1 | M |
-| 3 | `today-hero-and-footnote` | Today: header, banner, hero card with factor grid, footnote, pinned Start, loading | AC17, AC18, AC19, AC20, AC21, AC24, AC25, AC26, AC27, AC28, AC58, AC63 (C1, C12, D1-D3), AC64 | `domain/rating/RatingEngine.kt` (`pavementFactor`), `domain/check/CheckOutcome.kt`, `CheckRater.kt`, `FactorRounding.kt` (new), `FactorCell.kt` (new); `ui/check/CheckUiState.kt`, `CheckViewModel.kt`, `CheckCard.kt` → `TodayScreen.kt`, `TodayHeader.kt`, `RatingHeroCard.kt`, `FactorGrid.kt`, `TodayFootnote.kt` (new); `ui/common/InfoBanner.kt`, `PrimaryButton.kt` (new); `ui/recording/StartWalkSection.kt`; `strings.xml`; tests `domain/check/FactorRoundingTest.kt`, `domain/rating/PavementFactorTest.kt`, `ui/check/RatingHeroCardTest.kt`, `TodayHeaderTest.kt`, `TodayFootnoteTest.kt`, `TodayLayoutTest.kt`, `CheckCardTest.kt`, `CheckScreenIntegrationTest.kt`, `CheckViewModelTest.kt`, `ui/recording/WalkRecordingScreensTest.kt` (Start) | 2 | M |
-| 4 | `today-window-and-states` | Today: best-window card and 12-hour strip; Can't check, location and precise-location states | AC22, AC23, AC29, AC30, AC31, AC32, AC61 (strip), AC58, AC63 (C2, C4, C13, D4, D5), AC64 | `ui/check/BestWindowCard.kt`, `HourStrip.kt`, `HourLabelFormat.kt`, `CantCheckCard.kt`, `LocationExplainer.kt` (new); `ui/common/PermissionExplainer.kt` (new); `ui/recording/StartWalkSection.kt`, `StartWalkViewModel.kt` (`onExplanationDismissed`); `strings.xml`; tests `ui/check/HourLabelFormatTest.kt`, `BestWindowCardTest.kt`, `CantCheckTest.kt`, `LocationNeededTest.kt`, `CheckCardTest.kt`, `CheckScreenIntegrationTest.kt`, `ui/recording/WalkRecordingScreensTest.kt` (precise), `ui/recording/StartWalkViewModelTest.kt` | 3 | M |
-| 5 | `recording-restyle-route-line` | Recording: always-dark restyle, h:mm:ss timer, stat cards and live route line | AC4 (integration), AC33, AC34, AC35, AC36, AC37, AC38, AC58, AC63 (C5, C6, C15, C18, D6), AC64, AC65 (route line) | `ui/recording/RecordingScreen.kt`, `RecordingViewModel.kt`, `RouteSketch.kt` (new); `ui/common/StatCard.kt`, `SpokenDuration.kt` (new); `domain/walk/LiveWalkFormat.kt`, `RouteProjection.kt` (new); `data/db/WalkDao.kt` (`observePoints`), `data/repo/WalkRepository.kt`; `strings.xml`; tests `ui/recording/RecordingScreenTest.kt` (new), `WalkRecordingScreensTest.kt`, `domain/walk/LiveWalkFormatTest.kt`, `RouteProjectionTest.kt`, `ui/common/SpokenDurationTest.kt`, `data/repo/WalkRepositoryTest.kt` | 2 | M |
-| 6 | `walks-tab` | Walks: this-week card with day dots, week sections, rows with More menu (OD2), empty and error states, delete sheet | AC39, AC40, AC41, AC42, AC43, AC44, AC58, AC60 (a: Walks), AC63 (D7), AC64 | `ui/history/HistoryScreen.kt`, `HistoryViewModel.kt`, `WalkDateText.kt`, `ThisWeekCard.kt`, `WeekDots.kt` (new); `domain/walk/WeeklyTotals.kt` (`dayDots`); `ui/common/ConfirmSheet.kt` (new); `strings.xml`; tests `ui/history/HistoryScreenTest.kt`, `HistoryRowOpenTest.kt`, `HistoryViewModelTest.kt`, `WalkDateTextTest.kt`, `domain/walk/WeekDotsTest.kt`, `ui/nav/AppFlowIntegrationTest.kt` (row lines) | 5 | M |
-| 7 | `walk-detail-and-privacy` | Walk detail (edge-to-edge map, sheet, delete) and Privacy (cards, delete-all sheet) | AC45, AC46, AC47, AC48, AC49, AC54, AC55, AC58, AC60 (a: Walk detail, Privacy), AC63 (C14, C17, D8, D10), AC64 | `ui/walkdetail/WalkDetailScreen.kt`, `WalkDetailViewModel.kt`; `map/RouteStyle.kt` (new), `map/maplibre/MapLibreRouteMap.kt` (casing, start marker); `ui/common/DestructiveOutlinedButton.kt` (new); `ui/privacy/PrivacyScreen.kt`; `strings.xml`; tests `ui/walkdetail/WalkDetailScreenTest.kt`, `WalkDetailViewModelTest.kt`, `ui/privacy/PrivacyScreenTest.kt`, `ui/nav/AppFlowIntegrationTest.kt` (detail and privacy lines), `map/RouteStyleTest.kt` | 6 | M |
-| 8 | `dog-profile-and-about` | Dog profile (photo row, counters, radio cards, Save, tiles) and About (thresholds table) | AC50, AC51, AC52, AC53, AC67, AC56, AC57, AC61 (About headers), AC58, AC59 (checklist), AC60 (a: Dog, About), AC63 (C8-C11, D9, D11), AC64 | `ui/profile/ProfileScreen.kt`; `ui/about/AboutScreen.kt`, `ThresholdsTable.kt` (new); `strings.xml`; tests `ui/profile/ProfileScreenTest.kt`, `ProfileScreenStateTest.kt`, `ui/about/AboutScreenTest.kt`, `ui/check/CheckScreenIntegrationTest.kt` (Save), `ui/nav/AppFlowIntegrationTest.kt`, `ui/nav/NavigationTest.kt` (Save) | 2, 7 (shared buttons) | M |
+| 1 | `theme-foundations` | Field Kit theme, fonts, rating icons, dark mode and contrast | AC1, AC2, AC3, AC4 (palette), AC5, AC6, AC7, AC8, AC40 (contrast pairs), AC62, AC63 (test scaffold), AC64, AC65 (fonts), AC67 (contrast pairs) | `ui/theme/Color.kt`, `Theme.kt`, `Type.kt`, `Dimens.kt` (new), `RecordingTheme.kt` (new); `res/font/*.ttf`, `res/raw/licence_ofl_*.txt`, `res/drawable/ic_rating_go.xml`, `ic_rating_caution.xml`, `ic_rating_avoid.xml` (replaced), `res/values/themes.xml`, `res/values-night/themes.xml`, `res/values/strings.xml`; `AndroidManifest.xml` (`configChanges`); `ui/about/AboutScreen.kt` (font sections only); tests `ui/theme/ContrastTest.kt` (extended), `ui/theme/FieldKitTokensTest.kt`, `ui/theme/FieldKitTypographyTest.kt`, `ui/theme/ThemeSwitchTest.kt`, `ui/about/AboutScreenTest.kt`, `ui/copy/FixedTextsTest.kt`, `ui/copy/ApprovedCopyTest.kt` | — | M |
+| 2 | `bottom-nav-shell` | Bottom navigation, tabs, back controls and the dog-name label | AC9, AC10, AC11, AC12, AC13, AC14, AC15, AC16, AC53 (tiles), AC58 (helper extensions), AC60 (b, c), AC63 (C7, C16, D9 tiles), AC64 | `ui/nav/DogWalkBuddyNavHost.kt`, `ui/nav/AppScaffold.kt` (new), `ui/nav/FieldKitNavBar.kt` (new), `ui/nav/AppChromeViewModel.kt` (new), `ui/common/BackButton.kt` (new), `ui/home/HomeScreen.kt` (deleted, replaced by `ui/check/TodayScreen.kt` shell), `ui/history/HistoryScreen.kt` (remove back), `ui/profile/ProfileScreen.kt` (remove back, add tiles), `ui/recording/RecordingScreen.kt`, `ui/walkdetail/WalkDetailScreen.kt`, `ui/privacy/PrivacyScreen.kt`, `ui/about/AboutScreen.kt` (back control only), `MainActivity.kt`, `strings.xml`; `res/drawable/ic_nav_today.xml`, `ic_nav_walks.xml`, `ic_nav_dog.xml`, `ic_back.xml`, `ic_shield.xml`, `ic_info.xml`; tests `ui/a11y/AccessibilityAssertions.kt` (helper extensions), `ui/nav/BottomNavTest.kt` (new), `ui/nav/FullScreenDestinationsTest.kt` (new), `ui/nav/NavigationTest.kt`, `ui/nav/AppFlowIntegrationTest.kt`, `ui/check/CheckScreenIntegrationTest.kt`, `ui/profile/ProfileScreenTest.kt` (L321), `SmokeTest.kt`, plus the home-link row and the E2, E3, E4 and E7 lines (OD1) | 1 | M |
+| 3 | `today-hero-and-footnote` | Today: header, banner, hero card with factor grid, footnote, pinned Start, loading | AC17, AC18, AC19, AC20, AC21, AC24, AC25, AC26, AC27, AC28, AC58, AC63 (C1, C12, D1-D3), AC64, AC66 | `domain/rating/RatingEngine.kt` (`pavementFactor`), `domain/check/CheckOutcome.kt`, `CheckRater.kt`, `FactorRounding.kt` (new), `FactorCell.kt` (new); `ui/check/CheckUiState.kt`, `CheckViewModel.kt`, `CheckCard.kt` → `TodayScreen.kt`, `TodayHeader.kt`, `RatingHeroCard.kt`, `FactorGrid.kt`, `TodayFootnote.kt` (new); `ui/common/InfoBanner.kt`, `PrimaryButton.kt` (new); `ui/recording/StartWalkSection.kt`; `strings.xml`; `res/drawable/ic_factor_*.xml`, `ic_refresh.xml`, `ic_play.xml`, `ic_wifi_off.xml`, `ic_location.xml`, `ic_schedule.xml`; tests `domain/check/FactorRoundingTest.kt`, `domain/rating/PavementFactorTest.kt`, `ui/check/RatingHeroCardTest.kt`, `TodayHeaderTest.kt`, `TodayFootnoteTest.kt`, `TodayLayoutTest.kt`, `CheckCardTest.kt`, `CheckScreenIntegrationTest.kt`, `CheckViewModelTest.kt`, `ui/recording/WalkRecordingScreensTest.kt` (Start) | 2 | M |
+| 4 | `today-window-and-states` | Today: best-window card and 12-hour strip; Can't check, location and precise-location states | AC22, AC23, AC29, AC30, AC31, AC32, AC58, AC61 (strip), AC63 (C2, C4, C13, D4, D5), AC64, AC66 | `ui/check/BestWindowCard.kt`, `HourStrip.kt`, `HourLabelFormat.kt`, `CantCheckCard.kt`, `LocationExplainer.kt` (new); `ui/common/FieldKitBottomSheet.kt`, `PermissionExplainer.kt` (new); `ui/recording/StartWalkSection.kt`, `StartWalkViewModel.kt` (`onExplanationDismissed`); `strings.xml`; `res/drawable/ic_cloud_off.xml`, `ic_my_location.xml`, `ic_check.xml`, `ic_walk.xml`; tests `ui/check/HourLabelFormatTest.kt`, `BestWindowCardTest.kt`, `CantCheckTest.kt`, `LocationNeededTest.kt`, `CheckCardTest.kt`, `CheckScreenIntegrationTest.kt`, `ui/recording/WalkRecordingScreensTest.kt` (precise), `ui/recording/StartWalkViewModelTest.kt` | 3 | M |
+| 5 | `recording-restyle-route-line` | Recording: always-dark restyle, h:mm:ss timer, stat cards and live route line | AC4 (integration), AC33, AC34, AC35, AC36, AC37, AC38, AC58, AC63 (C5, C6, C15, C18, D6), AC64, AC65 (route line), AC66 | `ui/recording/RecordingScreen.kt`, `RecordingViewModel.kt`, `RouteSketch.kt` (new); `ui/common/StatCard.kt`, `SpokenDuration.kt` (new); `domain/walk/LiveWalkFormat.kt`, `RouteProjection.kt` (new); `data/db/WalkDao.kt` (`observePoints`), `data/repo/WalkRepository.kt`; `strings.xml`; `res/drawable/ic_stop.xml` (and `ic_walk.xml` if task 4 has not merged); tests `ui/recording/RecordingScreenTest.kt` (new), `WalkRecordingScreensTest.kt`, `domain/walk/LiveWalkFormatTest.kt`, `RouteProjectionTest.kt`, `ui/common/SpokenDurationTest.kt`, `data/repo/WalkRepositoryTest.kt` | 2 | M |
+| 6 | `walks-tab` | Walks: this-week card with day dots, week sections, rows with More menu (OD2), empty and error states, delete sheet | AC39, AC40, AC41, AC42, AC43, AC44, AC58, AC60 (a: Walks), AC63 (D7), AC64, AC66 | `ui/history/HistoryScreen.kt`, `HistoryViewModel.kt`, `WalkDateText.kt`, `ThisWeekCard.kt`, `WeekDots.kt` (new); `domain/walk/WeeklyTotals.kt` (`dayDots`); `ui/common/ConfirmSheet.kt` (new); `strings.xml`; `res/drawable/ic_chevron_right.xml`, `ic_more.xml`, `ic_delete.xml`; tests `ui/history/HistoryScreenTest.kt`, `HistoryRowOpenTest.kt`, `HistoryViewModelTest.kt`, `WalkDateTextTest.kt`, `domain/walk/WeekDotsTest.kt`, `ui/nav/AppFlowIntegrationTest.kt` (row lines) | 4, 5 | M |
+| 7 | `walk-detail-and-privacy` | Walk detail (edge-to-edge map, sheet, delete) and Privacy (cards, delete-all sheet) | AC45, AC46, AC47, AC48, AC49, AC54, AC55, AC58, AC60 (a: Walk detail, Privacy), AC63 (C14, C17, D8, D10), AC64, AC66 | `ui/walkdetail/WalkDetailScreen.kt`, `WalkDetailViewModel.kt`; `map/RouteStyle.kt` (new), `map/maplibre/MapLibreRouteMap.kt` (casing, start marker); `ui/common/DestructiveOutlinedButton.kt` (new); `ui/privacy/PrivacyScreen.kt`; `strings.xml`; `res/drawable/ic_map_off.xml`, `ic_phone.xml`, `ic_send_out.xml`; tests `ui/walkdetail/WalkDetailScreenTest.kt`, `WalkDetailViewModelTest.kt`, `ui/privacy/PrivacyScreenTest.kt`, `ui/nav/AppFlowIntegrationTest.kt` (detail and privacy lines), `map/RouteStyleTest.kt` | 6 | M |
+| 8 | `dog-profile-and-about` | Dog profile (photo row, counters, radio cards, Save, tiles) and About (thresholds table) | AC50, AC51, AC52, AC53, AC56, AC57, AC58, AC59 (checklist), AC60 (a: Dog, About), AC61 (About headers), AC63 (C8-C11, D9, D11), AC64, AC66, AC67 | `ui/profile/ProfileScreen.kt`; `ui/about/AboutScreen.kt`, `ThresholdsTable.kt` (new); `strings.xml`; `res/drawable/ic_image.xml`; tests `ui/profile/ProfileScreenTest.kt`, `ProfileScreenStateTest.kt`, `ui/about/AboutScreenTest.kt`, `ui/check/CheckScreenIntegrationTest.kt` (Save), `ui/nav/AppFlowIntegrationTest.kt`, `ui/nav/NavigationTest.kt` (Save) | 2, 7 (shared buttons) | M |
 
 ### Task details
 Every task:
 - applies only its own approved copy and deletes strings it makes unused
+- adds only the icons it is the first to use (ADR 0008)
 - runs the full suite (AC64)
-- extends `assertAccessibleScreen` coverage to its screens in light and night (AC58)
-- attaches emulator screenshots in both themes with its AC66 difference list
 - keeps changed-lines coverage at 80 % or more.
 
+Every task from 2 on also extends `assertAccessibleScreen` coverage to its screens in light and night (AC58). Every screen task (3-8) attaches emulator screenshots in both themes with its AC66 difference list.
+
 1. **`theme-foundations`** (M; depends on nothing; the foundation every other task builds on)
-   - **Build:** the token objects and Material 3 mapping (ADR 0007), typography with the two variable fonts (ADR 0006), shapes, spacing, sizes, the icon drawables (ADR 0008), `RecordingTheme`, `FieldKitBottomSheet`, light and night window themes, and `configChanges="uiMode"`.
-   - **About:** the two font licence sections (AC8). The task 1 developer is the only person who downloads anything: the four font files (two TTFs and two `OFL.txt`) and about 30 icon XMLs, as the ADRs say. Nothing was downloaded at design time.
+   - **Size note.** Re-estimated at G2 attempt 2. The first version was large for an M. It now keeps only what must exist before any screen changes: the icons other than the three rating icons moved to the tasks that first use them (ADR 0008, which Lint also requires), `FieldKitBottomSheet` moved to task 4, and the accessibility helper extensions moved to task 2. The About font licence sections stay here, because they are what uses the bundled OFL texts and font-name strings, and Lint `UnusedResources` would fail without them.
+   - **Build:** the token objects and Material 3 mapping (ADR 0007), typography with the two variable fonts (ADR 0006), shapes, spacing, sizes, the three replaced rating icons (ADR 0008), `RecordingTheme`, light and night window themes, and `configChanges="uiMode"`.
+   - **About:** the two font licence sections (AC8). The task 1 developer downloads the four font files (two TTFs and two `OFL.txt`) and the three rating icon XMLs, as the ADRs say, and records the source commits. Nothing was downloaded at design time.
    - **Tests:**
      - `UX_AC1`-`UX_AC5`.
-     - `ContrastTest` extended with every pair in the contrast table (`UX_AC6`). The MVP assertions in that file are unchanged.
+     - `ContrastTest` extended with every pair in the contrast table (`UX_AC6`), including the summaryCaption pairs (AC40) and the errorText pairs (AC67). The MVP assertions in that file are unchanged.
      - `UX_AC7`: night-mode switch on Today keeps the same activity instance and state.
      - `UX_AC8`, `UX_AC62`, the `UX_AC63` scaffold, and `UX_AC65` (no GoogleFont class on the classpath; all `Font`s are `ResourceFont`).
-   - **Test assertion changes:** none. MVP tests must pass unchanged with the new theme.
+   - **Test assertion changes:** none. MVP tests must pass unchanged with the new theme (AC64).
    - **PR also reports:** file sizes, SHA-256 checksums and the APK size delta.
 2. **`bottom-nav-shell`** (M; depends on 1)
-   - **Build:** `AppScaffold`, `FieldKitNavBar` (selected semantics, ellipsised name, full spoken name), `AppChromeViewModel`, and the Today route as a shell. The current check content and Start are moved under it unchanged in look. Add `BackButton` on the four full-screen destinations; remove Back from History and Profile; add the two tiles; delete `HomeScreen`.
-   - **Tests:** `UX_AC9`-`UX_AC16`, `UX_AC60` (b, c).
-   - **Test assertion changes:** spec row "home-link taps"; E2, E3, E4 (non-detail lines), E7, all owner-approved in OD1. Copy C7, C16, D9 tiles.
+   - **Build:** `AppScaffold`, `FieldKitNavBar` (selected semantics, ellipsised name, full spoken name, `NAV_*_TAG` tags), `AppChromeViewModel`, and the Today route as a shell. The current check content and Start are moved under it unchanged in look. Add `BackButton` on the four full-screen destinations; remove Back from History and Profile; add the two tiles with their icons (AC53 tile behaviour); delete `HomeScreen`. Add the nav, back and tile icons (ADR 0008).
+   - **Test helpers:** extend `ui/a11y/AccessibilityAssertions.kt` with `assertHeadingsMarked(...)`, `assertHiddenFromAccessibility(tag)` and the optional `allowEllipsisTags` on `assertNoTextTruncation()` (default unchanged).
+   - **Tests:** `UX_AC9`-`UX_AC16`, `UX_AC60` (b, c). `UX_AC13` and `UX_AC14` cover the tiles opening Privacy and About.
+   - **Test assertion changes:** the home-link row (every line listed); E2, E3 (including the ProfileScreenTest L321 move), E4 (non-detail lines) and E7, all owner-approved in OD1. Copy C7, C16, D9 tiles.
 3. **`today-hero-and-footnote`** (M; depends on 2)
    - **Build:** the domain additions (`pavementFactor`, `FactorRounding`, `driverOf`, `CheckOutcome` fields); `CheckViewModel` name and offline; the header with refresh; the banner; the hero with factor grid, highlight and full announcement; the footnote; `StartWalkButton`; the loading skeleton; the fixed scroll order.
    - **Tests:** `UX_AC17`-`UX_AC21`, `UX_AC24`-`UX_AC28`. AC25 uses the four cases at `w411dp-h891dp-xxhdpi`. AC27 runs at 200 %.
    - **Test assertion changes:** C1 row; E1, E8, both owner-approved in OD1.
 4. **`today-window-and-states`** (M; depends on 3)
-   - **Build:** `BestWindowCard` with chip; `HourStrip` and `HourLabelFormat` (24-hour and 12-hour "2pm"); Can't check card and panel; `PermissionExplainer`; location needed and blocked; the precise-location sheet and dismissal.
+   - **Build:** `BestWindowCard` with chip; `HourStrip` and `HourLabelFormat` (24-hour and 12-hour "2pm"); Can't check card and panel; `FieldKitBottomSheet`; `PermissionExplainer`; location needed and blocked; the precise-location sheet and dismissal.
    - **Tests:**
      - `UX_AC22`, `UX_AC29`-`UX_AC32`.
      - `UX_AC23`: bar count, order, heights 44 / 28 / 14, marker columns, labels in both formats at the test clock in UTC, no label bounds intersect, strip hidden.
@@ -772,7 +792,7 @@ Every task:
      - `UX_AC4` (palette identical under `+night`), `UX_AC33`, `UX_AC34`, `UX_AC36`-`UX_AC38`.
      - `UX_AC35`: inserting fix C redraws with the current marker at C; fewer than 2 fixes gives an empty panel; MockWebServer `requestCount` is unchanged while Recording is shown.
    - **Test assertion changes:** C5, C6 and h:mm:ss rows.
-6. **`walks-tab`** (M; depends on 5 for `SpokenDuration` and `StatCard`)
+6. **`walks-tab`** (M; depends on 4 for `FieldKitBottomSheet`, and on 5 for `SpokenDuration` and `StatCard`)
    - **Build:** `WalkDateText`; the this-week card with `summaryCaption` and spoken summary; `dayDots`; week sections; rows with "More" → Delete → `ConfirmSheet`, replacing the MVP row's direct Delete button (owner decision OD2, "Use a More menu"); empty and error states.
    - **Tests:** `UX_AC39`-`UX_AC44` (AC40 and AC41 in light and night; AC39 also with the clock in 2027 and a year-spanning week), `UX_AC60` (a) for Walks.
    - **Test assertion changes:** the D7 rows; E6 (owner-approved in OD1).
@@ -788,7 +808,7 @@ Every task:
    - **Test assertion changes:** the C9, C10 and C11 rows.
 
 ## Traceability check
-Every AC maps to at least one task and a test. No task lacks an AC.
+Every AC maps to at least one task and a test. No task lacks an AC. For every AC, the set of tasks below equals the set of tasks whose row in "Task breakdown" lists that AC (checked line by line at G2 attempt 2).
 
 | AC | Task(s) | Test |
 |---|---|---|
@@ -831,7 +851,7 @@ Every AC maps to at least one task and a test. No task lacks an AC.
 | AC37 | 5 | `RecordingScreenTest` `UX_AC37_*` |
 | AC38 | 5 | `RecordingScreenTest` `UX_AC38_*` (200 %); manual |
 | AC39 | 6 | unit `ui/history/WalkDateTextTest`; `HistoryScreenTest` `UX_AC39_*` |
-| AC40 | 6 (1 for contrast) | `HistoryScreenTest` `UX_AC40_*` (light and night); `ContrastTest` summaryCaption pairs |
+| AC40 | 1, 6 | `ContrastTest` summaryCaption pairs (1); `HistoryScreenTest` `UX_AC40_*` (light and night) (6) |
 | AC41 | 6 | unit `domain/walk/WeekDotsTest`; `HistoryScreenTest` `UX_AC41_*` |
 | AC42 | 6 | `HistoryScreenTest` `UX_AC42_*` |
 | AC43 | 6 | `HistoryScreenTest` `UX_AC43_*` |
@@ -844,20 +864,20 @@ Every AC maps to at least one task and a test. No task lacks an AC.
 | AC50 | 8 | `ProfileScreenTest` `UX_AC50_*` |
 | AC51 | 8 | `ProfileScreenTest` `UX_AC51_*` |
 | AC52 | 8 | `ProfileScreenTest` `UX_AC52_*`; manual (AC59) |
-| AC53 | 8 (tiles from 2) | `ProfileScreenTest` `UX_AC53_*` |
+| AC53 | 2, 8 | `BottomNavTest` `UX_AC13_*` and `UX_AC14_*` (tiles open Privacy and About) (2); `ProfileScreenTest` `UX_AC53_*` (8) |
 | AC54 | 7 | `PrivacyScreenTest` `UX_AC54_*` |
 | AC55 | 7 | `PrivacyScreenTest` `UX_AC55_*` |
 | AC56 | 8 | `AboutScreenTest` `UX_AC56_*`; manual (AC59) |
 | AC57 | 8 | `AboutScreenTest` `UX_AC57_*` |
-| AC58 | 1 (helpers), 2-8 | `assertAccessibleScreen` and heading and hidden checks in each screen's tests, light and night |
-| AC59 | 8 (checklist), all screens | manual at the reference-phone release session |
+| AC58 | 2-8 (helper extensions in 2) | `assertAccessibleScreen` and heading and hidden checks in each screen's tests, light and night |
+| AC59 | 8 | checklist added in task 8, covering every screen; manual at the reference-phone release session |
 | AC60 | 2 (b, c), 6, 7, 8 (a) | `BottomNavTest` `UX_AC60_*`; 200 % tests in the Walks, Walk detail, Privacy, Profile and About tests; manual |
 | AC61 | 4, 8 | `BestWindowCardTest` and `AboutScreenTest` `UX_AC61_*`; manual greyscale |
 | AC62 | 1 | `ui/copy/FixedTextsTest` `UX_AC62_*` |
 | AC63 | 1 (scaffold), 2-8 | `ui/copy/ApprovedCopyTest` `UX_AC63_*`, plus the changed assertions listed above |
-| AC64 | 1-8 | the full `testDebugUnitTest` suite on every PR, with only the spec-listed and OD1-approved (E1-E8) assertion changes |
+| AC64 | 1-8 | the full `testDebugUnitTest` suite on every PR, with only the spec-listed (including every home-link line) and OD1-approved (E1-E8) assertion changes |
 | AC65 | 1, 5 | unit classpath and `ResourceFont` check (1); `RecordingScreenTest` no-request check (5); manual proxy check at release |
 | AC66 | 3-8 | manual screenshot comparison per task PR and at release |
-| AC67 | 8 (1 for contrast) | `ProfileScreenTest` `UX_AC67_*` (light and night); `ContrastTest` errorText pairs |
+| AC67 | 1, 8 | `ContrastTest` errorText pairs (1); `ProfileScreenTest` `UX_AC67_*` (light and night) (8) |
 
 Approved copy coverage: C1, C2, C4-C18 and D1-D11 each map to exactly one task (see "Approved copy by task"). C3 is rejected and not implemented.

@@ -44,7 +44,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 13,
+    "agent_invocations": 14,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -84,7 +84,9 @@
     "2026-10-22T11:03:59Z architect (record answers, opus): DONE; design 'Owner decisions (design)' OD1/OD2 verbatim; no pending/TBD/owner question left",
     "2026-10-22T11:03:59Z orchestrator: invoking gatekeeper G2 (opus). Budget 12/200 incl. this call",
     "2026-10-22T11:09:22Z gatekeeper G2 (opus): FAIL; G2.2 (AC66 in no task row; AC64 missing from task 1 row) and unlisted test change CheckScreenIntegrationTest L245. Record gates/G2-attempt1.md",
-    "2026-10-22T11:09:22Z orchestrator: committing design + ADRs draft (G2 note 5); invoking architect (design attempt 2: G2 fixes + non-blocking notes) model=opus. Budget 13/200 incl. this call"
+    "2026-10-22T11:09:22Z orchestrator: committing design + ADRs draft (G2 note 5); invoking architect (design attempt 2: G2 fixes + non-blocking notes) model=opus. Budget 13/200 incl. this call",
+    "2026-10-22T11:18:50Z architect design attempt 2 (opus): DONE; AC66 tasks 3-8, AC64 task 1, plus AC40/AC53/AC67/AC59 row fixes; task sets match for AC1-AC67; home-link row lists all affected lines (incl. CheckScreenIntegrationTest L245, AppFlowIntegrationTest back() L152/L180/L285) under spec AC64 allowance; nav test tags; ADR 0008 Apache 4(b) header; task 1 trimmed (icons move to first-using task, bottom sheet to T4, a11y helpers to T2), still 8 tasks",
+    "2026-10-22T11:18:50Z orchestrator: committed design attempt 2; invoking gatekeeper G2 re-check (opus). Budget 14/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
