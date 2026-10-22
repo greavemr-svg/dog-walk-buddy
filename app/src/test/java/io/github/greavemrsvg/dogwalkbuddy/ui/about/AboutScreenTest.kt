@@ -1,11 +1,19 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.about
 
+import android.content.Context
+import androidx.annotation.RawRes
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.WithFontScale
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertAccessibleScreen
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertNoTextTruncation
@@ -159,6 +167,94 @@ class AboutScreenTest {
         assertTextPresent("Mozilla Public License Version 2.0")
     }
 
+    /** The licence file's paragraphs, read from the bundled resource. */
+    private fun paragraphsOf(
+        @RawRes resId: Int,
+    ): List<String> =
+        ApplicationProvider
+            .getApplicationContext<Context>()
+            .resources
+            .openRawResource(resId)
+            .bufferedReader(Charsets.UTF_8)
+            .use { it.readText() }
+            .replace("\r\n", "\n")
+            .split("\n\n")
+            .filter { it.isNotBlank() }
+
+    private fun assertFontSection(
+        name: String,
+        @RawRes licence: Int,
+        copyright: String,
+    ) {
+        composeRule
+            .onNode(hasText(name) and SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            .assertExists()
+        val paragraphs = paragraphsOf(licence)
+        assertTrue("$name licence starts with its copyright line", paragraphs.first().startsWith(copyright))
+        assertTrue(paragraphs.any { it.contains("SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007") })
+        paragraphs.forEach { paragraph ->
+            assertTrue(
+                "$name licence paragraph missing: ${paragraph.take(PREVIEW_LENGTH)}",
+                composeRule.onAllNodesWithText(paragraph).fetchSemanticsNodes().isNotEmpty(),
+            )
+        }
+    }
+
+    @Test
+    fun UX_AC8_about_shows_bricolage_grotesque_and_its_full_licence() {
+        show()
+
+        assertFontSection(
+            name = "Bricolage Grotesque",
+            licence = R.raw.licence_ofl_bricolage_grotesque,
+            copyright = "Copyright 2022 The Bricolage Grotesque Project Authors (https://github.com/ateliertriay/bricolage)",
+        )
+    }
+
+    @Test
+    fun UX_AC8_about_shows_figtree_and_its_full_licence() {
+        show()
+
+        assertFontSection(
+            name = "Figtree",
+            licence = R.raw.licence_ofl_figtree,
+            copyright = "Copyright 2022 The Figtree Project Authors (https://github.com/erikdkennedy/figtree)",
+        )
+    }
+
+    @Test
+    fun UX_AC8_the_font_sections_follow_the_existing_licence_sections() {
+        show()
+
+        fun headingTop(name: String) =
+            composeRule
+                .onNode(hasText(name) and SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+                .fetchSemanticsNode()
+                .positionInRoot.y
+        // The last paragraph of the Apache text, the last of the existing licence sections.
+        val apacheEnd =
+            composeRule
+                .onAllNodesWithText("APPENDIX: How to apply the Apache License to your work.", substring = true)
+                .onLast()
+                .fetchSemanticsNode()
+                .positionInRoot.y
+
+        val tops =
+            listOf(headingTop("Apache License, Version 2.0"), apacheEnd, headingTop("Bricolage Grotesque"), headingTop("Figtree"))
+
+        assertEquals(tops.sorted(), tops)
+        assertEquals(tops.size, tops.toSet().size)
+    }
+
+    @Test
+    fun UX_AC8_the_font_licences_are_readable_at_the_largest_font_size() {
+        show(fontScale = 2.0f)
+
+        composeRule.assertNoTextTruncation()
+        assertTextPresent("Copyright 2022 The Bricolage Grotesque Project Authors")
+        assertTextPresent("Copyright 2022 The Figtree Project Authors")
+    }
+
     @Test
     fun AC26_back_returns_from_about() {
         show()
@@ -166,5 +262,9 @@ class AboutScreenTest {
         composeRule.onNodeWithText("Back").assertIsDisplayed().performClick()
 
         assertEquals(1, backs)
+    }
+
+    private companion object {
+        const val PREVIEW_LENGTH = 60
     }
 }

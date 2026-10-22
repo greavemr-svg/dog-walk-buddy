@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The Material Symbols vector drawables (ADR 0008) are copied unmodified apart from a header comment, and
+         they tint with ?attr/colorControlNormal. That attribute is normally declared by AppCompat, which this
+         app does not use, so it is declared here and set to the platform value in the window themes. Compose
+         icons are tinted from theme roles at use, so this value is never what the user sees. -->
+    <attr name="colorControlNormal" format="color|reference" />
+</resources>
