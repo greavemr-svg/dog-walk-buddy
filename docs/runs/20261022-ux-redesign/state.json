@@ -74,10 +74,17 @@
       "depends_on": [
         1
       ],
-      "status": "in_progress",
-      "attempts": 1,
+      "status": "done",
+      "attempts": 2,
       "branch": "task/20261022-ux-redesign-2-bottom-nav-shell",
-      "pr": null
+      "pr": 41,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-22T14:17:25Z",
+        "head": "43dfcc9",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T2.md"
+      },
+      "merge_commit": "9e9c259"
     },
     {
       "n": 3,
@@ -88,8 +95,8 @@
       "depends_on": [
         2
       ],
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "branch": "task/20261022-ux-redesign-3-today-hero-and-footnote",
       "pr": null
     },
@@ -173,7 +180,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 26,
+    "agent_invocations": 34,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -241,7 +248,23 @@
     "2026-10-22T12:59:28Z gatekeeper G3 T1 (opus): PASS on 95eae40 (all G3.1-G3.6 + provenance met). Posted GATE G3: PASS comment on PR #40. Record gates/G3-T1.md",
     "2026-10-22T12:59:28Z orchestrator: T1 invoking release mode integrate (squash-merge PR #40) (opus). Budget 25/200 incl. this call",
     "2026-10-22T13:01:08Z release integrate T1 (opus): PR #40 squash-merged as 927e6a5 (match-head 95eae40); issue #32 closed (comment 6341372027); task branch deleted; feature CI run 39783024946 in progress. T1 done",
-    "2026-10-22T13:01:08Z orchestrator: T2 attempt 1: invoking developer (opus), incl. carry-forward windowBackground fix. Budget 26/200 incl. this call"
+    "2026-10-22T13:01:08Z orchestrator: T2 attempt 1: invoking developer (opus), incl. carry-forward windowBackground fix. Budget 26/200 incl. this call",
+    "2026-10-22T13:22:48Z developer T2 attempt 1 (opus): stopped at 80-turn limit, no report; uncommitted work on local task/20261022-ux-redesign-2-bottom-nav-shell (HomeScreen deleted, AppScaffold/FieldKitNavBar/AppChromeViewModel/TodayScreen/BackButton, 6 icons, BottomNavTest/FullScreenDestinationsTest, many test edits); no commit, no PR",
+    "2026-10-22T13:22:48Z orchestrator: T2 re-invoking developer to continue attempt 1 from working tree (opus). Budget 27/200 incl. this call",
+    "2026-10-22T13:44:37Z developer T2 (continue attempt 1, opus): DONE; PR #41 head a881024; CI governance+build-test pass; ci.sh exit 0, 767 tests, 98.5%, changed-lines 100%; windowBackground fix in MainActivity.onConfigurationChanged + ThemeSwitchTest UX_AC7 window background test (fails without fix); 6 icons @49d4db3 with SHA-256; ProfileViewModel change outside listed files (clear form after delete-all, AC15/MVP AC47)",
+    "2026-10-22T13:44:37Z orchestrator: T2 invoking tester (opus). Budget 28/200 incl. this call",
+    "2026-10-22T14:02:27Z tester T2 (opus): PASSED; +7 tests BottomNavEdgeCasesTest (43dfcc9, new head); 774/0/0; reruns 3x37 pass; 98.5%, changed-lines 100%; audit 35 changed sites all listed, none weakened; only removal = approved HistoryScreenTest move. Comment 6342660954. Process: tester wrote temp comment-body file under app/src/test (untracked, deleted, never committed) because hook blocked scratchpad writes",
+    "2026-10-22T14:02:27Z orchestrator: T2 invoking reviewer (opus). Budget 29/200 incl. this call",
+    "2026-10-22T14:06:38Z reviewer T2 (opus): CHANGES_REQUESTED (head 43dfcc9), review 5615502014; 2 Major = stale PR body (767 tests, missing BottomNavEdgeCasesTest); Minor+Nit optional; code otherwise correct. attempts -> 2",
+    "2026-10-22T14:06:38Z orchestrator: T2 attempt 2: developer PR-body-only fix (no commit, optional findings deferred). Budget 30/200 incl. this call",
+    "2026-10-22T14:12:41Z developer T2 attempt 2 (opus): PR #41 body-only fix DONE (774 tests, 98.5%, changed 100%; BottomNavEdgeCasesTest mapped AC11/AC53/AC60; Minor+Nit deferred in Risk); head unchanged 43dfcc9; checks pass",
+    "2026-10-22T14:12:41Z orchestrator: T2 invoking reviewer re-review (opus). Budget 31/200 incl. this call",
+    "2026-10-22T14:13:32Z reviewer T2 re-review (opus): APPROVE (head 43dfcc9), review 5615608023; both Majors fixed; process note: review posted before full body read (body truncated on first view), verified immediately after",
+    "2026-10-22T14:13:32Z orchestrator: T2 invoking gatekeeper G3 (opus). Budget 32/200 incl. this call",
+    "2026-10-22T14:17:25Z gatekeeper G3 T2 (opus): PASS on 43dfcc9. Record gates/G3-T2.md; posting GATE G3: PASS on PR #41",
+    "2026-10-22T14:17:25Z orchestrator: T2 invoking release integrate (squash-merge PR #41) (opus). Budget 33/200 incl. this call",
+    "2026-10-22T14:22:51Z release integrate T2 (opus): PR #41 squash-merged as 9e9c259 (match-head 43dfcc9); issue #33 closed (comment 6343015344); task branch deleted; feature CI run 39794472517 queued. T2 done",
+    "2026-10-22T14:22:51Z orchestrator: T3 attempt 1: invoking developer (opus). Budget 34/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
@@ -337,6 +360,11 @@
       "from": "T1 review 5614449498 (Nit)",
       "to": "T5 or later",
       "item": "RecordingTheme error roles use Material defaults; map to Field Kit error tokens if an error shows on Recording"
+    },
+    {
+      "from": "T2 review 5615502014 (Minor/Nit, optional)",
+      "to": "later nav-touching task or backlog",
+      "item": "AppChromeViewModel.kt:35 catch ends flow (label stays 'Dog' after read error); FieldKitNavBar singleLine uses dogName != null (prefer !isNullOrBlank)"
     }
   ]
 }
