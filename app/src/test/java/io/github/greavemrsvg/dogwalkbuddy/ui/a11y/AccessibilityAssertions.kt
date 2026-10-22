@@ -147,10 +147,15 @@ private fun SemanticsNode.isMarkedHidden(): Boolean =
 private fun SemanticsNode.exposesNothing(): Boolean =
     !hasSpokenLabel() && SemanticsActions.OnClick !in config && children.all { it.exposesNothing() }
 
-/** AC50: the node is spoken as "<Rating>. <Reason>." (rating first, then the reason). */
+/**
+ * AC50, AC19: the node is spoken as "<Rating>. <Reason>." (rating first, then the reason), followed by a space and the
+ * four factor cells exactly as [factors] gives them ("Air 15°C, Rain 0 mm/h, Wind 26 mph, Pavement Not rated"). The
+ * whole description must match, never just a prefix.
+ */
 fun SemanticsNodeInteraction.assertAnnouncesRatingThenReason(
     rating: String,
     reason: String,
-): SemanticsNodeInteraction = assertContentDescriptionEquals("$rating. $reason.")
+    factors: String,
+): SemanticsNodeInteraction = assertContentDescriptionEquals("$rating. $reason. $factors")
 
 private fun SemanticsNode.hasTextLayout(): Boolean = config.getOrNull(SemanticsActions.GetTextLayoutResult) != null

@@ -12,6 +12,7 @@ import io.github.greavemrsvg.dogwalkbuddy.domain.check.CachePolicy
 import io.github.greavemrsvg.dogwalkbuddy.domain.check.CheckData
 import io.github.greavemrsvg.dogwalkbuddy.domain.check.CheckOutcome
 import io.github.greavemrsvg.dogwalkbuddy.domain.check.CheckRater
+import io.github.greavemrsvg.dogwalkbuddy.domain.check.FactorGrid
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LocationFix
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HeatSensitivity
 import kotlinx.coroutines.CancellationException
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -48,6 +50,10 @@ class CheckViewModel(
     private val logError: (String) -> Unit = { name -> Log.println(Log.WARN, LOG_TAG, "Check step failed: $name") },
     // Emits when "Delete all my data" has run, so a result held in memory is forgotten like the stored one (AC47).
     dataDeleted: Flow<Unit> = emptyFlow(),
+    // The saved dog's name for the title and the heat-sensitive line, or null with no profile (AC20, AC24).
+    dogName: Flow<String?> = flowOf(null),
+    // True when the device has a validated internet connection; a cached result shows "You're offline." otherwise (AC21).
+    private val isOnline: () -> Boolean = { true },
 ) : ViewModel() {
     private sealed interface Source {
         data object Idle : Source
@@ -80,8 +86,12 @@ class CheckViewModel(
     }
 
     val state: StateFlow<CheckUiState> =
-        combine(source, sensitivity, hasProfile, shown) { current, heat, profileExists, _ -> toUiState(current, heat, profileExists) }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, CheckUiState.Loading)
+        combine(source, sensitivity, hasProfile, dogName, shown) { current, heat, profileExists, name, _ ->
+            toUiState(current, heat, profileExists, name)
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, CheckUiState.Loading)
+
+    /** The saved dog's name, so the title of every state can use it (C1). */
+    val dogName: StateFlow<String?> = dogName.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     /**
      * The screen was opened. A check runs unless a check is already running or a result under 3 h old is in
@@ -172,18 +182,20 @@ class CheckViewModel(
         current: Source,
         sensitivity: HeatSensitivity,
         hasProfile: Boolean,
+        dogName: String?,
     ): CheckUiState =
         when (current) {
             Source.Idle, Source.Loading -> CheckUiState.Loading
             Source.NeedsPermission -> CheckUiState.NeedsLocationPermission
             Source.PermissionBlocked -> CheckUiState.LocationPermissionBlocked
-            is Source.Loaded -> rated(current.data, sensitivity, hasProfile)
+            is Source.Loaded -> rated(current.data, sensitivity, hasProfile, dogName)
         }
 
     private fun rated(
         data: CheckData,
         sensitivity: HeatSensitivity,
         hasProfile: Boolean,
+        dogName: String?,
     ): CheckUiState {
         if (data !is CheckData.Available) return CheckUiState.CantCheck
         val now = clock.instant()
@@ -196,6 +208,12 @@ class CheckViewModel(
             window = outcome.window,
             ageMinutes = ageMinutes.takeIf { outcome.isCached || it >= MIN_AGE_TO_LABEL_MINUTES },
             usingDefaultSensitivity = !hasProfile,
+            hours = outcome.hours,
+            factors = FactorGrid.cells(outcome.conditions, outcome.pavement, outcome.current.reason),
+            isCached = outcome.isCached,
+            isOffline = outcome.isCached && !isOnline(),
+            dogName = dogName,
+            sensitivity = sensitivity,
         )
     }
 
@@ -219,6 +237,8 @@ class CheckViewModel(
                         hasCoarsePermission = container.hasCoarseLocationPermission,
                         clock = container.clock,
                         dataDeleted = container.deleteAllDataUseCase.deletions,
+                        dogName = container.profileRepository.observeProfile().map { it?.name },
+                        isOnline = container.connectivity::isOnline,
                     )
                 }
             }

@@ -12,48 +12,37 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.greavemrsvg.dogwalkbuddy.R
-import io.github.greavemrsvg.dogwalkbuddy.domain.rating.Rating
-import io.github.greavemrsvg.dogwalkbuddy.ui.theme.LocalRatingColors
+import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HeatSensitivity
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.InfoBanner
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitSpacing
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
 
-/** Test tag of the rating and reason block, whose spoken description is "<Rating>. <Reason>." (AC50). */
+/**
+ * Test tag of the hero card, whose spoken description starts "<Rating>. <Reason>." (MVP AC50) and goes on with the
+ * four factor cells (AC19).
+ */
 const val RATING_BLOCK_TAG = "check_rating"
 
 /** Prefix of the rating icon's test tag. The tag ends with the drawable resource id (AC53). */
 const val RATING_ICON_TAG_PREFIX = "check_rating_icon_"
-
-private val RatingIconSize = 40.dp
 
 /** Connects the check card to its ViewModel and to the system permission dialog. */
 @Composable
@@ -84,8 +73,10 @@ fun CheckRoute(
                     ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_COARSE_LOCATION)
             viewModel.onPermissionResult(granted, canAskAgain)
         }
+    val dogName by viewModel.dogName.collectAsStateWithLifecycle()
     CheckCard(
         state = state,
+        dogName = dogName,
         windowFormatter = windowFormatter,
         onRefresh = viewModel::refresh,
         onGrantPermission = { permissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION) },
@@ -114,7 +105,11 @@ internal fun Context.openAppSettings() {
     }
 }
 
-/** The check card: the rating, its reason, the best window, and the guidance and attribution notes. */
+/**
+ * The Today check content, in the binding order of the design (AC25): header, then for a rated result the banner
+ * (cached only), the hero card, the footnote and the best window; in the other states the header (title only),
+ * the state's card and the footnote. [dogName] gives the title in every state (C1).
+ */
 @Composable
 fun CheckCard(
     state: CheckUiState,
@@ -125,95 +120,48 @@ fun CheckCard(
     onOpenProfile: () -> Unit,
     modifier: Modifier = Modifier,
     onOpenSettings: () -> Unit = {},
+    dogName: String? = null,
 ) {
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(
-            text = stringResource(R.string.check_title),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.semantics { heading() },
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(FieldKitSpacing.stackGap)) {
+        val rated = state as? CheckUiState.Rated
+        TodayHeader(
+            dogName = rated?.dogName ?: dogName,
+            rated = rated != null,
+            ageMinutes = rated?.ageMinutes,
+            onRefresh = onRefresh,
         )
         when (state) {
-            CheckUiState.Loading -> StatusMessage(stringResource(R.string.check_loading))
+            CheckUiState.Loading -> LoadingHeroCard()
             CheckUiState.NeedsLocationPermission -> LocationPrompt(onGrantPermission)
             CheckUiState.LocationPermissionBlocked -> LocationBlocked(onOpenSettings)
             CheckUiState.CantCheck -> CantCheck(onRefresh)
-            is CheckUiState.Rated -> RatedResult(state, windowFormatter, onRefresh, onOpenAbout, onOpenProfile)
+            is CheckUiState.Rated -> RatedResult(state)
         }
-        if (state !is CheckUiState.Rated) GuidanceNote(onOpenAbout)
-        Text(text = stringResource(R.string.check_attribution), style = MaterialTheme.typography.bodyMedium)
-    }
-}
-
-@Composable
-private fun RatedResult(
-    state: CheckUiState.Rated,
-    windowFormatter: BestWindowFormatter,
-    onRefresh: () -> Unit,
-    onOpenAbout: () -> Unit,
-    onOpenProfile: () -> Unit,
-) {
-    RatingBlock(state.current.rating, stringResource(state.current.reason.textRes()))
-    // The disclaimer sits directly under the rating and reason, so it is on screen without scrolling.
-    GuidanceNote(onOpenAbout)
-    state.ageMinutes?.let { Text(ageText(it), style = MaterialTheme.typography.bodyLarge) }
-    WindowBlock(windowFormatter.format(state.window))
-    OutlinedButton(onClick = onRefresh, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-        Text(stringResource(R.string.check_refresh))
-    }
-    if (state.usingDefaultSensitivity) {
-        TextButton(onClick = onOpenProfile, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-            Text(stringResource(R.string.check_default_sensitivity))
-        }
-    }
-    Text(stringResource(R.string.check_pollen_not_included), style = MaterialTheme.typography.bodyMedium)
-}
-
-/**
- * The rating label with its icon, and the reason. They are spoken as one live-region phrase, "<Rating>. <Reason>."
- * (AC50). Rating is shown by text and icon as well as colour (AC53).
- */
-@Composable
-private fun RatingBlock(
-    rating: Rating,
-    reason: String,
-) {
-    val label = stringResource(rating.labelRes())
-    val spoken = stringResource(R.string.check_rating_announcement, label, reason)
-    val colour =
-        LocalRatingColors.current.let {
-            when (rating) {
-                Rating.GO -> it.go
-                Rating.CAUTION -> it.caution
-                Rating.AVOID -> it.avoid
-            }
-        }
-    Column(
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .testTag(RATING_BLOCK_TAG)
-                .clearAndSetSemantics {
-                    contentDescription = spoken
-                    liveRegion = LiveRegionMode.Polite
+        TodayFootnote(
+            rated =
+                rated?.let {
+                    FootnoteRatedLines(
+                        usingDefaultSensitivity = it.usingDefaultSensitivity,
+                        sensitiveDogName = it.dogName.takeIf { _ -> it.sensitivity == HeatSensitivity.SENSITIVE },
+                    )
                 },
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Icon(
-                painter = painterResource(rating.iconRes()),
-                contentDescription = null,
-                tint = colour,
-                modifier = Modifier.size(RatingIconSize).testTag(RATING_ICON_TAG_PREFIX + rating.iconRes()),
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = colour,
-            )
-        }
-        Text(text = reason, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+            onOpenAbout = onOpenAbout,
+            onOpenProfile = onOpenProfile,
+        )
+        if (rated != null) WindowBlock(windowFormatter.format(rated.window))
     }
+}
+
+@Composable
+private fun RatedResult(state: CheckUiState.Rated) {
+    if (state.isCached) {
+        InfoBanner(
+            icon = R.drawable.ic_wifi_off,
+            lead = if (state.isOffline) stringResource(R.string.check_banner_offline_lead) else null,
+            text = stringResource(R.string.check_banner_cached),
+        )
+    }
+    RatingHeroCard(rating = state.current.rating, reason = state.current.reason, factors = state.factors)
 }
 
 @Composable
@@ -257,25 +205,3 @@ private fun CantCheck(onRetry: () -> Unit) {
         Text(stringResource(R.string.check_retry))
     }
 }
-
-@Composable
-private fun GuidanceNote(onOpenAbout: () -> Unit) {
-    Column {
-        Text(stringResource(R.string.check_disclaimer), style = MaterialTheme.typography.bodyMedium)
-        TextButton(onClick = onOpenAbout, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-            Text(stringResource(R.string.home_about))
-        }
-    }
-}
-
-@Composable
-private fun ageText(minutes: Long): String {
-    val hours = minutes / MINUTES_PER_HOUR
-    return if (hours == 0L) {
-        stringResource(R.string.check_age_minutes, minutes)
-    } else {
-        stringResource(R.string.check_age_hours_minutes, hours, minutes % MINUTES_PER_HOUR)
-    }
-}
-
-private const val MINUTES_PER_HOUR = 60

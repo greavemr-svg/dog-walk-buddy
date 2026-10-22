@@ -257,6 +257,9 @@ class CheckScreenIntegrationTest {
         awaitText("Warm: keep it short and bring water")
         composeRule.onNodeWithText("Caution", useUnmergedTree = true).assertIsDisplayed()
         assertEquals(1, test.stub.server.requestCount)
+        // C1: with a profile the title names the dog.
+        composeRule.onNodeWithText("Good time to walk Biscuit?").assertIsDisplayed()
+        composeRule.onNodeWithText("Heat-sensitive thresholds (Biscuit)").assertIsDisplayed()
         // With a profile saved, the "no profile" note is gone.
         composeRule
             .onNodeWithText("Using normal heat sensitivity. Set up your dog's profile to change this.")

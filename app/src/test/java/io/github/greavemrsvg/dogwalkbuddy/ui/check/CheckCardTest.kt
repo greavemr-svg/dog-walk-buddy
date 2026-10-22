@@ -20,7 +20,11 @@ import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.R
+import io.github.greavemrsvg.dogwalkbuddy.domain.check.FactorGrid
+import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HeatSensitivity
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HourRating
+import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HourlyConditions
+import io.github.greavemrsvg.dogwalkbuddy.domain.rating.PavementFactor
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.Rating
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.Reason
 import io.github.greavemrsvg.dogwalkbuddy.domain.window.BestWindow
@@ -88,7 +92,18 @@ class CheckCardTest {
         window: BestWindow = nowUntilNoon(rating),
         ageMinutes: Long? = null,
         usingDefaultSensitivity: Boolean = false,
-    ) = CheckUiState.Rated(HourRating(HOUR, rating, reason), window, ageMinutes, usingDefaultSensitivity)
+    ) = CheckUiState.Rated(
+        current = HourRating(HOUR, rating, reason),
+        window = window,
+        ageMinutes = ageMinutes,
+        usingDefaultSensitivity = usingDefaultSensitivity,
+        hours = listOf(HourRating(HOUR, rating, reason)),
+        factors = FactorGrid.cells(CONDITIONS, PavementFactor.NotRated, reason),
+        isCached = false,
+        isOffline = false,
+        dogName = null,
+        sensitivity = HeatSensitivity.NORMAL,
+    )
 
     private fun nowUntilNoon(rating: Rating) = BestWindow.Window(HOUR, NOON, rating, startsNow = true)
 
@@ -242,7 +257,7 @@ class CheckCardTest {
         show(ratedState(Rating.CAUTION, Reason.WINDY))
 
         val block = composeRule.onNodeWithTag(RATING_BLOCK_TAG, useUnmergedTree = true)
-        block.assertAnnouncesRatingThenReason("Caution", "Windy")
+        block.assertAnnouncesRatingThenReason("Caution", "Windy", FACTORS_SPOKEN)
         block.assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
     }
 
@@ -254,7 +269,7 @@ class CheckCardTest {
             state = ratedState(Rating.AVOID, reason)
             composeRule
                 .onNodeWithTag(RATING_BLOCK_TAG, useUnmergedTree = true)
-                .assertAnnouncesRatingThenReason("Avoid", context.getString(reason.textRes()))
+                .assertAnnouncesRatingThenReason("Avoid", context.getString(reason.textRes()), FACTORS_SPOKEN)
         }
     }
 
@@ -341,5 +356,9 @@ class CheckCardTest {
         val HOUR: Instant = Instant.parse("2026-10-19T10:00:00Z")
         val NOON: Instant = Instant.parse("2026-10-19T12:00:00Z")
         const val HOUR_SECONDS = 3600L
+
+        // The current hour's values (AC19 example): T = 15.0 °C, P = 0.0 mm/h, M = 26.3 mph, no cloud data.
+        val CONDITIONS = HourlyConditions(HOUR, 15.0, 0.0, 26.3, null)
+        const val FACTORS_SPOKEN = "Air 15°C, Rain 0 mm/h, Wind 26 mph, Pavement Not rated"
     }
 }

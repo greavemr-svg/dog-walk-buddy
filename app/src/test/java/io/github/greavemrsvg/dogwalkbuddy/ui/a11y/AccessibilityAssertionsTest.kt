@@ -67,11 +67,19 @@ class AccessibilityAssertionsTest {
     @Test
     fun AC50_the_announcement_check_fails_when_the_reason_comes_before_the_rating() {
         composeRule.setContent {
-            Text("x", modifier = Modifier.testTag("node").semantics { contentDescription = "Windy. Caution." })
+            Text(
+                "x",
+                modifier =
+                    Modifier.testTag("node").semantics {
+                        contentDescription = "Windy. Caution. Air 15°C, Rain 0 mm/h, Wind 26 mph, Pavement Not rated"
+                    },
+            )
         }
 
         assertThrows(AssertionError::class.java) {
-            composeRule.onNodeWithTag("node").assertAnnouncesRatingThenReason("Caution", "Windy")
+            composeRule
+                .onNodeWithTag("node")
+                .assertAnnouncesRatingThenReason("Caution", "Windy", "Air 15°C, Rain 0 mm/h, Wind 26 mph, Pavement Not rated")
         }
         composeRule.onNodeWithText("x").assertExists()
     }

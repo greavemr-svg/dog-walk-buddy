@@ -10,6 +10,9 @@ import io.github.greavemrsvg.dogwalkbuddy.data.db.CachedCheckEntity
 import io.github.greavemrsvg.dogwalkbuddy.data.location.ApproximateLocationSource
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.CheckRepository
 import io.github.greavemrsvg.dogwalkbuddy.data.weather.MetNorwayClient
+import io.github.greavemrsvg.dogwalkbuddy.domain.check.Factor
+import io.github.greavemrsvg.dogwalkbuddy.domain.check.FactorCell
+import io.github.greavemrsvg.dogwalkbuddy.domain.check.FactorValue
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LocationFix
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HeatSensitivity
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.Rating
@@ -22,7 +25,9 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.resetMain
@@ -98,6 +103,8 @@ class CheckViewModelTest {
         repo: CheckRepository = repository,
         locationTimeout: Duration = CheckViewModel.LOCATION_TIMEOUT,
         logError: (String) -> Unit = {},
+        dogName: Flow<String?> = flowOf(null),
+        isOnline: () -> Boolean = { true },
     ) = CheckViewModel(
         repository = repo,
         locationSource =
@@ -111,6 +118,8 @@ class CheckViewModelTest {
         clock = clock,
         locationTimeout = locationTimeout,
         logError = logError,
+        dogName = dogName,
+        isOnline = isOnline,
     )
 
     // Runs everything that is scheduled, including virtual-time delays such as the location timeout.
@@ -201,6 +210,75 @@ class CheckViewModelTest {
         val state = rated(viewModel.awaitSettled())
 
         assertEquals(179L, state.ageMinutes)
+    }
+
+    @Test
+    fun UX_AC17_the_rated_state_has_the_current_hours_factor_cells_rounded_with_the_reasons_cell_highlighted() {
+        // 2 m/s is 4.47 mph. Cloud 100 % means the pavement rule does not apply.
+        stub.enqueueBody(MetBodies.hourly(START.minusSeconds(START.epochSecond % 3600), temperatureC = -2.5))
+        val viewModel = newViewModel()
+
+        viewModel.onOpened()
+        val state = rated(viewModel.awaitSettled())
+
+        assertEquals(Reason.FREEZING, state.current.reason)
+        assertEquals(
+            listOf(
+                FactorCell(Factor.AIR, FactorValue.Whole(-3), highlighted = true),
+                FactorCell(Factor.RAIN, FactorValue.Whole(0), highlighted = false),
+                FactorCell(Factor.WIND, FactorValue.Whole(4), highlighted = false),
+                FactorCell(Factor.PAVEMENT, FactorValue.NotRated, highlighted = false),
+            ),
+            state.factors,
+        )
+        assertEquals(12, state.hours.size)
+        assertEquals(state.current, state.hours.first())
+        assertFalse(state.isCached)
+        assertFalse(state.isOffline)
+    }
+
+    @Test
+    fun UX_AC20_the_dog_name_and_sensitivity_reach_the_title_and_the_rated_state() {
+        stub.enqueueFixture()
+        sensitivity.value = HeatSensitivity.SENSITIVE
+        val viewModel = newViewModel(dogName = flowOf("Biscuit"))
+
+        viewModel.onOpened()
+        val state = rated(viewModel.awaitSettled())
+
+        assertEquals("Biscuit", state.dogName)
+        assertEquals("Biscuit", viewModel.dogName.value)
+        assertEquals(HeatSensitivity.SENSITIVE, state.sensitivity)
+    }
+
+    @Test
+    fun UX_AC21_a_cached_result_is_offline_only_when_the_device_has_no_connection() {
+        stub.enqueueFixture().enqueueStatus(SERVER_ERROR).enqueueStatus(SERVER_ERROR)
+        newViewModel().apply {
+            onOpened()
+            awaitSettled()
+        }
+        clock.advance(Duration.ofMinutes(30))
+
+        val offline = rated(newViewModel(isOnline = { false }).apply { onOpened() }.awaitSettled())
+        assertTrue(offline.isCached)
+        assertTrue(offline.isOffline)
+
+        val online = rated(newViewModel(isOnline = { true }).apply { onOpened() }.awaitSettled())
+        assertTrue(online.isCached)
+        assertFalse(online.isOffline)
+    }
+
+    @Test
+    fun UX_AC21_a_fresh_result_is_neither_cached_nor_offline_even_without_a_connection() {
+        stub.enqueueFixture()
+        val viewModel = newViewModel(isOnline = { false })
+
+        viewModel.onOpened()
+        val state = rated(viewModel.awaitSettled())
+
+        assertFalse(state.isCached)
+        assertFalse(state.isOffline)
     }
 
     @Test
