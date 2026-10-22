@@ -44,11 +44,11 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 14,
+    "agent_invocations": 16,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
-    "design_attempts": 2
+    "design_attempts": 3
   },
   "log": [
     "2026-10-22T09:36:24Z orchestrator: run created (not bootstrap). Epic #31. Branch feature/20261022-ux-redesign from origin/feature/20261019-dog-walk-buddy-mvp a8b4506 (owner decision; deviation recorded). Run 20261019 on hold. Invocation limit 200 (owner)",
@@ -86,7 +86,12 @@
     "2026-10-22T11:09:22Z gatekeeper G2 (opus): FAIL; G2.2 (AC66 in no task row; AC64 missing from task 1 row) and unlisted test change CheckScreenIntegrationTest L245. Record gates/G2-attempt1.md",
     "2026-10-22T11:09:22Z orchestrator: committing design + ADRs draft (G2 note 5); invoking architect (design attempt 2: G2 fixes + non-blocking notes) model=opus. Budget 13/200 incl. this call",
     "2026-10-22T11:18:50Z architect design attempt 2 (opus): DONE; AC66 tasks 3-8, AC64 task 1, plus AC40/AC53/AC67/AC59 row fixes; task sets match for AC1-AC67; home-link row lists all affected lines (incl. CheckScreenIntegrationTest L245, AppFlowIntegrationTest back() L152/L180/L285) under spec AC64 allowance; nav test tags; ADR 0008 Apache 4(b) header; task 1 trimmed (icons move to first-using task, bottom sheet to T4, a11y helpers to T2), still 8 tasks",
-    "2026-10-22T11:18:50Z orchestrator: committed design attempt 2; invoking gatekeeper G2 re-check (opus). Budget 14/200 incl. this call"
+    "2026-10-22T11:18:50Z orchestrator: committed design attempt 2; invoking gatekeeper G2 re-check (opus). Budget 14/200 incl. this call",
+    "2026-10-22T11:23:36Z gatekeeper G2 re-check (opus) on 7b99867: FAIL; only item: HistoryScreenTest L271-275 replacement unspecified (no nav/BackHandler in screen-only host). Record gates/G2-attempt2.md",
+    "2026-10-22T11:23:36Z orchestrator: invoking architect (design attempt 3 of 3) model=opus. Budget 15/200 incl. this call",
+    "2026-10-22T11:30:47Z architect design attempt 3 (opus): DONE; E3 placement: HistoryScreenTest L270-276 moved to NavigationTest AC35 (system Back -> NAV_TODAY_TAG selected, Walks not selected, title shown, not finishing); argument-only onBack edits listed (HistoryScreenTest L99/L321/L416, HistoryRowOpenTest L83, ProfileScreenTest L77, ProfileScreenStateTest L39); judged within OD1",
+    "2026-10-22T11:30:47Z owner: history test move -> \"Approve the move\" (owner_answers.history_back_test_move)",
+    "2026-10-22T11:30:47Z orchestrator: committed design attempt 3; invoking gatekeeper G2 re-check (opus). Budget 16/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
@@ -159,6 +164,12 @@
         "question": "The spec says the walk row's \"More\" menu \"stays\", but in the MVP each row actually has a Delete button directly on it. Criterion AC44 and the mock-ups need a \"More\" menu. Should Delete move into a \"More\" menu on each row?",
         "answer": "Use a More menu"
       }
+    },
+    "history_back_test_move": {
+      "at": "2026-10-22T11:30:47Z",
+      "question": "The Walks tab will have no Back button, so the Walks-screen test \"Back returns to the previous screen\" can't stay as it is. Its check moves into the main navigation test, where the phone's Back button on Walks must return to Today (Today highlighted, app not closed). The new check is stricter, but the old test is removed from the Walks test file. Do you approve moving it?",
+      "answer": "Approve the move",
+      "context": "Explicit owner approval for removing HistoryScreenTest back_returns_to_the_previous_screen (L270-276) and moving its check to NavigationTest AC35 (design attempt 3, E3); architect judged it within OD1, orchestrator asked anyway because a test is removed (CLAUDE.md)"
     }
   }
 }
