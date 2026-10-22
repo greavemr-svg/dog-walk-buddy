@@ -390,6 +390,8 @@ class CheckViewModelTest {
 
     @Test
     fun AC24_opening_while_a_check_is_already_running_does_not_start_another() {
+        // Covers two back-to-back opens before anything is dispatched. The guard against
+        // restarting a check that has already started is covered by the next test.
         val release = CompletableDeferred<LocationFix?>()
         locationSource = ApproximateLocationSource { release.await() }
         val viewModel = newViewModel()
@@ -583,6 +585,7 @@ class CheckViewModelTest {
         val viewModel = newViewModel()
         viewModel.onOpened()
         scheduler.runCurrent()
+        assertEquals(1, locationCalls)
         assertEquals(CheckUiState.Loading, viewModel.state.value)
 
         viewModel.onShown()
