@@ -53,10 +53,17 @@
       "issue": 32,
       "acs": "AC1, AC2, AC3, AC4 (palette), AC5, AC6, AC7, AC8, AC40 (contrast pairs), AC62, AC63 (test scaffold), AC64, AC65 (fonts), AC67 (contrast pairs)",
       "depends_on": [],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "branch": "task/20261022-ux-redesign-1-theme-foundations",
-      "pr": null
+      "pr": 40,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-22T12:59:28Z",
+        "head": "95eae40",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T1.md"
+      },
+      "merge_commit": "927e6a5"
     },
     {
       "n": 2,
@@ -67,8 +74,8 @@
       "depends_on": [
         1
       ],
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "branch": "task/20261022-ux-redesign-2-bottom-nav-shell",
       "pr": null
     },
@@ -166,7 +173,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 17,
+    "agent_invocations": 26,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -216,7 +223,25 @@
     "2026-10-22T11:30:47Z orchestrator: committed design attempt 3; invoking gatekeeper G2 re-check (opus). Budget 16/200 incl. this call",
     "2026-10-22T11:34:07Z gatekeeper G2 re-check (opus) on 2848303: PASS. Record gates/G2.md. Notes: cite history_back_test_move in design (cosmetic), production onBack sites are T2 build changes, overlap harmless",
     "2026-10-22T11:34:07Z orchestrator: created task issues T1 #32, T2 #33, T3 #34, T4 #35, T5 #36, T6 #37, T7 #38, T8 #39",
-    "2026-10-22T11:34:07Z orchestrator: T1 attempt 1: invoking developer (opus). Budget 17/200 incl. this call"
+    "2026-10-22T11:34:07Z orchestrator: T1 attempt 1: invoking developer (opus). Budget 17/200 incl. this call",
+    "2026-10-22T12:08:54Z developer T1 attempt 1 (opus): DONE; PR #40 head 3707267; CI build-test+governance pass; ci.sh exit 0, 721 tests, total 98.4%, changed-lines 100%; fonts google/fonts@45e3d52 OFL 1.1, icons material-design-icons@49d4db3 Apache 2.0; APK +310,476 B (+0.59%). Deviation: icons need ?attr/colorControlNormal -> added res/values/attrs.xml + theme items (ADR 0008 allows only header+rename); MainActivity onConfigurationChanged re-calls enableEdgeToEdge (outside listed files)",
+    "2026-10-22T12:08:54Z orchestrator: routing ADR 0008 deviation to architect (decide + amend ADR) before tester/reviewer. Budget 18/200 incl. this call",
+    "2026-10-22T12:18:02Z architect (opus): ADR 0008 Amendment 1: per-file tint edit ?attr/ -> ?android:attr/colorControlNormal (theme-declared attr fails in createComposeRule host/previews); remove attrs.xml + theme items; add MaterialSymbolsIconFilesTest; ThemeSwitchTest asserts status-bar appearance flip; MainActivity onConfigurationChanged accepted as T1 scope. Docs committed to task branch. Flag for T5: Recording status-bar icons in system light mode",
+    "2026-10-22T12:18:02Z orchestrator: T1 developer rework per ADR 0008 Amendment 1 (architecture-driven, not a failed attempt; attempts stays 1). Budget 19/200 incl. this call",
+    "2026-10-22T12:34:33Z developer T1 rework (opus): DONE; PR #40 head acd3898; icons tint ?android:attr, attrs.xml + theme items removed, MaterialSymbolsIconFilesTest (checks below header), AC7 status-bar assertion verified to fail without re-call; ci.sh exit 0, 724 tests, 98.4%, changed-lines 100%; CI build-test+governance pass",
+    "2026-10-22T12:34:33Z orchestrator: T1 invoking tester (opus). Budget 20/200 incl. this call",
+    "2026-10-22T12:46:33Z tester T1 (opus): PASSED on 95eae40 (+14 tests: ContrastTest +2, MaterialSymbolsIconFilesTest +2, BundledFontFilesTest 5, WindowThemeResourcesTest 5); 738/0/0, reruns OK; total 98.4%, changed-lines 100%; MVP tests untouched (@Test 676->738, 0 deleted lines). Comment issuecomment-6341086342",
+    "2026-10-22T12:46:33Z orchestrator: T1 invoking reviewer (opus). Budget 21/200 incl. this call",
+    "2026-10-22T12:51:00Z reviewer T1 (opus): stopped at 40-turn limit, no report and no review posted on PR #40",
+    "2026-10-22T12:51:00Z orchestrator: T1 re-invoking reviewer with focused, turn-economical brief (opus). Budget 22/200 incl. this call",
+    "2026-10-22T12:53:54Z reviewer T1 (opus): VERDICT APPROVE (head 95eae40), review 5614449498 (posted as a COMMENT review via the gh CLI review subcommand; gh api POST was hook-blocked). Minor: PR body stale (724 tests, missing tester tests); Minor: windowBackground after theme switch -> T2; Nit: RecordingTheme error roles",
+    "2026-10-22T12:53:54Z orchestrator: T1 developer PR-body-only refresh (no commit) before G3, to avoid G3.2 fail on stale body. Budget 23/200 incl. this call",
+    "2026-10-22T12:55:42Z developer T1 PR body refresh (opus): DONE; body shows 738 tests + tester tests; head unchanged 95eae40; governance re-ran pass (39782311122), build-test pass (39780936492)",
+    "2026-10-22T12:55:42Z orchestrator: T1 invoking gatekeeper G3 (opus). Budget 24/200 incl. this call",
+    "2026-10-22T12:59:28Z gatekeeper G3 T1 (opus): PASS on 95eae40 (all G3.1-G3.6 + provenance met). Posted GATE G3: PASS comment on PR #40. Record gates/G3-T1.md",
+    "2026-10-22T12:59:28Z orchestrator: T1 invoking release mode integrate (squash-merge PR #40) (opus). Budget 25/200 incl. this call",
+    "2026-10-22T13:01:08Z release integrate T1 (opus): PR #40 squash-merged as 927e6a5 (match-head 95eae40); issue #32 closed (comment 6341372027); task branch deleted; feature CI run 39783024946 in progress. T1 done",
+    "2026-10-22T13:01:08Z orchestrator: T2 attempt 1: invoking developer (opus), incl. carry-forward windowBackground fix. Budget 26/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
@@ -296,5 +321,22 @@
       "answer": "Approve the move",
       "context": "Explicit owner approval for removing HistoryScreenTest back_returns_to_the_previous_screen (L270-276) and moving its check to NavigationTest AC35 (design attempt 3, E3); architect judged it within OD1, orchestrator asked anyway because a test is removed (CLAUDE.md)"
     }
-  }
+  },
+  "carry_forward": [
+    {
+      "from": "T1 review 5614449498",
+      "to": "T2",
+      "item": "windowBackground keeps start-up theme colour after in-place theme switch; make AppScaffold root a full-size Surface on FieldKit.colors.background (or reset in onConfigurationChanged); add to manual AC7 check"
+    },
+    {
+      "from": "architect ADR 0008 Amendment 1",
+      "to": "T5",
+      "item": "Recording is always dark; check status-bar icon style in system light mode"
+    },
+    {
+      "from": "T1 review 5614449498 (Nit)",
+      "to": "T5 or later",
+      "item": "RecordingTheme error roles use Material defaults; map to Field Kit error tokens if an error shows on Recording"
+    }
+  ]
 }
