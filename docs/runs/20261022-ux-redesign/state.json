@@ -8,8 +8,12 @@
   "feature_branch": "feature/20261022-ux-redesign",
   "artifacts": {
     "spec": "docs/specs/20261022-ux-redesign.md",
-    "design": "",
-    "adrs": [],
+    "design": "docs/design/20261022-ux-redesign.md",
+    "adrs": [
+      "docs/adr/0006-bundled-fonts-bricolage-grotesque-and-figtree.md",
+      "docs/adr/0007-field-kit-theme-tokens-and-dark-mode.md",
+      "docs/adr/0008-icons-as-bundled-material-symbols-vector-drawables.md"
+    ],
     "audit": ""
   },
   "gates": {
@@ -40,10 +44,11 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 9,
+    "agent_invocations": 13,
     "invocation_limit": 200,
     "plan_attempts": 2,
-    "g1_fail_attempts": 1
+    "g1_fail_attempts": 1,
+    "design_attempts": 2
   },
   "log": [
     "2026-10-22T09:36:24Z orchestrator: run created (not bootstrap). Epic #31. Branch feature/20261022-ux-redesign from origin/feature/20261019-dog-walk-buddy-mvp a8b4506 (owner decision; deviation recorded). Run 20261019 on hold. Invocation limit 200 (owner)",
@@ -70,7 +75,16 @@
     "2026-10-22T10:22:58Z gatekeeper G1 re-check (opus): PASS (failing none). Record gates/G1.md. Notes: commit spec, K4 cosmetic 'MVP AC50', 8 tasks = limit, fonts ADR Accepted at G2, AC23 grammar",
     "2026-10-22T10:22:58Z orchestrator: spec committed to feature branch for Gate A review (G1 note 1); Gate A question to owner",
     "2026-10-22T10:25:25Z owner Gate A: \"Approve spec\" (spec f9b5497)",
-    "2026-10-22T10:25:25Z orchestrator: invoking architect (design, attempt 1) model=opus. Budget 9/200 incl. this call"
+    "2026-10-22T10:25:25Z orchestrator: invoking architect (design, attempt 1) model=opus. Budget 9/200 incl. this call",
+    "2026-10-22T10:51:25Z architect attempt 1 (opus): stopped at its 50-turn limit with no report; left uncommitted docs/design/20261022-ux-redesign.md (825 lines) and ADRs 0006 (fonts), 0007 (theme tokens/dark mode), 0008 (icons as vector drawables)",
+    "2026-10-22T10:51:25Z orchestrator: invoking architect (continue attempt 1: verify/complete files and report) model=opus. Budget 10/200 incl. this call",
+    "2026-10-22T10:59:00Z architect (continue attempt 1, opus): DONE; design 857 lines; ADR 0006 fonts, 0007 theme, 0008 icons all Accepted; 8 tasks (theme-foundations, bottom-nav-shell, today-hero-and-footnote, today-window-and-states, recording-restyle-route-line, walks-tab, walk-detail-and-privacy, dog-profile-and-about); AC1-AC67 mapped; no new deps; min contrast text 6.10, 7:1 pairs 7.51; 2 owner questions",
+    "2026-10-22T10:59:00Z owner design_round1: E1-E8 \"Approve E1–E8\"; row delete \"Use a More menu\"",
+    "2026-10-22T10:59:00Z orchestrator: invoking architect (record owner answers verbatim in design) model=opus. Budget 11/200 incl. this call",
+    "2026-10-22T11:03:59Z architect (record answers, opus): DONE; design 'Owner decisions (design)' OD1/OD2 verbatim; no pending/TBD/owner question left",
+    "2026-10-22T11:03:59Z orchestrator: invoking gatekeeper G2 (opus). Budget 12/200 incl. this call",
+    "2026-10-22T11:09:22Z gatekeeper G2 (opus): FAIL; G2.2 (AC66 in no task row; AC64 missing from task 1 row) and unlisted test change CheckScreenIntegrationTest L245. Record gates/G2-attempt1.md",
+    "2026-10-22T11:09:22Z orchestrator: committing design + ADRs draft (G2 note 5); invoking architect (design attempt 2: G2 fixes + non-blocking notes) model=opus. Budget 13/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
@@ -132,6 +146,17 @@
       "at": "2026-10-22T10:16:31Z",
       "question": "Last one before G1: when the phone uses 12-hour time, how should the forecast strip's hour labels look? The planner proposes \"2 pm\", \"12 am\" (lowercase, space, no :00), matching the app's best-time text \"3:00 pm\".",
       "answer": "\"2pm\""
+    },
+    "design_round1": {
+      "at": "2026-10-22T10:59:00Z",
+      "test_changes_E1_E8": {
+        "question": "The design needs eight test changes that weren't on the spec's list of test changes (E1–E8). Most follow controls that moved: Home is replaced by the bottom bar, there's no Back button on the main tabs, and Delete is now inside a \"More\" menu. One follows wording you approved (D10). Only E1 changes what TalkBack reads: the hero card announcement adds the four factor values, as the spec's AC19 requires. Each new check is exact and at least as strict as the old one. Approve these test changes?",
+        "answer": "Approve E1–E8"
+      },
+      "row_delete": {
+        "question": "The spec says the walk row's \"More\" menu \"stays\", but in the MVP each row actually has a Delete button directly on it. Criterion AC44 and the mock-ups need a \"More\" menu. Should Delete move into a \"More\" menu on each row?",
+        "answer": "Use a More menu"
+      }
     }
   }
 }
