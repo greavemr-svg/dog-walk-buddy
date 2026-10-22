@@ -16,7 +16,8 @@
       "docs/adr/0004-local-data-model-and-persistence.md",
       "docs/adr/0005-walk-recording-foreground-service.md"
     ],
-    "audit": "docs/runs/20261019-dog-walk-buddy-mvp/audit.md"
+    "audit": "docs/runs/20261019-dog-walk-buddy-mvp/audit.md",
+    "audit_addendum": "docs/runs/20261019-dog-walk-buddy-mvp/audit.md#addendum-2026-10-22"
   },
   "gates": {
     "G4": {
@@ -660,7 +661,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 137,
+    "agent_invocations": 138,
     "invocation_limit": 160,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -1028,7 +1029,11 @@
     "2026-10-22T07:47:56Z orchestrator: committed 7b0d48c and pushed (run records)",
     "2026-10-22T07:47:56Z orchestrator: invoking gatekeeper G4 re-run on feature 7b0d48c (after T10 merge 2d6e741) with model=opus. Budget 136/160 incl. this call",
     "2026-10-22T07:54:30Z gatekeeper G4 re-run (opus): PASS on 7b0d48c; G4.1-G4.5 met, failing []; security + performance not re-run (diff 1abdcae..7b0d48c test-only + CHANGELOG + docs). Record saved verbatim by orchestrator (Write) to gates/G4-7b0d48c.md; gates.G4 summary pointer updated by script (previous G4 kept in gates.G4_history). Noted for G5: release PR #28 governance FAIL (CI green unticked) + body cites old CI run 39657910806",
-    "2026-10-22T07:54:30Z orchestrator: stage verify -> release; invoking release (prepare, follow-up 3) with model=opus to refresh PR #28 (CI run refs, T10 in notes/CHANGELOG if needed, tick CI green when both checks pass on current head). Budget 137/160 incl. this call"
+    "2026-10-22T07:54:30Z orchestrator: stage verify -> release; invoking release (prepare, follow-up 3) with model=opus to refresh PR #28 (CI run refs, T10 in notes/CHANGELOG if needed, tick CI green when both checks pass on current head). Budget 137/160 incl. this call",
+    "2026-10-22T08:06:06Z release prepare follow-up 3 (opus): DONE, commit af9606e docs(release): add task 10 and G4 re-run to v0.1.0 release records (#7); PR #28 body PATCHed (T10 included, CI refs updated, flaky_release_ci decision, waiver + 27 audit flags unchanged); CI green ticked after build-test success (39744051956 PR, 39744039325 push); governance 39745060025 SUCCESS after body edit (orchestrator verified gh pr checks 28 all pass). Open: committed v0.1.0-pr.md still has CI box unticked (body authoritative); audit.md predates T10",
+    "2026-10-22T08:06:06Z orchestrator: invoking auditor (opus) for an audit addendum covering events since the first audit (T10, incidents 2/3, owner decisions, G3/G4 re-runs, release refresh) - Stage 5 repeated after release prepare. Budget 138/160 incl. this call",
+    "2026-10-22T08:19:46Z auditor addendum (opus): DONE, audit.md +205 lines (original 241 unchanged). Updated: R-01/R-02/Q-03/C-01/G-06 resolved, A-01 withdrawn, E-01/02/04 waived, S-09 confirmed, S-08 open (probable stale developer). New: N-01 High stale perf agent, N-02 High tester sed bypass, N-03 Med machine-wide java kill, N-04 Low 26f0220, N-05 Med whole-file state rewrites/duplicate key, N-06 Med gates.G4 written by script contrary to the stated Write-only condition for gate records (orchestrator acknowledges), N-07 Med Opus switch + uncommitted .claude edits, N-08 Med limits raised only in state, N-09 Med orchestrator-saved gate records (G4 re-run JSON not on GitHub), N-10 Low CI box only in PR body, N-11 Med earlier G3.2 template gaps, N-12 Low event-log gaps",
+    "2026-10-22T08:19:46Z orchestrator: committing audit addendum + state; posting G4 re-run JSON on PR #28 (N-09)"
   ],
   "bootstrap": true,
   "owner_answers": {
