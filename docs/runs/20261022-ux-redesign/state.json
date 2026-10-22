@@ -117,10 +117,17 @@
       "depends_on": [
         3
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "branch": "task/20261022-ux-redesign-4-today-window-and-states",
-      "pr": null
+      "pr": 43,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-22T18:00:17Z",
+        "head": "37fe5f7",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T4.md"
+      },
+      "merge_commit": "e1b221f"
     },
     {
       "n": 5,
@@ -131,8 +138,8 @@
       "depends_on": [
         2
       ],
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "branch": "task/20261022-ux-redesign-5-recording-restyle-route-line",
       "pr": null
     },
@@ -188,7 +195,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 48,
+    "agent_invocations": 55,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -303,7 +310,22 @@
     "2026-10-22T16:44:41Z gatekeeper G3 T3 re-run (opus): PASS on 70fe8b5. Record gates/G3-T3.md; posted on PR #42. Note: commit state.json so owner answers are durable (will commit on feature after merge)",
     "2026-10-22T16:44:41Z orchestrator: T3 invoking release integrate (opus). Budget 47/200 incl. this call",
     "2026-10-22T16:49:58Z release integrate T3 (opus): PR #42 squash-merged as 81c13a0 (match-head 70fe8b5); issue #34 closed (comment 6346140503); remote task branch deleted, local deleted by orchestrator; feature CI 39816594556 in progress. T3 done",
-    "2026-10-22T16:49:58Z orchestrator: T4 attempt 1: invoking developer (opus) with carry-forwards + AC66 emulator screenshots. Budget 48/200 incl. this call"
+    "2026-10-22T16:49:58Z orchestrator: T4 attempt 1: invoking developer (opus) with carry-forwards + AC66 emulator screenshots. Budget 48/200 incl. this call",
+    "2026-10-22T17:26:21Z developer T4 attempt 1 (opus): hit 80-turn limit without report; PR #43 open at 46dec68 (impl + carry-forwards ConnectivityStatus flow, FactorRounding fractional compare); 13 screenshots taken but uncommitted in docs/ux-evidence/.../task-4/; emulator still running; build-test pending",
+    "2026-10-22T17:26:21Z orchestrator: viewed screenshots; possible defect: precise-location sheet shows only heading + button (no body text / dismiss visible). Invoking developer to continue attempt 1 (finish evidence, check sheet, PR body). Budget 49/200 incl. this call",
+    "2026-10-22T17:35:34Z developer T4 attempt 1 (first session, opus) resumed after background work and reported DONE: PR #43 head 2ea2542 (screenshots commit); 852 tests, 98.2%, changed 94%; carry-forwards fixed with tests; nits deliberately not done; CI pass; it saw no defects. Note: continuation developer session already launched in parallel (overlap) - awaiting it for the precise-sheet check",
+    "2026-10-22T17:36:04Z developer T4 continuation (opus): DONE; precise-location sheet correct as designed (AC32 asks heading + control only; no approved body copy; dismiss by scrim/Back/drag, tested; no mock-up); deleted unpaired screenshot; 12 screenshots at 2ea2542; PR body complete; CI pass",
+    "2026-10-22T17:36:04Z orchestrator: T4 invoking tester on 2ea2542 (opus). Budget 50/200 incl. this call",
+    "2026-10-22T17:50:37Z tester T4 (opus): PASSED on 37fe5f7 (+25 tests: HourLabelFormatEdgeTest, TodayWindowAndStatesTesterTest, PreciseLocationSheetTesterTest, FactorRoundingEdgeTest); 877/0/0; reruns 3x107 pass; 98.7%, changed 100%; audit: only the 10 design-listed lines changed. Comment 6347430745",
+    "2026-10-22T17:50:37Z orchestrator: T4 developer PR-body refresh to 37fe5f7 before review. Budget 51/200 incl. this call",
+    "2026-10-22T17:52:23Z developer T4 body refresh (opus): DONE; body at 37fe5f7 (877 tests, 98.7%, changed 100%; tester tests mapped); build-test 39825862565 pending",
+    "2026-10-22T17:52:23Z orchestrator: T4 invoking reviewer (opus). Budget 52/200 incl. this call",
+    "2026-10-22T17:56:09Z reviewer T4 (opus): APPROVE (head 37fe5f7), review 5618579128; agrees precise sheet is as designed; CI green; 1 Minor + 2 Nit non-blocking",
+    "2026-10-22T17:56:09Z orchestrator: T4 invoking gatekeeper G3 (opus). Budget 53/200 incl. this call",
+    "2026-10-22T18:00:17Z gatekeeper G3 T4 (opus): PASS on 37fe5f7. Record gates/G3-T4.md; posting on PR #43",
+    "2026-10-22T18:00:17Z orchestrator: T4 invoking release integrate (opus). Budget 54/200 incl. this call",
+    "2026-10-22T18:05:52Z release integrate T4 (opus): PR #43 squash-merged as e1b221f (match-head 37fe5f7); issue #35 closed (comment 6347657508); branches deleted; feature CI 39827664513 in progress. T4 done",
+    "2026-10-22T18:05:52Z orchestrator: T5 attempt 1: invoking developer (opus) incl. carry-forwards (Recording status bar in light mode; RecordingTheme error roles). Budget 55/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
@@ -460,6 +482,16 @@
       "from": "T3 review 5617681681 (Nits)",
       "to": "later",
       "item": "shared pixel-count test helper for TodayFootnoteClipping tests; control test copies FootnoteButton params"
+    },
+    {
+      "from": "T4 review 5618579128 (Minor)",
+      "to": "later / backlog",
+      "item": "CheckViewModel.kt:89 network callback registered for whole ViewModel life incl. background; collect only while Today started or WhileSubscribed"
+    },
+    {
+      "from": "T4 review 5618579128 (Nit)",
+      "to": "later",
+      "item": "HourLabelFormat.kt:19 Locale.UK hard-coded; add comment (English-only app)"
     }
   ]
 }
