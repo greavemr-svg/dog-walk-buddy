@@ -2,18 +2,23 @@
   "run_id": "20261022-ux-redesign",
   "idea": "Restyle Dog Walk Buddy to the owner's UX design pack at C:/Users/greav/projects/dog-walk-buddy-ux (README.md, ux-spec.md, tokens.json, screens/*.dc.html). Owner: \"I would like to cahgne the UX to follow the designs in C:/Users/greav/projects/dog-walk-buddy-ux\". Pack rules: MVP spec/ACs win; existing strings win unless owner approves copy changes in spec; a11y floors unchanged (AC51-AC53); dark mode required.",
   "status": "in_progress",
-  "stage": "plan",
+  "stage": "gate_a",
   "created_at": "2026-10-22T09:36:24Z",
   "epic_issue": 31,
   "feature_branch": "feature/20261022-ux-redesign",
   "artifacts": {
-    "spec": "",
+    "spec": "docs/specs/20261022-ux-redesign.md",
     "design": "",
     "adrs": [],
     "audit": ""
   },
   "gates": {
-    "G1": null,
+    "G1": {
+      "result": "PASS",
+      "at": "2026-10-22T10:22:58Z",
+      "record": "docs/runs/20261022-ux-redesign/gates/G1.md",
+      "previous": "docs/runs/20261022-ux-redesign/gates/G1-attempt1.md (FAIL)"
+    },
     "spec_approval": null,
     "G2": null,
     "G4": null,
@@ -28,12 +33,35 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 1,
-    "invocation_limit": 200
+    "agent_invocations": 8,
+    "invocation_limit": 200,
+    "plan_attempts": 2,
+    "g1_fail_attempts": 1
   },
   "log": [
     "2026-10-22T09:36:24Z orchestrator: run created (not bootstrap). Epic #31. Branch feature/20261022-ux-redesign from origin/feature/20261019-dog-walk-buddy-mvp a8b4506 (owner decision; deviation recorded). Run 20261019 on hold. Invocation limit 200 (owner)",
-    "2026-10-22T09:36:24Z orchestrator: invoking planner (plan, attempt 1) with model=opus. Budget 1/200 incl. this call"
+    "2026-10-22T09:36:24Z orchestrator: invoking planner (plan, attempt 1) with model=opus. Budget 1/200 incl. this call",
+    "2026-10-22T09:48:10Z planner attempt 1 (opus): BLOCKED with draft spec docs/specs/20261022-ux-redesign.md (UX1-UX66; MVP ACs kept, none weakened; 11 pack-vs-MVP conflicts K1-K11 resolved for MVP; copy C1-C18 + D1-D11 default keep; fonts need ADR + bundling; est. 8 tasks). Questions OP1 copy, OP2 disclaimer placement, OP3 factor grid rule, OP4 About table wording, OP5 Later cuts (GPS indicator, auto-open Recording, dark map). Escalating to owner",
+    "2026-10-22T09:48:57Z owner answered OP1-OP5: copy \"Approve all but C3\" (conditions in C12, D6, D7, D8, D11 apply); disclaimer \"Yes, move it up\"; factor grid \"Accept the rule\"; About exact boundaries + GPS indicator/auto-open Recording/dark map to Later \"Yes to both\"",
+    "2026-10-22T09:48:57Z orchestrator: invoking planner (plan, attempt 2, with owner answers) model=opus. Budget 2/200 incl. this call",
+    "2026-10-22T09:54:34Z planner attempt 2 (opus): DONE, spec finalised: 66 UX ACs (UX1-UX66), all MVP AC1-AC53 kept in force; approved copy written in; 'Test assertions that change' section; A9 (factor values 1 dp, half up - planner choice) + A10 new; risks: UXn vs ACn numbering for G1, rounding display at thresholds, unitless About cells, test churn, two dash styles; est. 8 tasks",
+    "2026-10-22T09:54:34Z orchestrator: invoking gatekeeper G1 (opus). Budget 3/200 incl. this call",
+    "2026-10-22T10:01:59Z gatekeeper G1 (opus): FAIL; failing G1.3 (UX1-UX66 not AC1..ACn) and G1.7 (A9 1-dp rounding unconfirmed, contradicts artboards). Record gates/G1-attempt1.md",
+    "2026-10-22T10:01:59Z owner: factor rounding -> \"Whole numbers\" (round half up, matches artboards)",
+    "2026-10-22T10:01:59Z orchestrator: invoking planner (G1 fix attempt 1) model=opus: renumber to AC1-AC66 + 'MVP ACn', A9 whole numbers verbatim, add threshold-rounding risk, address non-blocking notes. Budget 4/200 incl. this call",
+    "2026-10-22T10:07:10Z planner G1-fix attempt 1 (opus): DONE, AC1-AC67 (UX<digit> grep 0), MVP refs as 'MVP ACn', A9 whole numbers verbatim + accepted threshold risk, AC40 caption contrast floor, new AC67 photo errors, new A11 negative rounding (needed owner confirmation)",
+    "2026-10-22T10:07:10Z owner: negative rounding -> \"Away from zero\" (owner_answers.negative_rounding)",
+    "2026-10-22T10:07:10Z orchestrator: invoking planner (small edit: record A11 as owner decision verbatim) model=opus. Budget 5/200 incl. this call",
+    "2026-10-22T10:11:34Z planner (A11 edit, opus): DONE, A11 now owner decision verbatim, AC17 negative cases; listed unconfirmed product choices A3 (Back), A4 (hour labels), A8 (long name)",
+    "2026-10-22T10:11:34Z owner plan_round2: A3 \"Yes, standard\"; A4 \"Follow phone setting\" (changes planner's reading); A8 \"Yes, shorten with …\"",
+    "2026-10-22T10:11:34Z orchestrator: invoking planner (record A3/A4/A8 verbatim, update AC11/AC23/AC60) model=opus. Budget 6/200 incl. this call",
+    "2026-10-22T10:16:31Z planner (round-2 edit, opus): DONE, A3/A4/A8/A9 now owner decisions verbatim; AC11 3 cases, AC23 24h/12h modes, AC60 ellipsis; remaining choice: 12h label text",
+    "2026-10-22T10:16:31Z owner: 12h strip label -> \"2pm\" (lowercase, no space) - differs from planner's \"2 pm\"",
+    "2026-10-22T10:16:31Z orchestrator: invoking planner (record 12h label decision, update AC23) model=opus. Budget 7/200 incl. this call",
+    "2026-10-22T10:20:18Z planner (12h label edit, opus): DONE; AC23 12h labels \"2pm\"...\"1am\" (noon \"12pm\" derived); consistency risk added; no unconfirmed product choices remain",
+    "2026-10-22T10:20:18Z orchestrator: invoking gatekeeper G1 re-check (opus). Budget 8/200 incl. this call",
+    "2026-10-22T10:22:58Z gatekeeper G1 re-check (opus): PASS (failing none). Record gates/G1.md. Notes: commit spec, K4 cosmetic 'MVP AC50', 8 tasks = limit, fonts ADR Accepted at G2, AC23 grammar",
+    "2026-10-22T10:22:58Z orchestrator: spec committed to feature branch for Gate A review (G1 note 1); Gate A question to owner"
   ],
   "bootstrap": false,
   "base": {
@@ -58,6 +86,43 @@
     "state_script_edits": {
       "inherited_from": "20261019-dog-walk-buddy-mvp",
       "answer": "Allow script edits"
+    },
+    "plan_round1": {
+      "at": "2026-10-22T09:48:57Z",
+      "OP1_copy": "Approve all but C3",
+      "OP2_disclaimer": "Yes, move it up",
+      "OP3_factor_grid": "Accept the rule",
+      "OP4_OP5_about_and_scope": "Yes to both"
+    },
+    "factor_rounding": {
+      "at": "2026-10-22T10:01:59Z",
+      "question": "Gate G1 needs your choice on how the Today card's factor values are rounded. Your mock-ups show whole numbers (\"14°C\", \"0 mm/h\", \"9 mph\"), but the planner chose 1 decimal place (\"15.0°C\", \"26.3 mph\") on its own. Which should the app show?",
+      "answer": "Whole numbers"
+    },
+    "negative_rounding": {
+      "at": "2026-10-22T10:07:10Z",
+      "question": "One small follow-up on whole-number rounding: how should negative temperatures that end in .5 round? The planner proposes rounding away from zero, so -2.5°C shows \"-3°C\", and a value that rounds to zero shows \"0°C\" with no minus sign.",
+      "answer": "Away from zero"
+    },
+    "plan_round2": {
+      "at": "2026-10-22T10:11:34Z",
+      "back_button": {
+        "question": "Back button: on the Walks or Dog tab, should pressing the phone's Back button go to Today, and on Today leave the app? This is the usual Android bottom-navigation behaviour.",
+        "answer": "Yes, standard"
+      },
+      "hour_labels": {
+        "question": "Hour labels on the 12-hour forecast strip: your mock-ups show 2-digit 24-hour labels (\"09\", \"14\"). Should they stay 24-hour even when the phone is set to 12-hour time?",
+        "answer": "Follow phone setting"
+      },
+      "long_names": {
+        "question": "A long dog name in the bottom navigation bar (the Dog tab label): may it wrap to two lines or be shortened with \"…\" on screen, as long as TalkBack always reads the full name?",
+        "answer": "Yes, shorten with …"
+      }
+    },
+    "hour_label_12h": {
+      "at": "2026-10-22T10:16:31Z",
+      "question": "Last one before G1: when the phone uses 12-hour time, how should the forecast strip's hour labels look? The planner proposes \"2 pm\", \"12 am\" (lowercase, space, no :00), matching the app's best-time text \"3:00 pm\".",
+      "answer": "\"2pm\""
     }
   }
 }
