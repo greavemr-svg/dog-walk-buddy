@@ -54,7 +54,6 @@ class HistoryScreenTest {
     val temporaryFolder = TemporaryFolder()
 
     private lateinit var test: TestAppContainer
-    private var backs = 0
     private val walkRow = Regex("""^\w{3} \d+ \w{3} \d{4} at """)
 
     @Before
@@ -96,7 +95,6 @@ class HistoryScreenTest {
                         viewModel = viewModel,
                         zoneId = ZoneOffset.UTC,
                         is24Hour = true,
-                        onBack = { backs++ },
                         debugActions = debugActions,
                     )
                 }
@@ -267,15 +265,6 @@ class HistoryScreenTest {
     }
 
     @Test
-    fun back_returns_to_the_previous_screen() {
-        show()
-
-        composeRule.onNodeWithText("Back").performClick()
-
-        assertEquals(1, backs)
-    }
-
-    @Test
     fun the_More_menu_is_hidden_when_there_are_no_debug_actions() {
         show()
 
@@ -318,7 +307,6 @@ class HistoryScreenTest {
                 HistoryContent(
                     state = state.value,
                     formats = WalkDateFormats(ZoneOffset.UTC, true),
-                    onBack = {},
                     onRequestDelete = {},
                     onConfirmDelete = {},
                     onCancelDelete = {},
@@ -413,7 +401,6 @@ class HistoryScreenTest {
                     HistoryContent(
                         state = state.value,
                         formats = WalkDateFormats(ZoneOffset.UTC, true),
-                        onBack = {},
                         onRequestDelete = {},
                         onConfirmDelete = {},
                         onCancelDelete = {},

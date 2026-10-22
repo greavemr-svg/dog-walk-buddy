@@ -17,9 +17,11 @@ import io.github.greavemrsvg.dogwalkbuddy.domain.profile.ProfileError
 import io.github.greavemrsvg.dogwalkbuddy.domain.profile.ProfileInput
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HeatSensitivity
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -47,6 +49,9 @@ data class ProfileUiState(
 /** Holds the profile form. Edits stay in this state until Save, which is the only write (AC41, AC42, AC43). */
 class ProfileViewModel(
     private val repository: ProfileRepository,
+    // Emits when "Delete all my data" has run. The dog tab stays in the back stack while Privacy is open, so the
+    // form forgets the deleted profile instead of showing it, or saving it again (AC47).
+    dataDeleted: Flow<Unit> = emptyFlow(),
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ProfileUiState())
     val state: StateFlow<ProfileUiState> = mutableState.asStateFlow()
@@ -82,6 +87,14 @@ class ProfileViewModel(
                 mutableState.update { it.copy(isLoaded = true) }
             }
         }
+        viewModelScope.launch { dataDeleted.collect { forgetProfile() } }
+    }
+
+    private fun forgetProfile() {
+        pendingPhoto = null
+        removeStoredPhoto = false
+        hasStoredPhoto = false
+        mutableState.value = ProfileUiState(isLoaded = true)
     }
 
     // Until the stored profile has loaded, edits are ignored (the screen disables the controls), so loading
@@ -187,7 +200,7 @@ class ProfileViewModel(
 
         fun factory(container: AppContainer) =
             viewModelFactory {
-                initializer { ProfileViewModel(container.profileRepository) }
+                initializer { ProfileViewModel(container.profileRepository, container.deleteAllDataUseCase.deletions) }
             }
     }
 }

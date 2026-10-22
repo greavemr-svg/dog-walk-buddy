@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
@@ -259,7 +260,7 @@ class AboutScreenTest {
     fun AC26_back_returns_from_about() {
         show()
 
-        composeRule.onNodeWithText("Back").assertIsDisplayed().performClick()
+        composeRule.onNodeWithContentDescription("Back").assertIsDisplayed().performClick()
 
         assertEquals(1, backs)
     }

@@ -33,6 +33,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.greavemrsvg.dogwalkbuddy.R
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.BackButton
 import io.github.greavemrsvg.dogwalkbuddy.ui.common.ErrorSnackbarEffect
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
 
@@ -88,9 +89,7 @@ fun PrivacyContent(
                         .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                TextButton(onClick = onBack, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                    Text(stringResource(R.string.privacy_back))
-                }
+                BackButton(onClick = onBack, contentDescription = stringResource(R.string.privacy_back))
                 Heading(R.string.privacy_title, MaterialTheme.typography.headlineMedium)
                 Heading(R.string.privacy_weather_heading)
                 Body(R.string.privacy_weather)

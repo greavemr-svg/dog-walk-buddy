@@ -14,7 +14,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,8 +28,8 @@ import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DistanceFormat
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DurationFormat
 import io.github.greavemrsvg.dogwalkbuddy.map.RouteMap
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.BackButton
 import io.github.greavemrsvg.dogwalkbuddy.ui.history.WalkDateFormats
-import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
 
 /** Test tag of the area where the map, or the message that replaces it, is shown. */
 const val WALK_MAP_AREA_TAG = "walk_map_area"
@@ -75,9 +74,7 @@ fun WalkDetailContent(
                     .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            TextButton(onClick = onBack, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                Text(stringResource(R.string.walk_detail_back))
-            }
+            BackButton(onClick = onBack, contentDescription = stringResource(R.string.walk_detail_back), floating = true)
             Text(
                 text = stringResource(R.string.walk_detail_title),
                 style = MaterialTheme.typography.headlineMedium,

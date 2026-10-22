@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -213,7 +214,7 @@ class WalkDetailScreenTest {
         show(WalkDetailUiState.Loading)
 
         composeRule.onNodeWithText("Walk details").assertIsDisplayed()
-        composeRule.onNodeWithText("Back").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Back").assertIsDisplayed()
         assertEquals(0, composeRule.onAllNodes(hasText("Duration", substring = true)).fetchSemanticsNodes().size)
     }
 
@@ -221,7 +222,7 @@ class WalkDetailScreenTest {
     fun the_back_control_goes_back() {
         show(loaded())
 
-        composeRule.onNodeWithText("Back").performClick()
+        composeRule.onNodeWithContentDescription("Back").performClick()
 
         assertEquals(1, backs)
     }

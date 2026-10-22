@@ -1,11 +1,15 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.a11y
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -70,5 +74,100 @@ class AccessibilityAssertionsTest {
             composeRule.onNodeWithTag("node").assertAnnouncesRatingThenReason("Caution", "Windy")
         }
         composeRule.onNodeWithText("x").assertExists()
+    }
+
+    @Test
+    fun UX_AC60_an_allowed_tag_may_end_in_an_ellipsis_on_one_line() {
+        composeRule.setContent {
+            WithFontScale {
+                Text(
+                    "A long dog name that cannot fit",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.width(80.dp).testTag("name"),
+                )
+            }
+        }
+
+        composeRule.assertNoTextTruncation(allowEllipsisTags = setOf("name"))
+    }
+
+    @Test
+    fun UX_AC60_an_allowed_tag_still_fails_when_its_text_is_clipped_without_an_ellipsis() {
+        composeRule.setContent {
+            WithFontScale {
+                Text(
+                    "A long dog name that cannot fit",
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                    modifier = Modifier.width(80.dp).testTag("name"),
+                )
+            }
+        }
+
+        assertThrows(IllegalStateException::class.java) {
+            composeRule.assertNoTextTruncation(allowEllipsisTags = setOf("name"))
+        }
+    }
+
+    @Test
+    fun UX_AC60_the_ellipsis_allowance_applies_only_to_the_tags_named() {
+        composeRule.setContent {
+            WithFontScale {
+                Text(
+                    "A long dog name that cannot fit",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.width(80.dp).testTag("other"),
+                )
+            }
+        }
+
+        assertThrows(IllegalStateException::class.java) {
+            composeRule.assertNoTextTruncation(allowEllipsisTags = setOf("name"))
+        }
+    }
+
+    @Test
+    fun UX_AC58_the_heading_check_passes_for_text_marked_as_a_heading() {
+        composeRule.setContent { Text("Walks", modifier = Modifier.semantics { heading() }) }
+
+        composeRule.assertHeadingsMarked("Walks")
+    }
+
+    @Test
+    fun UX_AC58_the_heading_check_fails_for_text_not_marked_as_a_heading() {
+        composeRule.setContent { Text("Walks") }
+
+        assertThrows(IllegalStateException::class.java) { composeRule.assertHeadingsMarked("Walks") }
+    }
+
+    @Test
+    fun UX_AC58_the_hidden_check_passes_for_a_graphic_marked_hidden() {
+        composeRule.setContent {
+            Box(Modifier.size(10.dp).testTag("art").semantics { hideFromAccessibility() }) {
+                Text("decoration")
+            }
+        }
+
+        composeRule.assertHiddenFromAccessibility("art")
+    }
+
+    @Test
+    fun UX_AC58_the_hidden_check_passes_for_a_graphic_with_nothing_to_speak() {
+        composeRule.setContent { Box(Modifier.size(10.dp).testTag("art")) { Box(Modifier.size(4.dp)) } }
+
+        composeRule.assertHiddenFromAccessibility("art")
+    }
+
+    @Test
+    fun UX_AC58_the_hidden_check_fails_for_a_graphic_with_a_spoken_label() {
+        composeRule.setContent {
+            Box(Modifier.size(10.dp).testTag("art")) {
+                Box(Modifier.size(4.dp).semantics { contentDescription = "A dog" })
+            }
+        }
+
+        assertThrows(IllegalStateException::class.java) { composeRule.assertHiddenFromAccessibility("art") }
     }
 }

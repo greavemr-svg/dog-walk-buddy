@@ -12,7 +12,10 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -73,8 +76,11 @@ fun WithFontScale(
  * AC52: no text on the screen is cut off, ellipsized or clipped (scrolling is allowed, so show the screen in a
  * scrolling container). Run it on a screen shown
  * with [WithFontScale]. It also checks that the screen has text to check, so it cannot pass by finding nothing.
+ *
+ * [allowEllipsisTags] names the text nodes, by test tag, that may instead stay on one line and end in "…" (AC60:
+ * only the dog-name nav label). Such a node still fails if it is cut off any other way. The default allows none.
  */
-fun ComposeContentTestRule.assertNoTextTruncation() {
+fun ComposeContentTestRule.assertNoTextTruncation(allowEllipsisTags: Set<String> = emptySet()) {
     val truncated = mutableListOf<String>()
     var checked = 0
     // The unmerged tree, because the rating block replaces its children's semantics with one spoken phrase.
@@ -86,8 +92,10 @@ fun ComposeContentTestRule.assertNoTextTruncation() {
                 .getOrNull(SemanticsActions.GetTextLayoutResult)
                 ?.action
                 ?.invoke(layouts)
+            val mayEllipsize = node.config.getOrNull(SemanticsProperties.TestTag) in allowEllipsisTags
             layouts.forEach { layout ->
-                if (layout.isTruncated()) truncated += layout.layoutInput.text.text
+                val allowed = mayEllipsize && layout.isOneEllipsizedLine()
+                if (layout.isTruncated() && !allowed) truncated += layout.layoutInput.text.text
                 checked++
             }
         }
@@ -106,6 +114,38 @@ private fun TextLayoutResult.isTruncated(): Boolean {
         getLineEnd(lastLine, visibleEnd = true) < layoutInput.text.length ||
         size.height < multiParagraph.height.toInt()
 }
+
+/** One line whose end is replaced by "…", and nothing else cut off: the line is as tall as the text needs. */
+private fun TextLayoutResult.isOneEllipsizedLine(): Boolean =
+    lineCount == 1 && isLineEllipsized(0) && size.height >= multiParagraph.height.toInt()
+
+/**
+ * AC58: each of [texts] is on the screen as text marked as a heading for accessibility services, so TalkBack users
+ * can jump between sections.
+ */
+fun ComposeContentTestRule.assertHeadingsMarked(vararg texts: String) {
+    check(texts.isNotEmpty()) { "No headings to check" }
+    texts.forEach { text ->
+        val headings = onAllNodes(hasText(text) and isHeading(), useUnmergedTree = true).fetchSemanticsNodes()
+        check(headings.isNotEmpty()) { "\"$text\" is not shown as a heading" }
+    }
+}
+
+/**
+ * AC58: the decorative graphic tagged [tag] is hidden from accessibility services. It is hidden when it or an
+ * ancestor is marked hidden, or when neither it nor anything inside it has a spoken label or an action, so
+ * TalkBack has nothing to focus or read.
+ */
+fun ComposeContentTestRule.assertHiddenFromAccessibility(tag: String) {
+    val node = onNodeWithTag(tag, useUnmergedTree = true).fetchSemanticsNode()
+    check(node.isMarkedHidden() || node.exposesNothing()) { "The node tagged $tag is exposed to accessibility services" }
+}
+
+private fun SemanticsNode.isMarkedHidden(): Boolean =
+    generateSequence(this) { it.parent }.any { SemanticsProperties.HideFromAccessibility in it.config }
+
+private fun SemanticsNode.exposesNothing(): Boolean =
+    !hasSpokenLabel() && SemanticsActions.OnClick !in config && children.all { it.exposesNothing() }
 
 /** AC50: the node is spoken as "<Rating>. <Reason>." (rating first, then the reason). */
 fun SemanticsNodeInteraction.assertAnnouncesRatingThenReason(

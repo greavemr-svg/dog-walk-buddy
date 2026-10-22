@@ -3,11 +3,13 @@ package io.github.greavemrsvg.dogwalkbuddy.ui.nav
 import android.Manifest
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -107,7 +109,25 @@ class AppFlowIntegrationTest {
 
     private fun tap(text: String) = composeRule.onNodeWithText(text).performScrollTo().performClick()
 
-    private fun back() = composeRule.onNodeWithText("Back").performClick()
+    private fun back() = composeRule.onNodeWithContentDescription("Back").performClick()
+
+    // Nav items are tapped without scrolling: the bar is outside the scrolling content.
+    private fun tapNav(tag: String) = composeRule.onNodeWithTag(tag).performClick()
+
+    private fun systemBack() = composeRule.runOnUiThread { composeRule.activity.onBackPressedDispatcher.onBackPressed() }
+
+    // Privacy is reached through the dog tab and its "Privacy & data" tile (AC13).
+    private fun openPrivacy() {
+        tapNav(NAV_DOG_TAG)
+        tap("Privacy & data")
+    }
+
+    // Back from Privacy returns to the dog tab, where it was opened; the next step then starts from Today.
+    private fun backFromPrivacyToToday() {
+        back()
+        composeRule.onNodeWithTag(NAV_DOG_TAG).assertIsSelected()
+        tapNav(NAV_TODAY_TAG)
+    }
 
     private fun addWalkWithRoute(): Long =
         runBlocking {
@@ -138,18 +158,18 @@ class AppFlowIntegrationTest {
         showApp()
         awaitText("Allow approximate location")
 
-        tap("Walk history")
+        tapNav(NAV_WALKS_TAG)
         awaitText("No walks yet")
-        back()
-        tap("Dog profile")
+        systemBack()
+        tapNav(NAV_DOG_TAG)
         composeRule.waitUntil(WAIT_MS) { composeRule.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isNotEmpty() }
         composeRule.onAllNodes(hasSetTextAction())[0].performTextInput("Biscuit")
         tap("Save profile")
         awaitText("Profile saved")
-        back()
-        tap("Privacy")
+        systemBack()
+        openPrivacy()
         awaitText("There are no accounts, analytics or tracking.")
-        back()
+        backFromPrivacyToToday()
         composeRule.onNodeWithTag(START_WALK_TAG).performScrollTo().performClick()
         awaitText("Recording your walk")
         composeRule.onNodeWithTag(STOP_WALK_TAG).performScrollTo().performClick()
@@ -173,12 +193,13 @@ class AppFlowIntegrationTest {
         showApp()
         awaitText("Allow approximate location")
 
-        tap("Privacy")
+        openPrivacy()
 
         composeRule.onNodeWithText("Weather check").assertIsDisplayed()
         composeRule.onNodeWithText("Delete all my data").performScrollTo().assertIsDisplayed()
-        back()
-        composeRule.onNodeWithText("Dog Walk Buddy").assertIsDisplayed()
+        backFromPrivacyToToday()
+        composeRule.onNodeWithTag(NAV_TODAY_TAG).assertIsSelected()
+        composeRule.onNodeWithText("Good time to walk?").assertIsDisplayed()
     }
 
     @Test
@@ -189,7 +210,7 @@ class AppFlowIntegrationTest {
         showApp()
         awaitText("Allow approximate location")
 
-        tap("Walk history")
+        tapNav(NAV_WALKS_TAG)
         awaitText("Mon 19 Oct 2026 at 09:15")
         composeRule.onNodeWithText("Mon 19 Oct 2026 at 09:15").performClick()
         awaitText("Walk details")
@@ -213,7 +234,7 @@ class AppFlowIntegrationTest {
         showApp()
         awaitText("Allow approximate location")
 
-        tap("Walk history")
+        tapNav(NAV_WALKS_TAG)
         awaitText("Mon 19 Oct 2026 at 09:15")
         composeRule.onNodeWithText("Mon 19 Oct 2026 at 09:15").performClick()
         awaitText("Map not available offline")
@@ -230,7 +251,7 @@ class AppFlowIntegrationTest {
         addWalkWithRoute()
         showApp()
         awaitText("Allow approximate location")
-        tap("Walk history")
+        tapNav(NAV_WALKS_TAG)
         awaitText("Mon 19 Oct 2026 at 09:15")
         composeRule.onNodeWithText("Mon 19 Oct 2026 at 09:15").performClick()
         awaitMap()
@@ -260,7 +281,7 @@ class AppFlowIntegrationTest {
         assertNotNull(runBlocking { test.database.cachedCheckDao().get() })
         assertTrue(photoDirectory.isDirectory)
 
-        tap("Privacy")
+        openPrivacy()
         tap("Delete all my data")
         composeRule.onNodeWithText("Delete all your data?").assertIsDisplayed()
         composeRule.onNodeWithText("Delete everything").performClick()
@@ -282,12 +303,12 @@ class AppFlowIntegrationTest {
         assertEquals(1, test.mapCache.clearCount)
         // With no location fix and no cached result, the check has nothing to show.
         test.location = null
-        back()
+        backFromPrivacyToToday()
         awaitText("Can't check right now")
-        tap("Walk history")
+        tapNav(NAV_WALKS_TAG)
         awaitText("No walks yet")
-        back()
-        tap("Dog profile")
+        systemBack()
+        tapNav(NAV_DOG_TAG)
         awaitText("No photo")
         assertEquals(0, composeRule.onAllNodesWithText("Rex").fetchSemanticsNodes().size)
         assertEquals(1, test.stub.server.requestCount)
@@ -300,7 +321,7 @@ class AppFlowIntegrationTest {
         showApp()
         awaitText("Allow approximate location")
 
-        tap("Privacy")
+        openPrivacy()
         tap("Delete all my data")
         composeRule.onNodeWithText("Cancel").performClick()
         composeRule.waitForIdle()
@@ -317,7 +338,7 @@ class AppFlowIntegrationTest {
         test.mapCache.failure = java.io.IOException("map")
         showApp()
         awaitText("Allow approximate location")
-        tap("Privacy")
+        openPrivacy()
         tap("Delete all my data")
         composeRule.onNodeWithText("Delete everything").performClick()
         awaitText("Couldn't delete all your data. Try again.")
