@@ -404,6 +404,29 @@ class CheckViewModelTest {
     }
 
     @Test
+    fun AC24_opening_again_after_a_running_check_has_started_does_not_restart_it() {
+        // The first check must actually be running (waiting for the location) before the second open, otherwise a
+        // restart would cancel a job that never ran and the location would still be asked for only once.
+        stub.enqueueFixture()
+        val release = CompletableDeferred<LocationFix?>()
+        locationSource = ApproximateLocationSource { release.await() }
+        val viewModel = newViewModel()
+        viewModel.onOpened()
+        scheduler.runCurrent()
+        assertEquals(1, locationCalls)
+
+        viewModel.onOpened()
+        scheduler.runCurrent()
+
+        assertEquals(1, locationCalls)
+        assertEquals(CheckUiState.Loading, viewModel.state.value)
+        release.complete(fix)
+        assertTrue(viewModel.awaitSettled() is CheckUiState.Rated)
+        assertEquals(1, stub.server.requestCount)
+        assertEquals(1, locationCalls)
+    }
+
+    @Test
     fun AC22_a_location_that_never_arrives_times_out_into_the_cache_or_cant_check() {
         locationSource = ApproximateLocationSource { awaitCancellation() }
         val viewModel = newViewModel(locationTimeout = Duration.ofMillis(LOCATION_TIMEOUT_MS))
