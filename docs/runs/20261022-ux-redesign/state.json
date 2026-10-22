@@ -2,7 +2,7 @@
   "run_id": "20261022-ux-redesign",
   "idea": "Restyle Dog Walk Buddy to the owner's UX design pack at C:/Users/greav/projects/dog-walk-buddy-ux (README.md, ux-spec.md, tokens.json, screens/*.dc.html). Owner: \"I would like to cahgne the UX to follow the designs in C:/Users/greav/projects/dog-walk-buddy-ux\". Pack rules: MVP spec/ACs win; existing strings win unless owner approves copy changes in spec; a11y floors unchanged (AC51-AC53); dark mode required.",
   "status": "in_progress",
-  "stage": "design",
+  "stage": "build",
   "created_at": "2026-10-22T09:36:24Z",
   "epic_issue": 31,
   "feature_branch": "feature/20261022-ux-redesign",
@@ -31,12 +31,134 @@
       "answer": "Approve spec",
       "spec_commit": "f9b5497"
     },
-    "G2": null,
+    "G2": {
+      "result": "PASS",
+      "at": "2026-10-22T11:34:07Z",
+      "head": "2848303",
+      "record": "docs/runs/20261022-ux-redesign/gates/G2.md",
+      "previous": [
+        "docs/runs/20261022-ux-redesign/gates/G2-attempt1.md (FAIL)",
+        "docs/runs/20261022-ux-redesign/gates/G2-attempt2.md (FAIL)"
+      ]
+    },
     "G4": null,
     "G5": null,
     "release_approval": null
   },
-  "tasks": [],
+  "tasks": [
+    {
+      "n": 1,
+      "slug": "theme-foundations",
+      "title": "Field Kit theme, fonts, rating icons, dark mode and contrast",
+      "issue": 32,
+      "acs": "AC1, AC2, AC3, AC4 (palette), AC5, AC6, AC7, AC8, AC40 (contrast pairs), AC62, AC63 (test scaffold), AC64, AC65 (fonts), AC67 (contrast pairs)",
+      "depends_on": [],
+      "status": "in_progress",
+      "attempts": 1,
+      "branch": "task/20261022-ux-redesign-1-theme-foundations",
+      "pr": null
+    },
+    {
+      "n": 2,
+      "slug": "bottom-nav-shell",
+      "title": "Bottom navigation, tabs, back controls and the dog-name label",
+      "issue": 33,
+      "acs": "AC9, AC10, AC11, AC12, AC13, AC14, AC15, AC16, AC53 (tiles), AC58 (helper extensions), AC60 (b, c), AC63 (C7, C16, D9 tiles), AC64",
+      "depends_on": [
+        1
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "branch": "task/20261022-ux-redesign-2-bottom-nav-shell",
+      "pr": null
+    },
+    {
+      "n": 3,
+      "slug": "today-hero-and-footnote",
+      "title": "Today: header, banner, hero card with factor grid, footnote, pinned Start, loading",
+      "issue": 34,
+      "acs": "AC17, AC18, AC19, AC20, AC21, AC24, AC25, AC26, AC27, AC28, AC58, AC63 (C1, C12, D1-D3), AC64, AC66",
+      "depends_on": [
+        2
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "branch": "task/20261022-ux-redesign-3-today-hero-and-footnote",
+      "pr": null
+    },
+    {
+      "n": 4,
+      "slug": "today-window-and-states",
+      "title": "Today: best-window card and 12-hour strip; Can't check, location and precise-location states",
+      "issue": 35,
+      "acs": "AC22, AC23, AC29, AC30, AC31, AC32, AC58, AC61 (strip), AC63 (C2, C4, C13, D4, D5), AC64, AC66",
+      "depends_on": [
+        3
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "branch": "task/20261022-ux-redesign-4-today-window-and-states",
+      "pr": null
+    },
+    {
+      "n": 5,
+      "slug": "recording-restyle-route-line",
+      "title": "Recording: always-dark restyle, h:mm:ss timer, stat cards and live route line",
+      "issue": 36,
+      "acs": "AC4 (integration), AC33, AC34, AC35, AC36, AC37, AC38, AC58, AC63 (C5, C6, C15, C18, D6), AC64, AC65 (route line), AC66",
+      "depends_on": [
+        2
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "branch": "task/20261022-ux-redesign-5-recording-restyle-route-line",
+      "pr": null
+    },
+    {
+      "n": 6,
+      "slug": "walks-tab",
+      "title": "Walks: this-week card with day dots, week sections, rows with More menu, empty and error states, delete sheet",
+      "issue": 37,
+      "acs": "AC39, AC40, AC41, AC42, AC43, AC44, AC58, AC60 (a: Walks), AC63 (D7), AC64, AC66",
+      "depends_on": [
+        4,
+        5
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "branch": "task/20261022-ux-redesign-6-walks-tab",
+      "pr": null
+    },
+    {
+      "n": 7,
+      "slug": "walk-detail-and-privacy",
+      "title": "Walk detail (edge-to-edge map, sheet, delete) and Privacy (cards, delete-all sheet)",
+      "issue": 38,
+      "acs": "AC45, AC46, AC47, AC48, AC49, AC54, AC55, AC58, AC60 (a: Walk detail, Privacy), AC63 (C14, C17, D8, D10), AC64, AC66",
+      "depends_on": [
+        6
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "branch": "task/20261022-ux-redesign-7-walk-detail-and-privacy",
+      "pr": null
+    },
+    {
+      "n": 8,
+      "slug": "dog-profile-and-about",
+      "title": "Dog profile (photo row, counters, radio cards, Save, tiles) and About (thresholds table)",
+      "issue": 39,
+      "acs": "AC50, AC51, AC52, AC53, AC56, AC57, AC58, AC59 (checklist), AC60 (a: Dog, About), AC61 (About headers), AC63 (C8-C11, D9, D11), AC64, AC66, AC67",
+      "depends_on": [
+        2,
+        7
+      ],
+      "status": "pending",
+      "attempts": 0,
+      "branch": "task/20261022-ux-redesign-8-dog-profile-and-about",
+      "pr": null
+    }
+  ],
   "release": {
     "version": "",
     "pr": null,
@@ -44,7 +166,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 16,
+    "agent_invocations": 17,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -91,7 +213,10 @@
     "2026-10-22T11:23:36Z orchestrator: invoking architect (design attempt 3 of 3) model=opus. Budget 15/200 incl. this call",
     "2026-10-22T11:30:47Z architect design attempt 3 (opus): DONE; E3 placement: HistoryScreenTest L270-276 moved to NavigationTest AC35 (system Back -> NAV_TODAY_TAG selected, Walks not selected, title shown, not finishing); argument-only onBack edits listed (HistoryScreenTest L99/L321/L416, HistoryRowOpenTest L83, ProfileScreenTest L77, ProfileScreenStateTest L39); judged within OD1",
     "2026-10-22T11:30:47Z owner: history test move -> \"Approve the move\" (owner_answers.history_back_test_move)",
-    "2026-10-22T11:30:47Z orchestrator: committed design attempt 3; invoking gatekeeper G2 re-check (opus). Budget 16/200 incl. this call"
+    "2026-10-22T11:30:47Z orchestrator: committed design attempt 3; invoking gatekeeper G2 re-check (opus). Budget 16/200 incl. this call",
+    "2026-10-22T11:34:07Z gatekeeper G2 re-check (opus) on 2848303: PASS. Record gates/G2.md. Notes: cite history_back_test_move in design (cosmetic), production onBack sites are T2 build changes, overlap harmless",
+    "2026-10-22T11:34:07Z orchestrator: created task issues T1 #32, T2 #33, T3 #34, T4 #35, T5 #36, T6 #37, T7 #38, T8 #39",
+    "2026-10-22T11:34:07Z orchestrator: T1 attempt 1: invoking developer (opus). Budget 17/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
