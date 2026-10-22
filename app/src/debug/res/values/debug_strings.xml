@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="debug_seed_walks">Seed 500 sample walks</string>
+</resources>
