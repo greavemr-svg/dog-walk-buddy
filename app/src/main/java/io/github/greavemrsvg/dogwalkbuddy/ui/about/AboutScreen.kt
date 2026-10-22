@@ -26,7 +26,10 @@ import androidx.compose.ui.unit.dp
 import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
 
-/** The rating thresholds, the guidance sources, the data attribution and the open-source licences (AC26, AC27). */
+/**
+ * The rating thresholds, the guidance sources, the data attribution and the open-source licences (AC26, AC27),
+ * including the licences of the bundled fonts (AC8).
+ */
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -82,6 +85,10 @@ fun AboutScreen(onBack: () -> Unit) {
             Body(R.string.about_apache_lib_other)
             Heading(R.string.about_apache_text_heading)
             LicenceText(R.raw.licence_apache_2_0)
+            Heading(R.string.about_font_bricolage_heading)
+            LicenceText(R.raw.licence_ofl_bricolage_grotesque)
+            Heading(R.string.about_font_figtree_heading)
+            LicenceText(R.raw.licence_ofl_figtree)
         }
     }
 }

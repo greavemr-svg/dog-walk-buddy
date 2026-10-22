@@ -1,6 +1,6 @@
 # ADR 0008: Icons as bundled Material Symbols Rounded vector drawables (no icon library)
 
-- Status: Accepted
+- Status: Accepted (amended 2026-10-22, see "Amendment 1")
 - Date: 2026-10-22
 - Run: `20261022-ux-redesign`
 
@@ -75,6 +75,8 @@ Option 1.
 - **Integrity:** the PR records the source commit and, for each file, the SHA-256 of the upstream file as downloaded (before the header is added) and the SHA-256 of the committed file. The only edits allowed are the header comment and the file rename. The PR lists each rename.
 - **Tint:** icons are tinted at use from theme roles. The drawable's own fill colour is irrelevant.
 
+(The header statement, the allowed edits and the tint attribute are amended by "Amendment 1" below.)
+
 ### Files (renamed to the app's `ic_` convention)
 | Use | Symbol | File | Planned task |
 |---|---|---|---|
@@ -133,3 +135,52 @@ The existing notification icon `ic_notification_walk.xml` and the launcher icon 
 - **Maintenance:** Google maintains the source repository. The copied XML files are static and need no updates.
 - **Known vulnerabilities:** none. They are vector path data, with no code.
 - **Size / performance impact:** about 30 small XML vectors, roughly 1 KB each before compilation. There is no runtime cost beyond normal drawable inflation.
+
+## Amendment 1 (2026-10-22): the tint attribute
+Raised by the task 1 developer on PR #40 (task #32).
+
+### Problem
+- Upstream Material Symbols Android XML sets `android:tint="?attr/colorControlNormal"` on the `<vector>`.
+- `colorControlNormal` without the `android:` prefix is an attribute declared by AppCompat or Material Components. This app has neither, so aapt fails with "resource attr/colorControlNormal not found".
+- This ADR allowed only the header comment and the rename, so the developer could not change the glyph file.
+
+### Options considered
+1. **Declare an app attribute `colorControlNormal` in `res/values/attrs.xml` and set it in both window themes to `?android:attr/colorControlNormal`.** The icon files stay byte-identical to upstream below the header.
+   - The reference only resolves when the drawable is inflated with a theme that sets the app attribute, which means `Theme.DogWalkBuddy` or a child of it.
+   - Compose `painterResource` parses the vector itself and reads `android:tint` through the `LocalContext` theme. If that theme does not set the attribute, the value stays an unresolved theme reference. androidx.core's `TypedArrayUtils.getNamedColorStateList` then throws `UnsupportedOperationException("Failed to resolve attribute ...")`. A tint passed in code (`Icon(tint = ...)`) does not help, because the error happens while the XML is parsed, before any colour filter is applied.
+   - Such themes already exist in this project. `createComposeRule()` hosts content in `androidx.activity.ComponentActivity` from `ui-test-manifest`, and that library's manifest (1.12.x, the version in use) gives the activity `@android:style/Theme.Material.Light.NoActionBar`, not the app theme. `CheckCardTest` renders all three rating icons in that host. Compose previews and any later host activity or dialog window with its own theme are in the same position.
+   - It also adds an app attribute that shadows an AppCompat/MDC name. If either library is ever added, its `colorControlNormal` (format `color`) would clash with this one (format `color|reference`).
+   - **Rejected:** whether it works depends on the theme of whoever inflates the icon, and that is easy to break without noticing.
+2. **Change one token per icon file: `?attr/colorControlNormal` to `?android:attr/colorControlNormal`** (chosen).
+   - The platform attribute exists in every platform theme from API 21 (minSdk is 29), so the file resolves in any context: the app, test host activities, previews.
+   - At run time it makes no visible difference. Screens tint icons in code from `FieldKit` roles (the "Tint" rule above). In Compose, a colour filter passed in code replaces the drawable's own tint.
+   - No attribute, theme item or resource is added. Lint has nothing new to check and `UnusedResources` is not affected.
+   - Apache §4(b): the file changes in one more place, and the header's modification notice says so (below).
+
+### Decision
+Option 2. For every Material Symbols file, in task 1 and every later task:
+- **Allowed edits** (this replaces the list under "Integrity"):
+  1. the header comment
+  2. the file rename
+  3. exactly one token on the `<vector>` element: `android:tint="?attr/colorControlNormal"` becomes `android:tint="?android:attr/colorControlNormal"`.
+  Nothing else changes. Path data, size, viewport and `android:fillColor` stay as they are upstream.
+- **Header statement** (this replaces "modified: header comment added"): end the one-line header with
+  `modified: header comment added; tint changed from ?attr/colorControlNormal to ?android:attr/colorControlNormal`.
+  If an upstream file has no `?attr/` tint, it gets no tint edit and its header keeps "modified: header comment added".
+- **Integrity record:** unchanged in form. The PR records the SHA-256 of the upstream file as downloaded and the SHA-256 of the committed file. A reviewer can check a file by removing the header line and reversing the one tint edit; the result must match the upstream checksum.
+- **No theme support:** do not add `res/values/attrs.xml` or a `colorControlNormal` theme item. The window themes keep only what ADR 0007 gives them (`android:windowBackground`).
+- **Guard test (task 1):** add a JVM unit test that reads every `src/main/res/drawable/ic_*.xml` whose first line contains "Material Symbols Rounded" (the same file-reading approach as `SourceManifestHardeningTest`). It asserts that:
+  - the file contains no `?attr/` reference
+  - the header contains `modified:`.
+  Later tasks get this check for free. They must not change it.
+
+### What later tasks (2-8) must do
+- Copy each icon from the recorded commit, apply only the three allowed edits, use the header statement above, and record both checksums in the PR.
+- Run the full suite. The guard test fails if a copied file still has `?attr/colorControlNormal`.
+
+### What PR #40 must change
+- `app/src/main/res/drawable/ic_rating_go.xml`, `ic_rating_caution.xml`, `ic_rating_avoid.xml`: apply the tint edit and the new header statement. Update the committed-file SHA-256 values in the PR description. The upstream values stay the same.
+- Delete `app/src/main/res/values/attrs.xml`.
+- Remove `<item name="colorControlNormal">?android:attr/colorControlNormal</item>` from `app/src/main/res/values/themes.xml` and `app/src/main/res/values-night/themes.xml`.
+- Add the guard test above.
+- `app/src/main/res/values/colors.xml` (the two `field_kit_background_*` window colours) stays. It is part of the ADR 0007 window themes and in scope for task 1 (see the design's task 1 scope note).

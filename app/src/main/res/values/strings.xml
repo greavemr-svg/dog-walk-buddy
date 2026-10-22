@@ -186,4 +186,7 @@
     <string name="about_apache_lib_maplibre">MapLibre Native GeoJSON 6.0.1 and Turf 6.0.1.</string>
     <string name="about_apache_lib_other">Gson 2.10.1, Timber 5.0.1, JSpecify 1.0.0 and Guava ListenableFuture 1.0.</string>
     <string name="about_apache_text_heading">Apache License, Version 2.0</string>
+    <!-- Bundled fonts (ADR 0006, AC8). The headings are the font names only. -->
+    <string name="about_font_bricolage_heading">Bricolage Grotesque</string>
+    <string name="about_font_figtree_heading">Figtree</string>
 </resources>

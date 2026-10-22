@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.DogWalkBuddy" parent="android:Theme.Material.NoActionBar" />
+    <!-- Light window theme. The window background is the Field Kit light background, so there is no flash of
+         the wrong colour at cold start (ADR 0007). -->
+    <style name="Theme.DogWalkBuddy" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/field_kit_background_light</item>
+    </style>
 </resources>

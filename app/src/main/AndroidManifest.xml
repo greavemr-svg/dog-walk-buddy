@@ -26,8 +26,10 @@
         android:theme="@style/Theme.DogWalkBuddy"
         android:usesCleartextTraffic="false">
 
+        <!-- uiMode is handled in place, so a system light/dark switch only recomposes (AC7, ADR 0007). -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="uiMode"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
