@@ -8,13 +8,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.core.view.WindowCompat
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.github.greavemrsvg.dogwalkbuddy.DogWalkBuddyApp
 import io.github.greavemrsvg.dogwalkbuddy.MainActivity
+import io.github.greavemrsvg.dogwalkbuddy.testutil.TestAppContainer
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
+import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
@@ -32,6 +37,16 @@ class RecordingSystemBarsTest {
     @get:Rule
     val composeRule = createComposeRule()
 
+    @get:Rule
+    val temporaryFolder = TemporaryFolder()
+
+    private var test: TestAppContainer? = null
+
+    @After
+    fun tearDown() {
+        test?.close()
+    }
+
     private var recordingShown by mutableStateOf(false)
 
     private fun idle() {
@@ -40,6 +55,10 @@ class RecordingSystemBarsTest {
     }
 
     private fun start(): ActivityController<MainActivity> {
+        // An in-memory container, so no background Room query races the on-disk database at teardown (flaky
+        // SQLITE_CANTOPEN seen by the tester).
+        val app = TestAppContainer(temporaryFolder).also { test = it }
+        ApplicationProvider.getApplicationContext<DogWalkBuddyApp>().container = app.container
         val controller = Robolectric.buildActivity(MainActivity::class.java).setup()
         controller.get().setContent { DogWalkBuddyTheme { if (recordingShown) RecordingSystemBars() } }
         idle()

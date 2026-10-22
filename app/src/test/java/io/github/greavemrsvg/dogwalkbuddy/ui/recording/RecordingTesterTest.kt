@@ -19,16 +19,21 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.github.greavemrsvg.dogwalkbuddy.DogWalkBuddyApp
 import io.github.greavemrsvg.dogwalkbuddy.MainActivity
 import io.github.greavemrsvg.dogwalkbuddy.service.RecordingSession
+import io.github.greavemrsvg.dogwalkbuddy.testutil.TestAppContainer
 import io.github.greavemrsvg.dogwalkbuddy.testutil.Wcag
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.RecordingPalette
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
@@ -46,6 +51,16 @@ import java.time.ZoneOffset
 class RecordingTesterTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @get:Rule
+    val temporaryFolder = TemporaryFolder()
+
+    private var test: TestAppContainer? = null
+
+    @After
+    fun tearDown() {
+        test?.close()
+    }
 
     private val start = Instant.parse("2026-10-19T19:05:00Z")
 
@@ -151,6 +166,9 @@ class RecordingTesterTest {
     }
 
     private fun startActivity(): ActivityController<MainActivity> {
+        // An in-memory container, so no background Room query races the on-disk database at teardown.
+        val app = TestAppContainer(temporaryFolder).also { test = it }
+        ApplicationProvider.getApplicationContext<DogWalkBuddyApp>().container = app.container
         val controller = Robolectric.buildActivity(MainActivity::class.java).setup()
         controller.get().setContent { DogWalkBuddyTheme { if (recordingShown) RecordingSystemBars() } }
         idle()
