@@ -41,6 +41,7 @@ import org.junit.runner.RunWith
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.AbstractExecutorService
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -377,10 +378,14 @@ class CheckViewModelTest {
 
     @Test
     fun AC24_creating_the_view_model_makes_no_request() {
-        newViewModel()
+        val viewModel = newViewModel()
+
+        // Anything the view model launched while being created only runs once the scheduler advances.
+        settle()
 
         assertEquals(0, stub.server.requestCount)
         assertEquals(0, locationCalls)
+        assertEquals(CheckUiState.Loading, viewModel.state.value)
     }
 
     @Test
@@ -549,10 +554,18 @@ class CheckViewModelTest {
     @Test
     fun AC24_returning_to_the_screen_while_a_check_is_loading_does_not_start_a_second_request() {
         stub.enqueueFixture()
+        // The location lookup is held open so the check is genuinely still loading when the screen is shown again.
+        val release = CompletableDeferred<LocationFix?>()
+        locationSource = ApproximateLocationSource { release.await() }
         val viewModel = newViewModel()
         viewModel.onOpened()
+        scheduler.runCurrent()
+        assertEquals(CheckUiState.Loading, viewModel.state.value)
 
         viewModel.onShown()
+        scheduler.runCurrent()
+        assertEquals(CheckUiState.Loading, viewModel.state.value)
+        release.complete(fix)
         viewModel.awaitSettled()
 
         assertEquals(1, stub.server.requestCount)
@@ -733,9 +746,13 @@ class CheckViewModelTest {
 
 /** Runs every task at once on the calling thread, so OkHttp finishes a call before enqueue returns. */
 private class DirectExecutorService : AbstractExecutorService() {
+    @Volatile
     private var stopped = false
 
-    override fun execute(command: Runnable) = command.run()
+    override fun execute(command: Runnable) {
+        if (stopped) throw RejectedExecutionException("executor is shut down")
+        command.run()
+    }
 
     override fun shutdown() {
         stopped = true
