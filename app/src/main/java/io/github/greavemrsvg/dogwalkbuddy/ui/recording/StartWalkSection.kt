@@ -7,13 +7,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,8 +23,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.ui.check.findActivity
 import io.github.greavemrsvg.dogwalkbuddy.ui.check.openAppSettings
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.FieldKitBottomSheet
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.PermissionExplainer
 import io.github.greavemrsvg.dogwalkbuddy.ui.common.StartWalkButton
-import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitSpacing
 
 /** Test tag of the full-width Start walk (or "Walk in progress") button on Today. */
 const val START_WALK_TAG = "start_walk"
@@ -86,6 +82,7 @@ fun StartWalkRoute(
         },
         onOpenSettings = { context.openAppSettings() },
         modifier = modifier,
+        onDismissExplanation = viewModel::onExplanationDismissed,
     )
 }
 
@@ -93,7 +90,11 @@ private fun needsNotificationPermission(context: Context): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
         ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
 
-/** The Start walk button, with the precise location explanation under it when the walk could not start (AC33). */
+/**
+ * The Start walk button. When the walk could not start for want of precise location, the explanation opens in a
+ * bottom sheet over Today (AC32, MVP AC33), so Today's layout and its disclaimer stay as they are. Dismissing the
+ * sheet calls [onDismissExplanation]; no walk starts.
+ */
 @Composable
 fun StartWalkContent(
     state: StartWalkUiState,
@@ -101,31 +102,41 @@ fun StartWalkContent(
     onGrantPrecise: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    onDismissExplanation: () -> Unit = {},
 ) {
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        val label =
-            if (state == StartWalkUiState.InProgress) R.string.home_walk_in_progress else R.string.home_start_walk
-        StartWalkButton(
-            label = stringResource(label),
-            icon = R.drawable.ic_play,
-            onClick = onStart,
-            modifier = Modifier.testTag(START_WALK_TAG),
-        )
-        when (state) {
-            StartWalkUiState.NeedsPreciseLocation -> PrecisePrompt(R.string.walk_grant_precise_location, onGrantPrecise)
-            StartWalkUiState.PreciseLocationBlocked -> PrecisePrompt(R.string.walk_open_settings, onOpenSettings)
-            StartWalkUiState.Idle, StartWalkUiState.InProgress -> Unit
-        }
+    val label = if (state == StartWalkUiState.InProgress) R.string.home_walk_in_progress else R.string.home_start_walk
+    StartWalkButton(
+        label = stringResource(label),
+        icon = R.drawable.ic_play,
+        onClick = onStart,
+        modifier = modifier.testTag(START_WALK_TAG),
+    )
+    when (state) {
+        StartWalkUiState.NeedsPreciseLocation ->
+            PreciseLocationSheet(R.string.walk_grant_precise_location, onGrantPrecise, onDismissExplanation)
+        StartWalkUiState.PreciseLocationBlocked ->
+            PreciseLocationSheet(R.string.walk_open_settings, onOpenSettings, onDismissExplanation)
+        StartWalkUiState.Idle, StartWalkUiState.InProgress -> Unit
     }
 }
 
 @Composable
-private fun PrecisePrompt(
+private fun PreciseLocationSheet(
     @StringRes actionLabel: Int,
     onAction: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    Text(stringResource(R.string.walk_needs_precise_location), style = MaterialTheme.typography.bodyLarge)
-    Button(onClick = onAction, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
-        Text(stringResource(actionLabel))
+    FieldKitBottomSheet(onDismissRequest = onDismiss) {
+        PermissionExplainer(
+            illustrationIcon = R.drawable.ic_walk,
+            heading = stringResource(R.string.walk_needs_precise_location),
+            buttonLabel = stringResource(actionLabel),
+            onButton = onAction,
+            illustrationHeight = SheetIllustrationHeight,
+            modifier = Modifier.padding(start = FieldKitSpacing.gutter, end = FieldKitSpacing.gutter, bottom = FieldKitSpacing.gutter),
+        )
     }
 }
+
+// Shorter than the full-screen explanation, so the sheet stays within thumb reach.
+private val SheetIllustrationHeight = 160.dp

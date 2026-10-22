@@ -45,6 +45,9 @@ class BestWindowFormatter(
             }
         }
 
+    /** The strip's hour labels, in the same zone and the same device time format as the window text (AC23). */
+    fun hourLabelFormat(): HourLabelFormat = HourLabelFormat(zone, is24HourFormat())
+
     private fun time(instant: Instant): String {
         val pattern = if (is24HourFormat()) "HH:mm" else "h:mm a"
         return DateTimeFormatter.ofPattern(pattern, Locale.UK).withZone(zone).format(instant)

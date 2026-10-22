@@ -26,7 +26,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -105,6 +107,7 @@ class CheckViewModelTest {
         logError: (String) -> Unit = {},
         dogName: Flow<String?> = flowOf(null),
         isOnline: () -> Boolean = { true },
+        connectivityChanges: Flow<Unit> = emptyFlow(),
     ) = CheckViewModel(
         repository = repo,
         locationSource =
@@ -120,6 +123,7 @@ class CheckViewModelTest {
         logError = logError,
         dogName = dogName,
         isOnline = isOnline,
+        connectivityChanges = connectivityChanges,
     )
 
     // Runs everything that is scheduled, including virtual-time delays such as the location timeout.
@@ -872,6 +876,31 @@ class CheckViewModelTest {
         viewModel.awaitSettled()
 
         assertEquals(listOf(IllegalStateException::class.java.name), logged)
+    }
+
+    @Test
+    fun UX_AC21_the_offline_lead_follows_a_network_change_while_today_stays_open() {
+        stub.enqueueFixture()
+        newViewModel().apply {
+            onOpened()
+            awaitSettled()
+        }
+        clock.advance(Duration.ofMinutes(90))
+        locationSource = ApproximateLocationSource { null }
+        var online = true
+        val changes = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val viewModel = newViewModel(isOnline = { online }, connectivityChanges = changes)
+        viewModel.onOpened()
+        assertFalse(rated(viewModel.awaitSettled()).isOffline)
+
+        online = false
+        changes.tryEmit(Unit)
+        assertTrue(rated(viewModel.awaitSettled()).isOffline)
+
+        online = true
+        changes.tryEmit(Unit)
+        assertFalse(rated(viewModel.awaitSettled()).isOffline)
+        assertEquals(1, stub.server.requestCount)
     }
 
     private companion object {

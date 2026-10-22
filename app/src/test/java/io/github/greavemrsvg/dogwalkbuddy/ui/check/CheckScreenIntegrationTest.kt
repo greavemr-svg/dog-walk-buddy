@@ -161,9 +161,9 @@ class CheckScreenIntegrationTest {
 
         showApp()
         // The state leaves Loading on the ViewModel's own dispatch, so wait for the explanation instead of reading at once.
-        awaitText("The check needs your approximate location.")
+        awaitText("The check needs your approximate location")
 
-        composeRule.onNodeWithText("The check needs your approximate location.").assertIsDisplayed()
+        composeRule.onNodeWithText("The check needs your approximate location").assertIsDisplayed()
         composeRule.onNodeWithText("Allow approximate location").assertIsDisplayed()
         assertEquals(0, test.stub.server.requestCount)
     }
@@ -180,7 +180,7 @@ class CheckScreenIntegrationTest {
 
         composeRule.onNodeWithText("Go", useUnmergedTree = true).assertIsDisplayed()
         composeRule.onNodeWithText("Good conditions for a walk", useUnmergedTree = true).assertIsDisplayed()
-        composeRule.onNodeWithText("Best walking window").assertIsDisplayed()
+        composeRule.onNodeWithText("Best window, next 12 hours").assertIsDisplayed()
     }
 
     @Test
@@ -193,7 +193,7 @@ class CheckScreenIntegrationTest {
         showApp()
         awaitText("Can't check right now")
 
-        composeRule.onNodeWithText("Retry").assertIsDisplayed()
+        composeRule.onNodeWithText("Try again").assertIsDisplayed()
         composeRule.onNodeWithText("Good conditions for a walk", useUnmergedTree = true).assertDoesNotExist()
         composeRule.onNodeWithText("Go", useUnmergedTree = true).assertDoesNotExist()
     }
@@ -204,7 +204,7 @@ class CheckScreenIntegrationTest {
         showApp()
         awaitText("Can't check right now")
 
-        composeRule.onNodeWithText("Retry").performClick()
+        composeRule.onNodeWithText("Try again").performClick()
         awaitText("Good conditions for a walk")
 
         assertEquals(2, test.stub.server.requestCount)

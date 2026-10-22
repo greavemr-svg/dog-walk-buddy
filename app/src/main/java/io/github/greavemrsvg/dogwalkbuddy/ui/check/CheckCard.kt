@@ -13,19 +13,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.semantics
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,7 +26,6 @@ import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HeatSensitivity
 import io.github.greavemrsvg.dogwalkbuddy.ui.common.InfoBanner
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitSpacing
-import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
 
 /**
  * Test tag of the hero card, whose spoken description starts "<Rating>. <Reason>." (MVP AC50) and goes on with the
@@ -51,6 +43,7 @@ fun CheckRoute(
     windowFormatter: BestWindowFormatter,
     onOpenAbout: () -> Unit,
     onOpenProfile: () -> Unit,
+    onOpenPrivacy: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -83,6 +76,7 @@ fun CheckRoute(
         onOpenAbout = onOpenAbout,
         onOpenProfile = onOpenProfile,
         onOpenSettings = { context.openAppSettings() },
+        onOpenPrivacy = onOpenPrivacy,
         modifier = modifier,
     )
 }
@@ -108,7 +102,8 @@ internal fun Context.openAppSettings() {
 /**
  * The Today check content, in the binding order of the design (AC25): header, then for a rated result the banner
  * (cached only), the hero card, the footnote and the best window; in the other states the header (title only),
- * the state's card and the footnote. [dogName] gives the title in every state (C1).
+ * the state's card and the footnote. [dogName] gives the title in every state (C1). [onOpenPrivacy] is the location
+ * explanation's "How your data is used" link (AC30).
  */
 @Composable
 fun CheckCard(
@@ -121,6 +116,7 @@ fun CheckCard(
     modifier: Modifier = Modifier,
     onOpenSettings: () -> Unit = {},
     dogName: String? = null,
+    onOpenPrivacy: () -> Unit = {},
 ) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(FieldKitSpacing.stackGap)) {
         val rated = state as? CheckUiState.Rated
@@ -132,9 +128,11 @@ fun CheckCard(
         )
         when (state) {
             CheckUiState.Loading -> LoadingHeroCard()
-            CheckUiState.NeedsLocationPermission -> LocationPrompt(onGrantPermission)
-            CheckUiState.LocationPermissionBlocked -> LocationBlocked(onOpenSettings)
-            CheckUiState.CantCheck -> CantCheck(onRefresh)
+            CheckUiState.NeedsLocationPermission ->
+                LocationExplainer(blocked = false, onGrantPermission, onOpenSettings, onOpenPrivacy)
+            CheckUiState.LocationPermissionBlocked ->
+                LocationExplainer(blocked = true, onGrantPermission, onOpenSettings, onOpenPrivacy)
+            CheckUiState.CantCheck -> CantCheckContent(onRefresh)
             is CheckUiState.Rated -> RatedResult(state)
         }
         TodayFootnote(
@@ -148,7 +146,14 @@ fun CheckCard(
             onOpenAbout = onOpenAbout,
             onOpenProfile = onOpenProfile,
         )
-        if (rated != null) WindowBlock(windowFormatter.format(rated.window))
+        if (rated != null) {
+            BestWindowCard(
+                window = rated.window,
+                text = windowFormatter.format(rated.window),
+                hours = rated.hours,
+                hourLabels = windowFormatter.hourLabelFormat(),
+            )
+        }
     }
 }
 
@@ -162,46 +167,4 @@ private fun RatedResult(state: CheckUiState.Rated) {
         )
     }
     RatingHeroCard(rating = state.current.rating, reason = state.current.reason, factors = state.factors)
-}
-
-@Composable
-private fun WindowBlock(window: BestWindowText) {
-    Column(modifier = Modifier.semantics(mergeDescendants = true) {}) {
-        Text(stringResource(R.string.check_window_heading), style = MaterialTheme.typography.titleMedium)
-        window.label?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
-        Text(window.text, style = MaterialTheme.typography.bodyLarge)
-    }
-}
-
-@Composable
-private fun StatusMessage(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-    )
-}
-
-@Composable
-private fun LocationPrompt(onGrantPermission: () -> Unit) {
-    StatusMessage(stringResource(R.string.check_needs_location))
-    Button(onClick = onGrantPermission, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
-        Text(stringResource(R.string.check_grant_location))
-    }
-}
-
-@Composable
-private fun LocationBlocked(onOpenSettings: () -> Unit) {
-    StatusMessage(stringResource(R.string.check_needs_location))
-    Button(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
-        Text(stringResource(R.string.check_open_settings))
-    }
-}
-
-@Composable
-private fun CantCheck(onRetry: () -> Unit) {
-    StatusMessage(stringResource(R.string.check_cant_check))
-    Button(onClick = onRetry, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-        Text(stringResource(R.string.check_retry))
-    }
 }

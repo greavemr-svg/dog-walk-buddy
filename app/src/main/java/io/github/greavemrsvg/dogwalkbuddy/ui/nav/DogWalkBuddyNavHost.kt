@@ -93,6 +93,7 @@ private fun NavGraphBuilder.appGraph(
                     windowFormatter = windowFormatter,
                     onOpenAbout = { navController.navigate(Routes.ABOUT) },
                     onOpenProfile = { navController.navigateToTab(Routes.PROFILE) },
+                    onOpenPrivacy = { navController.navigate(Routes.PRIVACY) },
                 )
             },
             startWalkContent = {

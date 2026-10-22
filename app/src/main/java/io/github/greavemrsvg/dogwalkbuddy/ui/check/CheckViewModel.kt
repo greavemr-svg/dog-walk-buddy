@@ -54,6 +54,8 @@ class CheckViewModel(
     dogName: Flow<String?> = flowOf(null),
     // True when the device has a validated internet connection; a cached result shows "You're offline." otherwise (AC21).
     private val isOnline: () -> Boolean = { true },
+    // Emits when the network changes, so the "You're offline." lead follows the connection while Today stays open.
+    connectivityChanges: Flow<Unit> = emptyFlow(),
 ) : ViewModel() {
     private sealed interface Source {
         data object Idle : Source
@@ -72,7 +74,8 @@ class CheckViewModel(
 
     private val source = MutableStateFlow<Source>(Source.Idle)
 
-    // Bumped when the screen is shown again, so the state is recomputed with the current time (the age label).
+    // Bumped when the screen is shown again or the network changes, so the state is recomputed with the current time
+    // (the age label) and the current connection (the offline lead).
     private val shown = MutableStateFlow(0)
     private var refreshJob: Job? = null
 
@@ -83,6 +86,7 @@ class CheckViewModel(
                 source.value = Source.Idle
             }
         }
+        viewModelScope.launch { connectivityChanges.collect { shown.update { it + 1 } } }
     }
 
     val state: StateFlow<CheckUiState> =
@@ -239,6 +243,7 @@ class CheckViewModel(
                         dataDeleted = container.deleteAllDataUseCase.deletions,
                         dogName = container.profileRepository.observeProfile().map { it?.name },
                         isOnline = container.connectivity::isOnline,
+                        connectivityChanges = container.connectivity.changes(),
                     )
                 }
             }

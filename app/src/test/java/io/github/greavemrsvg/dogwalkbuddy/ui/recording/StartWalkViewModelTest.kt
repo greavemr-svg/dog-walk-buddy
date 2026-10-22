@@ -93,6 +93,20 @@ class StartWalkViewModelTest {
     }
 
     @Test
+    fun UX_AC32_dismissing_the_explanation_returns_to_idle_and_starts_nothing() {
+        test.fineGranted = false
+        viewModel.onStartTapped()
+        awaitCondition("the explanation state") { viewModel.state.value == StartWalkUiState.NeedsPreciseLocation }
+
+        viewModel.onExplanationDismissed()
+
+        awaitCondition("the idle state") { viewModel.state.value == StartWalkUiState.Idle }
+        assertTrue(recordingWalks().isEmpty())
+        assertTrue(test.launcher.started.isEmpty())
+        assertTrue(events.isEmpty())
+    }
+
+    @Test
     fun AC33_a_refused_request_that_can_be_asked_again_keeps_the_explanation() {
         assertFalse(viewModel.onPreciseLocationResult(granted = false, canAskAgain = true))
 
