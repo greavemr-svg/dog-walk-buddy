@@ -95,10 +95,18 @@
       "depends_on": [
         2
       ],
-      "status": "in_progress",
-      "attempts": 1,
+      "status": "done",
+      "attempts": 3,
       "branch": "task/20261022-ux-redesign-3-today-hero-and-footnote",
-      "pr": null
+      "pr": 42,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-22T16:44:41Z",
+        "head": "70fe8b5",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T3.md",
+        "previous": "gates/G3-T3-attempt1.md (FAIL)"
+      },
+      "merge_commit": "81c13a0"
     },
     {
       "n": 4,
@@ -109,8 +117,8 @@
       "depends_on": [
         3
       ],
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "branch": "task/20261022-ux-redesign-4-today-window-and-states",
       "pr": null
     },
@@ -180,7 +188,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 34,
+    "agent_invocations": 48,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -264,7 +272,38 @@
     "2026-10-22T14:17:25Z gatekeeper G3 T2 (opus): PASS on 43dfcc9. Record gates/G3-T2.md; posting GATE G3: PASS on PR #41",
     "2026-10-22T14:17:25Z orchestrator: T2 invoking release integrate (squash-merge PR #41) (opus). Budget 33/200 incl. this call",
     "2026-10-22T14:22:51Z release integrate T2 (opus): PR #41 squash-merged as 9e9c259 (match-head 43dfcc9); issue #33 closed (comment 6343015344); task branch deleted; feature CI run 39794472517 queued. T2 done",
-    "2026-10-22T14:22:51Z orchestrator: T3 attempt 1: invoking developer (opus). Budget 34/200 incl. this call"
+    "2026-10-22T14:22:51Z orchestrator: T3 attempt 1: invoking developer (opus). Budget 34/200 incl. this call",
+    "2026-10-22T14:54:49Z developer T3 attempt 1 (opus): BLOCKED; branch pushed at 12bdf4b, no PR; 809 tests, 15 fail all from performScrollTo on pinned Start (4 unlisted test lines); draft PR body in scratchpad pr_body.md",
+    "2026-10-22T14:54:49Z owner: t3_start_scroll_tests -> \"Approve the change\" (performScrollTo -> assertIsDisplayed at 4 lines)",
+    "2026-10-22T14:54:49Z orchestrator: T3 continue attempt 1 (owner unblocked, not a failure): developer applies 4 edits, ci, opens PR. Budget 35/200 incl. this call",
+    "2026-10-22T15:08:01Z developer T3 (continue attempt 1, opus): DONE; PR #42 head e365516; 4 approved test edits; ci.sh exit 0, 809 tests, 98.6%, changed-lines 99% (3 missing FactorGrid L73/79/82); CI governance+build-test pass",
+    "2026-10-22T15:08:01Z orchestrator: T3 invoking tester (opus). Budget 36/200 incl. this call",
+    "2026-10-22T15:20:09Z tester T3 (opus): PASSED on 4c397bc (+7 tests RatingHeroCardTest/CheckViewModelTest); 816/0/0; reruns 3x112 pass; 98.6%, changed 99% (3 unreachable when-default lines); audit clean. Comment 6344342547 (posted inline; scratchpad write and the merge-base git subcommand were hook-blocked)",
+    "2026-10-22T15:20:09Z orchestrator: T3 developer PR-body refresh before review (lesson from T2: stale body caused CHANGES_REQUESTED). Budget 37/200 incl. this call",
+    "2026-10-22T15:21:31Z developer T3 body refresh (opus): DONE; body reflects 4c397bc (816 tests, 98.6%, changed 99%; tester tests mapped AC17/AC19/AC21); head unchanged; build-test run 39803171335 pending",
+    "2026-10-22T15:21:31Z orchestrator: T3 invoking reviewer (opus). Budget 38/200 incl. this call",
+    "2026-10-22T15:24:36Z reviewer T3 (opus): APPROVE (head 4c397bc), review 5616618928; 2 Minor + 2 Nit non-blocking, carried to T4",
+    "2026-10-22T15:24:36Z orchestrator: T3 invoking gatekeeper G3 (opus). Budget 39/200 incl. this call",
+    "2026-10-22T15:27:20Z gatekeeper G3 T3 (opus): FAIL on 4c397bc; only G3.4: AC66 emulator screenshots (light+dark) required per design L625/L773/L900 not attached. Record gates/G3-T3-attempt1.md; posted GATE G3: FAIL on PR #42. attempts -> 2",
+    "2026-10-22T15:27:20Z orchestrator: asking owner how to handle per-task AC66 screenshots (affects T3-T8)",
+    "2026-10-22T15:39:19Z owner: ac66_screenshots -> \"Use the emulator\" (developer takes light+dark emulator screenshots per screen task, T3-T8)",
+    "2026-10-22T15:39:19Z orchestrator: T3 attempt 2: invoking developer for AC66 emulator screenshots on PR #42 (opus). Budget 41/200 incl. this call (40 = G3 T3)",
+    "2026-10-22T15:55:54Z developer T3 attempt 2 (opus): DONE; 12 emulator screenshots (6 Today states x light/dark) committed a6c90ad under docs/ux-evidence/20261022-ux-redesign/task-3/; PR #42 body AC66 table; CI pass. DEFECT found: no-profile sensitivity line clips first glyph ('Jsing', 'hange') in both themes; other diffs: 'Not rated' wraps, 'Checked 0 min ago', title wraps",
+    "2026-10-22T15:55:54Z orchestrator: showed screenshots to owner; asking how to handle clipping defect",
+    "2026-10-22T15:57:51Z owner: t3_clipping \"Fix in task 3 now\"; t3_minor_diffs \"Accept as they are\"",
+    "2026-10-22T15:57:51Z orchestrator: T3 attempt 3 (last): invoking developer to fix clipping + regression test + new screenshots (opus). Budget 42/200 incl. this call",
+    "2026-10-22T16:16:42Z developer T3 attempt 3 (opus): DONE; root cause TextButton default pill shape clipping wrapped link (0 dp padding); fix TodayFootnote.kt:91 shape=RectangleShape (6bfb94a); regression TodayFootnoteClippingTest (pixel compare; failed before 381 vs 509); 817 tests, 98.6%, changed 99%; screenshots re-taken 5af107e (glyphs full, orchestrator viewed); CI pass",
+    "2026-10-22T16:16:42Z orchestrator: T3 invoking tester re-test on 5af107e (opus). Budget 43/200 incl. this call",
+    "2026-10-22T16:23:41Z tester T3 re-test (opus): PASSED on 70fe8b5 (+TodayFootnoteClippingControlTest pill vs rectangle); 819/0/0; reruns 3x pass; 98.6%, changed 99%; no existing assertion changed since 4c397bc. Comment 6345718135",
+    "2026-10-22T16:23:41Z orchestrator: T3 developer PR-body refresh to 70fe8b5 before review (attempt 3 is last). Budget 44/200 incl. this call",
+    "2026-10-22T16:24:53Z developer T3 body refresh (opus): DONE; body matches 70fe8b5 (819 tests, control tests in AC24); head unchanged",
+    "2026-10-22T16:24:53Z orchestrator: T3 invoking reviewer on 70fe8b5 (opus). Budget 45/200 incl. this call",
+    "2026-10-22T16:41:35Z reviewer T3 attempt 3 (opus): APPROVE (head 70fe8b5), review 5617681681; build-test run 39813554738 pass; 1 Minor + 2 Nit carried",
+    "2026-10-22T16:41:35Z orchestrator: T3 invoking gatekeeper G3 re-run (opus). Budget 46/200 incl. this call",
+    "2026-10-22T16:44:41Z gatekeeper G3 T3 re-run (opus): PASS on 70fe8b5. Record gates/G3-T3.md; posted on PR #42. Note: commit state.json so owner answers are durable (will commit on feature after merge)",
+    "2026-10-22T16:44:41Z orchestrator: T3 invoking release integrate (opus). Budget 47/200 incl. this call",
+    "2026-10-22T16:49:58Z release integrate T3 (opus): PR #42 squash-merged as 81c13a0 (match-head 70fe8b5); issue #34 closed (comment 6346140503); remote task branch deleted, local deleted by orchestrator; feature CI 39816594556 in progress. T3 done",
+    "2026-10-22T16:49:58Z orchestrator: T4 attempt 1: invoking developer (opus) with carry-forwards + AC66 emulator screenshots. Budget 48/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
@@ -343,6 +382,37 @@
       "question": "The Walks tab will have no Back button, so the Walks-screen test \"Back returns to the previous screen\" can't stay as it is. Its check moves into the main navigation test, where the phone's Back button on Walks must return to Today (Today highlighted, app not closed). The new check is stricter, but the old test is removed from the Walks test file. Do you approve moving it?",
       "answer": "Approve the move",
       "context": "Explicit owner approval for removing HistoryScreenTest back_returns_to_the_previous_screen (L270-276) and moving its check to NavigationTest AC35 (design attempt 3, E3); architect judged it within OD1, orchestrator asked anyway because a test is removed (CLAUDE.md)"
+    },
+    "t3_start_scroll_tests": {
+      "at": "2026-10-22T14:54:49Z",
+      "question": "Task 3 pins the Start walk button outside the scrolling area, as the spec requires (it must always be on screen). Four existing test lines first scroll to the button before tapping it, and scrolling now fails because there's nothing to scroll. These lines weren't in the approved list of test changes. The fix replaces \"scroll to Start, then tap\" with \"check Start is visible without scrolling, then tap\". That is stricter, because it also proves Start is on screen. Approve this change to the 4 lines?",
+      "answer": "Approve the change",
+      "lines": [
+        "WalkRecordingScreensTest.kt:101 (tapStart helper)",
+        "WalkRecordingScreensTest.kt:256",
+        "AppFlowIntegrationTest.kt:173",
+        "FullScreenDestinationsTest.kt:99"
+      ]
+    },
+    "ac66_screenshots": {
+      "at": "2026-10-22T15:39:19Z",
+      "question": "Gate G3 failed task 3 on one point only. The design says every screen task's PR (tasks 3-8) must include emulator screenshots in light and dark mode for the side-by-side comparison with your mock-ups (AC66), and none were taken. An Android emulator (Medium_Phone_API_37.0) is installed on this PC. How should we handle this?",
+      "answer": "Use the emulator"
+    },
+    "t3_clipping": {
+      "at": "2026-10-22T15:57:51Z",
+      "question": "With no profile set up, the sensitivity line loses its first letter (\"Jsing\", \"hange\"). How should we fix it? Task 3 is on attempt 2 of 3, so fixing it here uses its last attempt.",
+      "answer": "Fix in task 3 now"
+    },
+    "t3_minor_diffs": {
+      "at": "2026-10-22T15:57:51Z",
+      "question": "Do the smaller differences need changing?",
+      "answer": "Accept as they are",
+      "items": [
+        "'Not rated' wraps to two lines",
+        "named title wraps to two lines",
+        "'Checked 0 min ago' under a minute"
+      ]
     }
   },
   "carry_forward": [
@@ -365,6 +435,31 @@
       "from": "T2 review 5615502014 (Minor/Nit, optional)",
       "to": "later nav-touching task or backlog",
       "item": "AppChromeViewModel.kt:35 catch ends flow (label stays 'Dog' after read error); FieldKitNavBar singleLine uses dogName != null (prefer !isNullOrBlank)"
+    },
+    {
+      "from": "T3 review 5616618928 (Minor)",
+      "to": "T4",
+      "item": "CheckViewModel.kt:214 connectivity read only on state update; offline lead can go stale while Today is open. Make connectivity a flow in combine, or re-read in LifecycleStartEffect"
+    },
+    {
+      "from": "T3 review 5616618928 (Minor)",
+      "to": "T4",
+      "item": "FactorRounding.kt:18 floor(abs(x)+0.5) mis-rounds 0.49999999999999994; use BigDecimal HALF_UP or fractional compare + boundary test"
+    },
+    {
+      "from": "T3 review 5616618928 (Nits)",
+      "to": "T4 optional",
+      "item": "FactorGrid.kt:73 PAVEMENT shares mph arm (split or error()); CheckViewModel dogName param/property name clash (rename dogNameFlow)"
+    },
+    {
+      "from": "T3 review 5617681681 (Minor)",
+      "to": "T4",
+      "item": "FootnoteButton shared: 'About this advice' now has rectangular ripple; if a rounded press state is wanted use small corner radius + start padding"
+    },
+    {
+      "from": "T3 review 5617681681 (Nits)",
+      "to": "later",
+      "item": "shared pixel-count test helper for TodayFootnoteClipping tests; control test copies FootnoteButton params"
     }
   ]
 }
