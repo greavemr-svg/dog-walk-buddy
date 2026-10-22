@@ -5,6 +5,13 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -73,5 +80,39 @@ class AndroidConnectivityStatusTest {
         shadowOf(manager).setNetworkCapabilities(manager.activeNetwork, null)
 
         assertFalse(AndroidConnectivityStatus(manager).isOnline())
+    }
+
+    @Test
+    fun UX_AC21_network_changes_are_reported_while_collected_and_the_callback_is_removed_afterwards() =
+        runBlocking {
+            withTimeout(WAIT_MS) {
+                var changes = 0
+                val job = launch { AndroidConnectivityStatus(manager).changes().collect { changes++ } }
+                while (shadowOf(manager).networkCallbacks.isEmpty()) yield()
+                assertEquals(1, shadowOf(manager).networkCallbacks.size)
+
+                val callback = shadowOf(manager).networkCallbacks.single()
+                val network = manager.activeNetwork!!
+                callback.onLost(network)
+                while (changes < 1) yield()
+                callback.onAvailable(network)
+                while (changes < 2) yield()
+                callback.onCapabilitiesChanged(network, capabilities(NetworkCapabilities.NET_CAPABILITY_INTERNET))
+                while (changes < 3) yield()
+                job.cancelAndJoin()
+
+                assertEquals(3, changes)
+                assertTrue(shadowOf(manager).networkCallbacks.isEmpty())
+            }
+        }
+
+    @Test
+    fun UX_AC21_a_status_that_cannot_change_reports_no_changes() =
+        runBlocking {
+            assertEquals(emptyList<Unit>(), ConnectivityStatus { true }.changes().toList())
+        }
+
+    private companion object {
+        const val WAIT_MS = 5_000L
     }
 }

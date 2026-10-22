@@ -30,4 +30,14 @@ class FactorRoundingTest {
         assertEquals("0", FactorRounding.wholeNumber(-0.4).toString())
         assertEquals("0", FactorRounding.wholeNumber(-0.0).toString())
     }
+
+    @Test
+    fun UX_AC17_the_largest_double_below_a_half_rounds_down_not_up() {
+        // floor(x + 0.5) gave 1 here, because 0.49999999999999994 + 0.5 rounds to 1.0 in floating point.
+        assertEquals(0L, FactorRounding.wholeNumber(0.49999999999999994))
+        assertEquals("0", FactorRounding.wholeNumber(-0.49999999999999994).toString())
+        assertEquals(14L, FactorRounding.wholeNumber(Math.nextDown(14.5)))
+        assertEquals(-14L, FactorRounding.wholeNumber(-Math.nextDown(14.5)))
+        assertEquals(15L, FactorRounding.wholeNumber(Math.nextUp(14.5)))
+    }
 }

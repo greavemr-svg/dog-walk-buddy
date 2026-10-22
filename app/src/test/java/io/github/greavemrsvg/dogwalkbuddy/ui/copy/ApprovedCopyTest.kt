@@ -47,6 +47,19 @@ class ApprovedCopyTest {
             R.string.check_pavement_warm to "Warm",
             R.string.check_pavement_hot to "Hot",
             R.string.check_factor_spoken to "%1\$s %2\$s",
+            // Task 4: C2, C4, C13, D4 and D5.
+            R.string.check_window_heading to "Best window, next 12 hours",
+            R.string.check_retry to "Try again",
+            R.string.check_can_still_record_lead to "You can still record a walk.",
+            R.string.check_can_still_record to "Recording works without a connection and saves to your phone.",
+            R.string.check_cant_check_explanation to
+                "We couldn't get the weather, and there's no recent check to fall back on. Check your connection and try again.",
+            R.string.check_needs_location to "The check needs your approximate location",
+            R.string.check_location_body to "So we can get the weather where you are. Your approximate location is enough for this.",
+            R.string.check_location_bullet_rounded to "Rounded to about 1 km before it leaves your phone",
+            R.string.check_location_bullet_when to "Only sent when you open the check or tap refresh",
+            R.string.check_location_bullet_where to "Sent only to the weather service, MET Norway",
+            R.string.check_how_data_used to "How your data is used",
         )
 
     @Test

@@ -106,14 +106,14 @@
     <string name="check_rating_announcement">%1$s. %2$s.</string>
     <string name="check_loading">Checking the weather</string>
     <string name="check_cant_check">Can\'t check right now</string>
-    <string name="check_retry">Retry</string>
+    <string name="check_retry">Try again</string>
     <string name="check_refresh">Refresh</string>
-    <string name="check_needs_location">The check needs your approximate location.</string>
+    <string name="check_needs_location">The check needs your approximate location</string>
     <string name="check_grant_location">Allow approximate location</string>
     <string name="check_open_settings">Open settings</string>
     <string name="check_age_minutes">Checked %1$d min ago</string>
     <string name="check_age_hours_minutes">Checked %1$d h %2$d min ago</string>
-    <string name="check_window_heading">Best walking window</string>
+    <string name="check_window_heading">Best window, next 12 hours</string>
     <string name="check_pollen_not_included">Pollen isn\'t included in this check</string>
     <string name="check_default_sensitivity">Using normal heat sensitivity. Set up your dog\'s profile to change this.</string>
     <string name="check_disclaimer">Guidance only, not veterinary advice. If you\'re worried about your dog, contact a vet.</string>
@@ -137,6 +137,15 @@
     <string name="check_pavement_warm">Warm</string>
     <string name="check_pavement_hot">Hot</string>
     <string name="check_factor_spoken">%1$s %2$s</string>
+    <!-- Task 4 approved copy: C13, D4 and D5. -->
+    <string name="check_cant_check_explanation">We couldn\'t get the weather, and there\'s no recent check to fall back on. Check your connection and try again.</string>
+    <string name="check_can_still_record_lead">You can still record a walk.</string>
+    <string name="check_can_still_record">Recording works without a connection and saves to your phone.</string>
+    <string name="check_location_body">So we can get the weather where you are. Your approximate location is enough for this.</string>
+    <string name="check_location_bullet_rounded">Rounded to about 1 km before it leaves your phone</string>
+    <string name="check_location_bullet_when">Only sent when you open the check or tap refresh</string>
+    <string name="check_location_bullet_where">Sent only to the weather service, MET Norway</string>
+    <string name="check_how_data_used">How your data is used</string>
 
     <!-- Walk detail and map -->
     <string name="history_open_walk">Open walk details</string>

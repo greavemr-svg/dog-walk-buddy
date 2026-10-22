@@ -1,11 +1,13 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.recording
 
 import android.Manifest
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -13,6 +15,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.DogWalkBuddyApp
@@ -21,8 +26,12 @@ import io.github.greavemrsvg.dogwalkbuddy.testutil.TestAppContainer
 import io.github.greavemrsvg.dogwalkbuddy.testutil.WithPermissionRegistry
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.WithFontScale
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertAccessibleScreen
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertHeadingsMarked
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertHiddenFromAccessibility
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertIsLargeFullWidthControl
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertNoTextTruncation
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertTouchTargetIsAtLeast
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.PERMISSION_ILLUSTRATION_TAG
 import io.github.greavemrsvg.dogwalkbuddy.ui.nav.DogWalkBuddyNavHost
 import io.github.greavemrsvg.dogwalkbuddy.ui.nav.NAV_TODAY_TAG
 import io.github.greavemrsvg.dogwalkbuddy.ui.nav.NAV_WALKS_TAG
@@ -307,6 +316,60 @@ class WalkRecordingScreensTest {
         // The system will not ask again here, so the control now opens Settings.
         composeRule.onNodeWithText("Open settings").assertIsDisplayed()
         composeRule.onNodeWithText("Open settings").performClick()
+    }
+
+    @Test
+    fun UX_AC32_the_precise_location_sheet_explains_with_a_hidden_illustration_and_controls_of_at_least_48dp() {
+        test.fineGranted = false
+        showApp()
+
+        tapStart()
+
+        awaitText("Recording a walk needs precise location.")
+        composeRule.assertHeadingsMarked("Recording a walk needs precise location.")
+        composeRule.assertHiddenFromAccessibility(PERMISSION_ILLUSTRATION_TAG)
+        val allow = composeRule.onNodeWithText("Allow precise location").assertIsDisplayed()
+        allow.assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        assertTrue(allow.getBoundsInRoot().height >= 60.dp)
+        composeRule.assertAccessibleScreen()
+        assertTrue(recordingWalks().isEmpty())
+        assertTrue(test.launcher.started.isEmpty())
+    }
+
+    @Test
+    fun UX_AC32_after_a_permanent_refusal_the_sheet_offers_open_settings_of_at_least_48dp() {
+        test.fineGranted = false
+        registry = FakePermissionRegistry { emptySet() }
+        showApp()
+        tapStart()
+        awaitText("Allow precise location")
+
+        composeRule.onNodeWithText("Allow precise location").performClick()
+
+        awaitText("Open settings")
+        composeRule.onNodeWithText("Recording a walk needs precise location.").assertIsDisplayed()
+        composeRule.onNodeWithText("Open settings").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.assertHiddenFromAccessibility(PERMISSION_ILLUSTRATION_TAG)
+        assertTrue(recordingWalks().isEmpty())
+    }
+
+    @Test
+    fun UX_AC32_closing_the_sheet_from_the_scrim_starts_no_walk_and_leaves_today_as_it_was() {
+        test.fineGranted = false
+        showApp()
+        tapStart()
+        awaitText("Allow precise location")
+
+        composeRule.onNodeWithContentDescription("Close sheet").performSemanticsAction(SemanticsActions.OnClick)
+
+        composeRule.waitUntil(WAIT_MS) {
+            composeRule.onAllNodes(hasText("Allow precise location"), useUnmergedTree = true).fetchSemanticsNodes().isEmpty()
+        }
+        composeRule.onNodeWithTag(START_WALK_TAG).assertTextEquals("Start walk")
+        composeRule.onNodeWithText("Good conditions for a walk", useUnmergedTree = true).assertIsDisplayed()
+        assertTrue(recordingWalks().isEmpty())
+        assertTrue(test.launcher.started.isEmpty())
+        assertTrue(registry.requests.isEmpty())
     }
 
     @Test

@@ -15,7 +15,11 @@ object FactorRounding {
      * never -0, so -0.4 shows "0°C". `kotlin.math.round` (half to even) and `Math.round` (-2.5 to -2) are not used.
      */
     fun wholeNumber(value: Double): Long {
-        val magnitude = floor(abs(value) + HALF).toLong()
+        val size = abs(value)
+        val whole = floor(size)
+        // The fractional part is compared, not `floor(size + 0.5)`: adding 0.5 to 0.49999999999999994 rounds up to 1.0
+        // in floating point. `size - whole` is exact, so only a true half or more rounds up.
+        val magnitude = (if (size - whole >= HALF) whole + 1 else whole).toLong()
         return if (value < 0) -magnitude else magnitude
     }
 }

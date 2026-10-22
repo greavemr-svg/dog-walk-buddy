@@ -170,7 +170,7 @@ class CheckCardTest {
         show(CheckUiState.CantCheck)
 
         composeRule.onNodeWithText("Can't check right now").assertIsDisplayed()
-        composeRule.onNodeWithText("Retry").assertIsDisplayed().performClick()
+        composeRule.onNodeWithText("Try again").assertIsDisplayed().performClick()
         assertEquals(1, refreshes)
         Rating.entries.forEach { composeRule.onNodeWithText(context.getString(it.labelRes()), useUnmergedTree = true).assertDoesNotExist() }
         composeRule.onNodeWithTag(RATING_BLOCK_TAG, useUnmergedTree = true).assertDoesNotExist()
@@ -180,7 +180,7 @@ class CheckCardTest {
     fun AC22_cant_check_has_no_best_window_and_no_pollen_note() {
         show(CheckUiState.CantCheck)
 
-        composeRule.onNodeWithText("Best walking window").assertDoesNotExist()
+        composeRule.onNodeWithText("Best window, next 12 hours").assertDoesNotExist()
         composeRule.onNodeWithText("Pollen isn't included in this check").assertDoesNotExist()
     }
 
@@ -188,7 +188,7 @@ class CheckCardTest {
     fun AC25_without_permission_the_card_explains_and_offers_to_grant_it() {
         show(CheckUiState.NeedsLocationPermission)
 
-        composeRule.onNodeWithText("The check needs your approximate location.").assertIsDisplayed()
+        composeRule.onNodeWithText("The check needs your approximate location").assertIsDisplayed()
         composeRule.onNodeWithText("Allow approximate location").assertIsDisplayed().performClick()
         assertEquals(1, grants)
         composeRule.onNodeWithTag(RATING_BLOCK_TAG, useUnmergedTree = true).assertDoesNotExist()
@@ -198,7 +198,7 @@ class CheckCardTest {
     fun AC25_after_a_permanent_refusal_the_card_offers_open_settings_instead_of_the_dialog() {
         show(CheckUiState.LocationPermissionBlocked)
 
-        composeRule.onNodeWithText("The check needs your approximate location.").assertIsDisplayed()
+        composeRule.onNodeWithText("The check needs your approximate location").assertIsDisplayed()
         composeRule.onNodeWithText("Allow approximate location").assertDoesNotExist()
         composeRule.onNodeWithText("Open settings").assertIsDisplayed().performClick()
         assertEquals(1, settingsOpens)
@@ -277,7 +277,7 @@ class CheckCardTest {
     fun AC50_the_best_window_is_text_under_a_heading() {
         show(ratedState(window = BestWindow.Window(HOUR.plusSeconds(HOUR_SECONDS), NOON, Rating.CAUTION, startsNow = false)))
 
-        composeRule.onNodeWithText("Best walking window").assertIsDisplayed()
+        composeRule.onNodeWithText("Best window, next 12 hours").assertIsDisplayed()
         composeRule.onNodeWithText("Best available: Caution").assertIsDisplayed()
         composeRule.onNodeWithText("11:00-12:00").assertIsDisplayed()
     }

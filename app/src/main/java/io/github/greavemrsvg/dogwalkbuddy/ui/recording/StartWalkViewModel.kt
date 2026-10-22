@@ -82,6 +82,11 @@ class StartWalkViewModel(
         return granted
     }
 
+    /** The precise-location explanation was dismissed (scrim, Back or drag): back to Idle, and no walk starts (AC32). */
+    fun onExplanationDismissed() {
+        prompt.value = Prompt.NONE
+    }
+
     /** The screen started again: a permission granted in Settings clears the explanation. */
     fun onShown() {
         if (hasFinePermission()) prompt.value = Prompt.NONE
