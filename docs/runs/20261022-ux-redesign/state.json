@@ -2,7 +2,7 @@
   "run_id": "20261022-ux-redesign",
   "idea": "Restyle Dog Walk Buddy to the owner's UX design pack at C:/Users/greav/projects/dog-walk-buddy-ux (README.md, ux-spec.md, tokens.json, screens/*.dc.html). Owner: \"I would like to cahgne the UX to follow the designs in C:/Users/greav/projects/dog-walk-buddy-ux\". Pack rules: MVP spec/ACs win; existing strings win unless owner approves copy changes in spec; a11y floors unchanged (AC51-AC53); dark mode required.",
   "status": "in_progress",
-  "stage": "gate_a",
+  "stage": "design",
   "created_at": "2026-10-22T09:36:24Z",
   "epic_issue": 31,
   "feature_branch": "feature/20261022-ux-redesign",
@@ -19,7 +19,14 @@
       "record": "docs/runs/20261022-ux-redesign/gates/G1.md",
       "previous": "docs/runs/20261022-ux-redesign/gates/G1-attempt1.md (FAIL)"
     },
-    "spec_approval": null,
+    "spec_approval": {
+      "result": "APPROVED",
+      "at": "2026-10-22T10:25:25Z",
+      "by": "owner (greavemr-svg)",
+      "question": "Gate A: do you approve the UX redesign spec (docs/specs/20261022-ux-redesign.md, committed f9b5497)? It restyles every screen to your design pack in light and dark mode, with 67 acceptance criteria. All 53 MVP criteria stay in force. All your wording and product decisions are quoted word for word. Estimate: 8 tasks, which is the run limit.",
+      "answer": "Approve spec",
+      "spec_commit": "f9b5497"
+    },
     "G2": null,
     "G4": null,
     "G5": null,
@@ -33,7 +40,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 8,
+    "agent_invocations": 9,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1
@@ -61,7 +68,9 @@
     "2026-10-22T10:20:18Z planner (12h label edit, opus): DONE; AC23 12h labels \"2pm\"...\"1am\" (noon \"12pm\" derived); consistency risk added; no unconfirmed product choices remain",
     "2026-10-22T10:20:18Z orchestrator: invoking gatekeeper G1 re-check (opus). Budget 8/200 incl. this call",
     "2026-10-22T10:22:58Z gatekeeper G1 re-check (opus): PASS (failing none). Record gates/G1.md. Notes: commit spec, K4 cosmetic 'MVP AC50', 8 tasks = limit, fonts ADR Accepted at G2, AC23 grammar",
-    "2026-10-22T10:22:58Z orchestrator: spec committed to feature branch for Gate A review (G1 note 1); Gate A question to owner"
+    "2026-10-22T10:22:58Z orchestrator: spec committed to feature branch for Gate A review (G1 note 1); Gate A question to owner",
+    "2026-10-22T10:25:25Z owner Gate A: \"Approve spec\" (spec f9b5497)",
+    "2026-10-22T10:25:25Z orchestrator: invoking architect (design, attempt 1) model=opus. Budget 9/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
