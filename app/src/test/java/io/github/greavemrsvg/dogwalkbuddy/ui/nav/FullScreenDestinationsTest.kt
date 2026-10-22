@@ -96,7 +96,7 @@ class FullScreenDestinationsTest {
     @Test
     fun UX_AC12_recording_has_no_nav_and_back_returns_to_today() {
         showApp()
-        composeRule.onNodeWithTag(START_WALK_TAG).performScrollTo().performClick()
+        composeRule.onNodeWithTag(START_WALK_TAG).assertIsDisplayed().performClick()
         awaitText("Elapsed time")
 
         assertFullScreenAndGoBack()
