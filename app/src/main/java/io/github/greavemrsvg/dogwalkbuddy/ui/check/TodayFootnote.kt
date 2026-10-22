@@ -15,6 +15,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -86,6 +87,8 @@ private fun FootnoteButton(
     TextButton(
         onClick = onClick,
         modifier = Modifier.heightIn(min = FieldKitSizes.minTouchTarget),
+        // A pill shape would clip the first letter of each wrapped line, as the text starts at the left edge.
+        shape = RectangleShape,
         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp),
         colors = ButtonDefaults.textButtonColors(contentColor = FieldKit.colors.primary),
     ) {
