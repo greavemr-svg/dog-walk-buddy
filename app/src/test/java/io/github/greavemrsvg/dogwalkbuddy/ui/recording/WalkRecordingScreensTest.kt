@@ -3,10 +3,12 @@ package io.github.greavemrsvg.dogwalkbuddy.ui.recording
 import android.Manifest
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -22,6 +24,8 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertAccessibleScreen
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertIsLargeFullWidthControl
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertNoTextTruncation
 import io.github.greavemrsvg.dogwalkbuddy.ui.nav.DogWalkBuddyNavHost
+import io.github.greavemrsvg.dogwalkbuddy.ui.nav.NAV_TODAY_TAG
+import io.github.greavemrsvg.dogwalkbuddy.ui.nav.NAV_WALKS_TAG
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -213,7 +217,9 @@ class WalkRecordingScreensTest {
         assertEquals(1, test.launcher.stopCount)
         // The service ends the walk and clears the session. The screen then returns to Home.
         test.container.recordingStateHolder.clear()
-        awaitText("Dog Walk Buddy")
+        awaitText("Good time to walk?")
+        composeRule.onNodeWithTag(NAV_TODAY_TAG).assertIsSelected()
+        composeRule.onNodeWithText("Good time to walk?").assertIsDisplayed()
         composeRule.onNodeWithTag(START_WALK_TAG).assertTextEquals("Start walk")
     }
 
@@ -223,12 +229,32 @@ class WalkRecordingScreensTest {
         tapStart()
         awaitText("Recording your walk")
 
-        composeRule.onNodeWithText("Back").performClick()
+        composeRule.onNodeWithContentDescription("Back").performClick()
         awaitText("Walk in progress")
         composeRule.onNodeWithTag(START_WALK_TAG).assertTextEquals("Walk in progress")
         composeRule.onNodeWithTag(START_WALK_TAG).performClick()
 
         awaitText("Recording your walk")
+        assertEquals(1, recordingWalks().size)
+        assertEquals(1, test.launcher.started.size)
+    }
+
+    @Test
+    fun UX_AC16_after_leaving_recording_through_another_tab_today_shows_walk_in_progress_which_opens_recording() {
+        showApp()
+        tapStart()
+        awaitText("Elapsed time")
+        composeRule.onNodeWithContentDescription("Back").performClick()
+        composeRule.onNodeWithTag(NAV_WALKS_TAG).performClick()
+        awaitText("This week")
+
+        composeRule.onNodeWithTag(NAV_TODAY_TAG).performClick()
+
+        awaitText("Walk in progress")
+        composeRule.onNodeWithTag(NAV_TODAY_TAG).assertIsSelected()
+        composeRule.onNodeWithTag(START_WALK_TAG).assertTextEquals("Walk in progress")
+        composeRule.onNodeWithTag(START_WALK_TAG).performScrollTo().performClick()
+        awaitText("Elapsed time")
         assertEquals(1, recordingWalks().size)
         assertEquals(1, test.launcher.started.size)
     }

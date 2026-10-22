@@ -36,7 +36,6 @@ class ProfileScreenStateTest {
                     onChoosePhoto = {},
                     onRemovePhoto = {},
                     onSave = {},
-                    onBack = {},
                 )
             }
         }

@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,13 +22,13 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,6 +40,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -53,16 +56,23 @@ import io.github.greavemrsvg.dogwalkbuddy.data.repo.PhotoStore
 import io.github.greavemrsvg.dogwalkbuddy.domain.profile.ProfileError
 import io.github.greavemrsvg.dogwalkbuddy.domain.profile.ProfileValidator
 import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HeatSensitivity
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKit
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitShapes
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitSizes
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitSpacing
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
 
 private const val BYTES_PER_MB = 1024 * 1024
 private val SaveButtonHeight = 56.dp
 private val PhotoSize = 160.dp
+private val TileBorder = 1.dp
+private val TileGap = 10.dp
 
 @Composable
 fun ProfileRoute(
     viewModel: ProfileViewModel,
-    onBack: () -> Unit,
+    onOpenPrivacy: () -> Unit = {},
+    onOpenAbout: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     // Application context: the picked photo is read once, straight away, and this never leaks an Activity.
@@ -79,7 +89,8 @@ fun ProfileRoute(
         onChoosePhoto = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
         onRemovePhoto = viewModel::onRemovePhoto,
         onSave = viewModel::onSave,
-        onBack = onBack,
+        onOpenPrivacy = onOpenPrivacy,
+        onOpenAbout = onOpenAbout,
     )
 }
 
@@ -97,7 +108,8 @@ fun ProfileScreen(
     onChoosePhoto: () -> Unit,
     onRemovePhoto: () -> Unit,
     onSave: () -> Unit,
-    onBack: () -> Unit,
+    onOpenPrivacy: () -> Unit = {},
+    onOpenAbout: () -> Unit = {},
 ) {
     val nameFocus = remember { FocusRequester() }
     val breedFocus = remember { FocusRequester() }
@@ -121,9 +133,7 @@ fun ProfileScreen(
                     .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            TextButton(onClick = onBack, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                Text(stringResource(R.string.profile_back))
-            }
+            // The dog tab is a tab, so it has no back control (AC11); system Back returns to Today.
             Text(
                 text = stringResource(R.string.profile_title),
                 style = MaterialTheme.typography.headlineMedium,
@@ -141,6 +151,51 @@ fun ProfileScreen(
                 Text(stringResource(R.string.profile_save))
             }
             SaveStatus(state)
+            Tiles(onOpenPrivacy, onOpenAbout)
+        }
+    }
+}
+
+/** The "Privacy & data" and "About the advice" tiles below Save, the dog tab's way to Privacy and About (AC53). */
+@Composable
+private fun Tiles(
+    onOpenPrivacy: () -> Unit,
+    onOpenAbout: () -> Unit,
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(FieldKitSpacing.stackGap), modifier = Modifier.fillMaxWidth()) {
+        Tile(stringResource(R.string.profile_privacy_tile), R.drawable.ic_shield, onOpenPrivacy, Modifier.weight(1f))
+        Tile(stringResource(R.string.profile_about_tile), R.drawable.ic_info, onOpenAbout, Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun Tile(
+    label: String,
+    @DrawableRes icon: Int,
+    onClick: () -> Unit,
+    modifier: Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        shape = FieldKitShapes.card,
+        color = FieldKit.colors.surface,
+        contentColor = FieldKit.colors.onSurface,
+        border = BorderStroke(TileBorder, FieldKit.colors.outlineVariant),
+        modifier = modifier.heightIn(min = MinTouchTarget),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(TileGap),
+            modifier = Modifier.padding(FieldKitSpacing.gutter),
+        ) {
+            // Decorative: the label names the tile.
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = FieldKit.colors.primary,
+                modifier = Modifier.size(FieldKitSizes.iconNav),
+            )
+            Text(text = label, style = MaterialTheme.typography.labelLarge)
         }
     }
 }

@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Dog Walk Buddy</string>
-    <string name="home_title">Dog Walk Buddy</string>
-    <string name="home_dog_profile">Dog profile</string>
     <string name="home_about">About this advice</string>
     <string name="home_start_walk">Start walk</string>
     <string name="home_walk_in_progress">Walk in progress</string>
 
+    <!-- Bottom navigation (C7, C16). The third item shows the saved dog name, or nav_dog with no profile. -->
+    <string name="nav_today">Today</string>
+    <string name="nav_walks">Walks</string>
+    <string name="nav_dog">Dog</string>
+
     <!-- Walk history -->
-    <string name="home_history">Walk history</string>
-    <string name="history_title">Walk history</string>
-    <string name="history_back">Back</string>
+    <string name="history_title">Walks</string>
     <string name="history_this_week">This week</string>
     <string name="history_empty">No walks yet</string>
     <plurals name="history_walk_count">
@@ -50,7 +51,9 @@
 
     <!-- Dog profile -->
     <string name="profile_title">Dog profile</string>
-    <string name="profile_back">Back</string>
+    <!-- Dog tab tiles (D9) -->
+    <string name="profile_privacy_tile">Privacy &amp; data</string>
+    <string name="profile_about_tile">About the advice</string>
     <string name="profile_name_label">Name</string>
     <string name="profile_breed_label">Breed (optional)</string>
     <string name="profile_photo_description">Photo of your dog</string>
@@ -131,7 +134,6 @@
     <string name="map_attribution">© OpenStreetMap contributors · © OpenMapTiles</string>
 
     <!-- Privacy -->
-    <string name="home_privacy">Privacy</string>
     <string name="privacy_title">Privacy</string>
     <string name="privacy_back">Back</string>
     <string name="privacy_weather_heading">Weather check</string>

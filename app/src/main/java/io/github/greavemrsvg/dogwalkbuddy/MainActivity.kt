@@ -21,10 +21,19 @@ class MainActivity : ComponentActivity() {
 
     /**
      * The activity handles `uiMode` itself (AC7), so it is not re-created on a light/dark switch. The system bar
-     * icon colours are set once by [enableEdgeToEdge], so they are set again here for the new theme.
+     * icon colours are set once by [enableEdgeToEdge], so they are set again here for the new theme. The window
+     * background is also read from the theme only at start-up, so it is set again to the new theme's background.
      */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         enableEdgeToEdge()
+        window.setBackgroundDrawableResource(windowBackgroundFor(newConfig))
     }
+
+    private fun windowBackgroundFor(config: Configuration): Int =
+        if (config.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES) {
+            R.color.field_kit_background_dark
+        } else {
+            R.color.field_kit_background_light
+        }
 }

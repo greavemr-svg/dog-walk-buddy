@@ -17,6 +17,7 @@ import io.github.greavemrsvg.dogwalkbuddy.testutil.SyntheticImages
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
@@ -408,5 +409,18 @@ class ProfileViewModelTest {
 
             assertTrue(photoFiles().isEmpty())
             assertNull(repository.observeProfile().first()!!.photoFileName)
+        }
+
+    @Test
+    fun UX_AC15_after_delete_all_my_data_the_form_forgets_the_profile_it_loaded() =
+        runTest {
+            repository.save(ProfileInput("Biscuit", "Collie"), HeatSensitivity.SENSITIVE, PhotoChange.Keep)
+            val deleted = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+            val viewModel = ProfileViewModel(repository, deleted)
+            assertEquals("Biscuit", viewModel.state.value.name)
+
+            deleted.tryEmit(Unit)
+
+            assertEquals(ProfileUiState(isLoaded = true), viewModel.state.value)
         }
 }

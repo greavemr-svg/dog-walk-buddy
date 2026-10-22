@@ -74,7 +74,7 @@ class ProfileScreenTest {
         openDatabaseAndViewModel()
         composeRule.setContent {
             DogWalkBuddyTheme {
-                viewModel?.let { current -> key(current) { ProfileRoute(viewModel = current, onBack = {}) } }
+                viewModel?.let { current -> key(current) { ProfileRoute(viewModel = current) } }
             }
         }
     }
@@ -318,6 +318,7 @@ class ProfileScreenTest {
         composeRule.onNodeWithText("Choose photo").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
         composeRule.onNodeWithText("Save profile").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
         composeRule.onNodeWithText("Normal").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
-        composeRule.onNodeWithText("Back").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.onNodeWithText("Privacy & data").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.onNodeWithText("About the advice").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
     }
 }

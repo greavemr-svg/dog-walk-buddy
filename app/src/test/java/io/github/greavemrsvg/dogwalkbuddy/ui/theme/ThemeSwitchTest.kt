@@ -1,6 +1,7 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.theme
 
 import android.content.res.Configuration
+import android.graphics.drawable.ColorDrawable
 import android.os.Looper
 import androidx.activity.compose.setContent
 import androidx.compose.material3.ColorScheme
@@ -9,6 +10,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModel
@@ -100,6 +102,25 @@ class ThemeSwitchTest {
         assertEquals(LightFieldKitColors, seen.last().colors)
         assertSame(first.state, seen.last().state)
         assertTrue(lightStatusBarIcons(activity))
+        controller.pause().stop().destroy()
+    }
+
+    private fun windowBackground(activity: MainActivity): Int = (activity.window.decorView.background as ColorDrawable).color
+
+    @Test
+    fun UX_AC7_the_window_background_follows_a_theme_switch() {
+        val controller = Robolectric.buildActivity(MainActivity::class.java).setup()
+        val activity = controller.get()
+        idle()
+        assertEquals(LightFieldKitColors.background.toArgb(), windowBackground(activity))
+
+        switchNightMode(controller, night = true)
+
+        assertEquals(DarkFieldKitColors.background.toArgb(), windowBackground(activity))
+
+        switchNightMode(controller, night = false)
+
+        assertEquals(LightFieldKitColors.background.toArgb(), windowBackground(activity))
         controller.pause().stop().destroy()
     }
 

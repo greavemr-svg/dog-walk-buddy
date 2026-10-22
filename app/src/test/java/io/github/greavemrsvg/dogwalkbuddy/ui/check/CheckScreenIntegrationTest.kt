@@ -6,6 +6,8 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -17,6 +19,8 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.WithFontScale
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertAccessibleScreen
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertNoTextTruncation
 import io.github.greavemrsvg.dogwalkbuddy.ui.nav.DogWalkBuddyNavHost
+import io.github.greavemrsvg.dogwalkbuddy.ui.nav.NAV_DOG_TAG
+import io.github.greavemrsvg.dogwalkbuddy.ui.nav.NAV_TODAY_TAG
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -140,11 +144,11 @@ class CheckScreenIntegrationTest {
         test.stub.enqueueFixture()
         showApp()
         awaitText("Good conditions for a walk")
-        composeRule.onAllNodesWithAboutLink()[1].performClick()
+        composeRule.onAllNodesWithAboutLink()[0].performClick()
         composeRule.onNodeWithText("Rating thresholds").assertIsDisplayed()
         composeRule.assertAccessibleScreen()
 
-        composeRule.onNodeWithText("Back").performClick()
+        composeRule.onNodeWithContentDescription("Back").performClick()
 
         composeRule.onNodeWithText("Good time to walk?").assertIsDisplayed()
         // Returning shows the result already in memory. It does not make another weather request.
@@ -242,13 +246,13 @@ class CheckScreenIntegrationTest {
         enqueueTemperature(17.0)
         showApp()
         awaitText("Good conditions for a walk")
-        composeRule.onNodeWithText("Dog profile").performClick()
+        composeRule.onNodeWithTag(NAV_DOG_TAG).performClick()
         composeRule.onAllNodes(hasSetTextAction())[0].performTextInput("Biscuit")
         composeRule.onNodeWithText("Sensitive").performClick()
         composeRule.onNodeWithText("Save profile").performClick()
         awaitText("Profile saved")
 
-        composeRule.onNodeWithText("Back").performClick()
+        composeRule.onNodeWithTag(NAV_TODAY_TAG).performClick()
 
         awaitText("Warm: keep it short and bring water")
         composeRule.onNodeWithText("Caution", useUnmergedTree = true).assertIsDisplayed()

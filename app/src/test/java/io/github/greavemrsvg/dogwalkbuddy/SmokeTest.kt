@@ -1,6 +1,9 @@
 package io.github.greavemrsvg.dogwalkbuddy
 
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -9,6 +12,7 @@ import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
 import io.github.greavemrsvg.dogwalkbuddy.testutil.FakeMapCacheClearer
 import io.github.greavemrsvg.dogwalkbuddy.testutil.FakeRouteMap
 import io.github.greavemrsvg.dogwalkbuddy.testutil.FakeWalkServiceLauncher
+import io.github.greavemrsvg.dogwalkbuddy.ui.nav.NAV_TODAY_TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.emptyFlow
@@ -32,7 +36,8 @@ class SmokeTest {
 
     @Test
     fun home_screen_shows_the_app_title() {
-        composeRule.onNodeWithText("Dog Walk Buddy").assertExists()
+        composeRule.onNodeWithTag(NAV_TODAY_TAG).assertIsSelected()
+        composeRule.onNodeWithText("Good time to walk?").assertIsDisplayed()
     }
 
     @Test

@@ -89,7 +89,6 @@ fun HistoryRoute(
     viewModel: HistoryViewModel,
     zoneId: ZoneId,
     is24Hour: Boolean,
-    onBack: () -> Unit,
     modifier: Modifier = Modifier,
     debugActions: List<DebugAction> = emptyList(),
     onOpenWalk: (Long) -> Unit = {},
@@ -101,7 +100,6 @@ fun HistoryRoute(
     HistoryContent(
         state = state,
         formats = formats,
-        onBack = onBack,
         onRequestDelete = viewModel::requestDelete,
         onConfirmDelete = viewModel::confirmDelete,
         onCancelDelete = viewModel::cancelDelete,
@@ -116,7 +114,6 @@ fun HistoryRoute(
 fun HistoryContent(
     state: HistoryUiState,
     formats: WalkDateFormats,
-    onBack: () -> Unit,
     onRequestDelete: (WalkSummary) -> Unit,
     onConfirmDelete: () -> Unit,
     onCancelDelete: () -> Unit,
@@ -142,7 +139,6 @@ fun HistoryContent(
         HistoryBody(
             state,
             formats,
-            onBack,
             onRequestDelete,
             onConfirmDelete,
             onCancelDelete,
@@ -157,7 +153,6 @@ fun HistoryContent(
 private fun HistoryBody(
     state: HistoryUiState,
     formats: WalkDateFormats,
-    onBack: () -> Unit,
     onRequestDelete: (WalkSummary) -> Unit,
     onConfirmDelete: () -> Unit,
     onCancelDelete: () -> Unit,
@@ -167,11 +162,9 @@ private fun HistoryBody(
 ) {
     Surface(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                TextButton(onClick = onBack, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                    Text(stringResource(R.string.history_back))
-                }
-                if (debugActions.isNotEmpty()) DebugMenu(debugActions)
+            // Walks is a tab, so it has no back control (AC11); system Back returns to Today.
+            if (debugActions.isNotEmpty()) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { DebugMenu(debugActions) }
             }
             LazyColumn(
                 modifier = Modifier.fillMaxSize().testTag(HISTORY_LIST_TAG),

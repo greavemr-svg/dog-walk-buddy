@@ -21,6 +21,13 @@ class ApprovedCopyTest {
         mapOf(
             R.string.about_font_bricolage_heading to "Bricolage Grotesque",
             R.string.about_font_figtree_heading to "Figtree",
+            // Task 2: C7, C16 and the D9 tiles.
+            R.string.history_title to "Walks",
+            R.string.nav_today to "Today",
+            R.string.nav_walks to "Walks",
+            R.string.nav_dog to "Dog",
+            R.string.profile_privacy_tile to "Privacy & data",
+            R.string.profile_about_tile to "About the advice",
         )
 
     @Test

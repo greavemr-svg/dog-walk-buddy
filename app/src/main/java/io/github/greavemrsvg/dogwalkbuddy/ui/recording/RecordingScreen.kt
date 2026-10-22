@@ -19,7 +19,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,7 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.LiveWalkFormat
 import io.github.greavemrsvg.dogwalkbuddy.service.RecordingSession
-import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.BackButton
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.StartStopMinHeight
 import kotlinx.coroutines.delay
 import java.time.Clock
@@ -127,9 +126,7 @@ fun RecordingContent(
                     .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            TextButton(onClick = onBack, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                Text(stringResource(R.string.recording_back))
-            }
+            BackButton(onClick = onBack, contentDescription = stringResource(R.string.recording_back))
             Text(
                 text = stringResource(R.string.recording_title),
                 style = MaterialTheme.typography.headlineMedium,
