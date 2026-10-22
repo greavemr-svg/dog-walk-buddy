@@ -6,8 +6,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkStatus
+import io.github.greavemrsvg.dogwalkbuddy.domain.location.LatLon
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LocationFix
 import io.github.greavemrsvg.dogwalkbuddy.testutil.MutableClock
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -134,5 +136,27 @@ class WalkRepositoryTest {
             assertEquals(listOf(walk.id), repository.recordingWalks().map { it.id })
             assertNotNull(repository.walk(walk.id))
             assertNull(repository.walk(walk.id + 100))
+        }
+
+    @Test
+    fun UX_AC35_the_route_flow_emits_the_walks_positions_in_order_and_again_after_each_stored_fix() =
+        runBlocking {
+            val walk = repository.startWalk()
+            val other = repository.startWalk()
+            repository.recordFix(other.id, 0, LocationFix(52.0, 1.0, 5.0, start), 0.0)
+            assertEquals(emptyList<LatLon>(), repository.observeRoutePoints(walk.id).first())
+
+            repository.recordFix(walk.id, 1, LocationFix(51.501, -0.121, 5.0, start.plusSeconds(6)), 10.0)
+            repository.recordFix(walk.id, 0, LocationFix(51.5, -0.12, 5.0, start.plusSeconds(3)), 0.0)
+            assertEquals(
+                listOf(LatLon(51.5, -0.12), LatLon(51.501, -0.121)),
+                repository.observeRoutePoints(walk.id).first(),
+            )
+
+            repository.recordFix(walk.id, 2, LocationFix(51.502, -0.122, 5.0, start.plusSeconds(9)), 20.0)
+            assertEquals(
+                listOf(LatLon(51.5, -0.12), LatLon(51.501, -0.121), LatLon(51.502, -0.122)),
+                repository.observeRoutePoints(walk.id).first(),
+            )
         }
 }

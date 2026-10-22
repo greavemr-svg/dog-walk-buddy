@@ -35,6 +35,7 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.recording.RecordingRoute
 import io.github.greavemrsvg.dogwalkbuddy.ui.recording.RecordingViewModel
 import io.github.greavemrsvg.dogwalkbuddy.ui.recording.StartWalkRoute
 import io.github.greavemrsvg.dogwalkbuddy.ui.recording.StartWalkViewModel
+import io.github.greavemrsvg.dogwalkbuddy.ui.recording.StartedTimeFormat
 import io.github.greavemrsvg.dogwalkbuddy.ui.walkdetail.WalkDetailRoute
 import io.github.greavemrsvg.dogwalkbuddy.ui.walkdetail.WalkDetailViewModel
 
@@ -108,6 +109,7 @@ private fun NavGraphBuilder.appGraph(
         RecordingRoute(
             viewModel = viewModel(factory = RecordingViewModel.factory(container)),
             clock = container.clock,
+            startedFormat = remember(container) { StartedTimeFormat(container.zoneId, container.is24HourFormat()) },
             onClose = { navController.popBackStack() },
         )
     }

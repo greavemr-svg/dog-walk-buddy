@@ -60,6 +60,14 @@ class ApprovedCopyTest {
             R.string.check_location_bullet_when to "Only sent when you open the check or tap refresh",
             R.string.check_location_bullet_where to "Sent only to the weather service, MET Norway",
             R.string.check_how_data_used to "How your data is used",
+            // Task 5: C5, C6, C15, C18 and D6.
+            R.string.recording_title to "Recording walk",
+            R.string.recording_stop to "Stop and save walk",
+            R.string.recording_started_label to "Started",
+            R.string.recording_route_label to "Route so far",
+            R.string.recording_route_caption to "Route so far · saved on this phone",
+            R.string.recording_tip to
+                "Pop your phone in your pocket. Recording carries on with the screen off, and a notification shows while it's on.",
         )
 
     @Test
@@ -76,5 +84,21 @@ class ApprovedCopyTest {
         approved.forEach { (resId, text) ->
             assertEquals(resources.getResourceEntryName(resId), text, resources.getString(resId))
         }
+    }
+
+    @Test
+    fun UX_AC63_the_task_5_duration_words_read_exactly_as_approved_in_the_singular_and_plural() {
+        assertEquals("1 hour", resources.getQuantityString(R.plurals.duration_hours, 1, 1))
+        assertEquals("2 hours", resources.getQuantityString(R.plurals.duration_hours, 2, 2))
+        assertEquals("1 minute", resources.getQuantityString(R.plurals.duration_minutes, 1, 1))
+        assertEquals("23 minutes", resources.getQuantityString(R.plurals.duration_minutes, 23, 23))
+        assertEquals("1 second", resources.getQuantityString(R.plurals.duration_seconds, 1, 1))
+        assertEquals("0 seconds", resources.getQuantityString(R.plurals.duration_seconds, 0, 0))
+        assertEquals("41 seconds", resources.getQuantityString(R.plurals.duration_seconds, 41, 41))
+    }
+
+    @Test
+    fun UX_AC33_the_notification_title_stays_recording_your_walk() {
+        assertEquals("Recording your walk", resources.getString(R.string.recording_notification_title))
     }
 }

@@ -37,13 +37,29 @@
     <string name="walk_needs_precise_location">Recording a walk needs precise location.</string>
     <string name="walk_grant_precise_location">Allow precise location</string>
     <string name="walk_open_settings">Open settings</string>
-    <string name="recording_title">Recording your walk</string>
+    <string name="recording_title">Recording walk</string>
     <string name="recording_back">Back</string>
     <string name="recording_elapsed_label">Elapsed time</string>
     <string name="recording_distance_label">Distance</string>
     <string name="recording_distance_miles">%1$s mi</string>
-    <string name="recording_stop">Stop</string>
+    <string name="recording_stop">Stop and save walk</string>
     <string name="recording_stopping">Saving your walk</string>
+    <string name="recording_started_label">Started</string>
+    <string name="recording_route_label">Route so far</string>
+    <string name="recording_route_caption">Route so far · saved on this phone</string>
+    <string name="recording_tip">Pop your phone in your pocket. Recording carries on with the screen off, and a notification shows while it\'s on.</string>
+    <plurals name="duration_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
     <string name="recording_notifications_off">Notifications are off. Your walk is still being recorded.</string>
     <string name="recording_notification_channel">Walk recording</string>
     <string name="recording_notification_title">Recording your walk</string>

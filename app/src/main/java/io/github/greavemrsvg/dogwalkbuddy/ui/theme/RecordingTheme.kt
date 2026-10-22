@@ -41,6 +41,11 @@ val RecordingColorScheme: ColorScheme =
         surfaceContainerHighest = RecordingPalette.card,
         surfaceContainerLow = RecordingPalette.card,
         surfaceContainerLowest = RecordingPalette.background,
+        // Recording is dark, so any error uses the dark Field Kit error roles rather than Material defaults.
+        error = DarkFieldKitColors.error,
+        onError = DarkFieldKitColors.onError,
+        errorContainer = DarkFieldKitColors.errorOutline,
+        onErrorContainer = DarkFieldKitColors.errorText,
     )
 
 /** Wraps the Recording screen in its always-dark palette, whatever the system theme (AC4, ADR 0007). */

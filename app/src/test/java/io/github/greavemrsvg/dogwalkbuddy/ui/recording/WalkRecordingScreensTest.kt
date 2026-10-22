@@ -149,11 +149,11 @@ class WalkRecordingScreensTest {
         showApp()
 
         tapStart()
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
 
         assertEquals(1, recordingWalks().size)
         assertEquals(recordingWalks().single().id, test.launcher.started.single())
-        composeRule.onNodeWithTag(ELAPSED_TAG).assertTextContains("0:00")
+        composeRule.onNodeWithTag(ELAPSED_TAG).assertTextContains("0:00:00")
         composeRule.onNodeWithTag(DISTANCE_TAG).assertTextContains("0.0 mi")
         // Precise location was already granted, so there was no location request. Notifications were granted too.
         assertTrue(registry.requests.isEmpty())
@@ -163,14 +163,14 @@ class WalkRecordingScreensTest {
     fun AC28_the_elapsed_time_and_distance_update_while_the_screen_is_shown() {
         showApp()
         tapStart()
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
 
         test.clock.advance(Duration.ofMinutes(12))
         composeRule.mainClock.advanceTimeBy(2_000)
         test.container.recordingStateHolder.updateDistance(1609.344)
 
         composeRule.waitUntil(WAIT_MS) {
-            composeRule.onAllNodes(hasText("0:12", substring = true)).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodes(hasText("0:12:00", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
         composeRule.onNodeWithTag(DISTANCE_TAG).assertTextContains("1.0 mi")
     }
@@ -179,13 +179,13 @@ class WalkRecordingScreensTest {
     fun AC29_the_elapsed_time_includes_ten_minutes_with_the_screen_away() {
         showApp()
         tapStart()
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
 
         test.clock.advance(Duration.ofMinutes(10))
         composeRule.mainClock.advanceTimeBy(2_000)
 
         composeRule.waitUntil(WAIT_MS) {
-            composeRule.onAllNodes(hasText("0:10", substring = true)).fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodes(hasText("0:10:00", substring = true)).fetchSemanticsNodes().isNotEmpty()
         }
     }
 
@@ -193,7 +193,7 @@ class WalkRecordingScreensTest {
     fun AC51_stop_is_at_least_72dp_high_and_full_width_and_the_recording_screen_is_accessible() {
         showApp()
         tapStart()
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
 
         composeRule.onNodeWithTag(STOP_WALK_TAG).assertIsLargeFullWidthControl(composeRule)
         composeRule.assertAccessibleScreen()
@@ -203,10 +203,10 @@ class WalkRecordingScreensTest {
     fun AC52_the_recording_screen_at_the_largest_font_size_is_not_truncated_and_stop_is_readable() {
         showApp(fontScale = 2.0f)
         tapStart()
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
 
         composeRule.assertNoTextTruncation()
-        composeRule.onNodeWithTag(STOP_WALK_TAG).assertTextEquals("Stop")
+        composeRule.onNodeWithTag(STOP_WALK_TAG).assertTextEquals("Stop and save walk")
         composeRule.onNodeWithTag(STOP_WALK_TAG).assertIsLargeFullWidthControl(composeRule)
     }
 
@@ -214,7 +214,7 @@ class WalkRecordingScreensTest {
     fun AC30_stop_asks_the_service_to_save_and_the_screen_closes_when_the_walk_has_ended() {
         showApp()
         tapStart()
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
 
         composeRule.onNodeWithTag(STOP_WALK_TAG).performScrollTo().performClick()
 
@@ -236,14 +236,14 @@ class WalkRecordingScreensTest {
     fun a_walk_in_progress_is_shown_on_home_and_the_control_returns_to_the_recording_screen() {
         showApp()
         tapStart()
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
 
         composeRule.onNodeWithContentDescription("Back").performClick()
         awaitText("Walk in progress")
         composeRule.onNodeWithTag(START_WALK_TAG).assertTextEquals("Walk in progress")
         composeRule.onNodeWithTag(START_WALK_TAG).performClick()
 
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
         assertEquals(1, recordingWalks().size)
         assertEquals(1, test.launcher.started.size)
     }
@@ -291,7 +291,7 @@ class WalkRecordingScreensTest {
 
         composeRule.onNodeWithText("Allow precise location").performClick()
 
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
         // Precise is requested together with approximate, as Android 12 and later require.
         assertEquals(
             listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
@@ -380,7 +380,7 @@ class WalkRecordingScreensTest {
         showApp()
 
         tapStart()
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
 
         assertEquals(listOf(listOf(Manifest.permission.POST_NOTIFICATIONS)), registry.requests)
         assertEquals(1, recordingWalks().size)
@@ -392,7 +392,7 @@ class WalkRecordingScreensTest {
         showApp()
 
         tapStart()
-        awaitText("Recording your walk")
+        awaitText("Recording walk")
 
         composeRule.onNodeWithText("Notifications are off. Your walk is still being recorded.").assertDoesNotExist()
     }
