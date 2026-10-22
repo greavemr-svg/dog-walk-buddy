@@ -2,7 +2,7 @@
   "run_id": "20261019-dog-walk-buddy-mvp",
   "idea": "Dog Walk Buddy: an Android app that helps UK dog owners decide when it's safe and pleasant to walk their dog, and keeps a simple record of their walks.\n\nUsers: everyday dog owners in the UK, using the app quickly before heading out, often one-handed.\n\nFirst release (MVP):\n1. \"Good time to walk?\" check for the user's current location:\n   - Combines temperature, rain, wind, a hot-pavement warning (estimated from air temperature and sunshine) and pollen level.\n   - Shows one clear result: Go / Caution / Avoid, with the main reason in plain words.\n   - Shows the best walking window in the next 12 hours.\n2. One-tap walk logging:\n   - Start/stop a walk; records duration, distance and route via GPS.\n   - Walk history list and weekly totals (walks, time, distance).\n   - Walk logging must work offline.\n3. Dog profile: name, breed, photo, and a heat-sensitivity setting (normal / sensitive) that makes heat warnings stricter.\n\nConstraints:\n- Android only, phones only.\n- Only free data sources that need no paid API keys.\n- Location and walk data stay on the device; no accounts, no backend, no analytics or tracking.\n- Accessible: large touch targets, readable in bright sunlight, works with TalkBack.\n- Safety advice is framed as guidance, not veterinary advice.\n\nLater releases (not this one): dog-friendly routes nearby, multiple dogs, walk reminders, sharing walks, Wear OS.\n",
   "status": "in_progress",
-  "stage": "release",
+  "stage": "build",
   "created_at": "2026-10-19T12:17:05Z",
   "epic_issue": 7,
   "feature_branch": "feature/20261019-dog-walk-buddy-mvp",
@@ -492,6 +492,24 @@
         "at": "2026-10-21T17:21:06Z",
         "evidence": "gatekeeper G3 on d8c010f: G3.1-G3.6 met; failing []; gates/G3-T9.md; posted on PR #27"
       }
+    },
+    {
+      "n": 10,
+      "title": "Make CheckViewModelTest timing deterministic (fix task)",
+      "issue": 29,
+      "slug": "deterministic-check-tests",
+      "acs": [
+        "AC15",
+        "AC24"
+      ],
+      "depends": [
+        9
+      ],
+      "branch": "task/20261019-dog-walk-buddy-mvp-10-deterministic-check-tests",
+      "pr": null,
+      "status": "in_progress",
+      "attempts": 1,
+      "origin": "release PR #28 build-test run 39722944451 (push, 253de44) failed on CheckViewModelTest.AC24_refresh_always_makes_a_new_request (CheckViewModelTest.kt:353) while run 39722934416 (pull_request, same SHA) passed; earlier AC15 flake (audit Q-03, run 39570919217); owner decision flaky_release_ci"
     }
   ],
   "release": {
@@ -501,7 +519,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 121,
+    "agent_invocations": 122,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -824,7 +842,12 @@
     "2026-10-22T04:17:00Z orchestrator: committed 2e47d34 (audit.md + state.json) and pushed",
     "2026-10-22T04:25:45Z release prepare follow-up: BLOCKED on owner decision. Commit 3695516 docs(release): update v0.1.0 PR body with audit flags and waiver state (#7) (docs/releases/v0.1.0-pr.md only); PR #28 body PATCHed. Cause of R-02 confirmed from .github/workflows/governance.yml step 5: release PR fails on any '- [ ]' line; no waiver state. Audit complete ticked (audit.md link, 27 flags pasted, A-01 orchestrator note); Manual checks left unticked and marked waived; CI green unticked. Governance run 39722148555 FAILURE on 3695516; build-test 39722148547 pending. Agent declined to use a non-space marker to dodge the regex (would be a control workaround). Also flagged as open before G5: G-05, S-08/S-09, Dependabot PRs #1-#4 (owner .github)",
     "2026-10-22T04:25:45Z owner: waiver checkbox -> \"Tick it, marked WAIVED\" (owner_answers.g5_3_checkbox): tick Manual checks with explicit 'WAIVED by owner ... NOT done' wording citing g5_3_phone_checks, then tick CI green only once build-test and governance are both green",
-    "2026-10-22T04:25:45Z orchestrator: invoking release (prepare, follow-up 2) to apply owner decision g5_3_checkbox on PR #28. Budget 121/140 incl. this call"
+    "2026-10-22T04:25:45Z orchestrator: invoking release (prepare, follow-up 2) to apply owner decision g5_3_checkbox on PR #28. Budget 121/140 incl. this call",
+    "2026-10-22T04:40:35Z release prepare follow-up 2: BLOCKED. Commit 253de44 docs(release): record owner waiver of manual checks in v0.1.0 PR body (#7) (docs/releases/v0.1.0-pr.md only); PR body PATCHed; Manual checks ticked with WAIVED/NOT done wording citing g5_3_phone_checks + g5_3_checkbox; CI green left unticked. build-test on 253de44: run 39722934416 (pull_request) SUCCESS, run 39722944451 (push) FAILURE - CheckViewModelTest.AC24_refresh_always_makes_a_new_request AssertionError at CheckViewModelTest.kt:353 (675 tests, 1 failed) (orchestrator verified via gh pr checks + gh run view). Governance run 39722934645 FAIL (CI green unticked, expected)",
+    "2026-10-22T04:40:35Z owner: flaky release CI -> \"Fix flake as task 10\" (owner_answers.flaky_release_ci); question stated this exceeds the 8-task limit - owner approval of task 10 recorded. Stage release -> build",
+    "2026-10-22T04:40:35Z orchestrator: created sub-issue #29 for T10 (make CheckViewModelTest timing deterministic, AC15 + AC24)",
+    "2026-10-22T04:40:35Z orchestrator: found commit 26f0220 \"Update state.json\" (body \"17\", greavemr-svg, 04:33:23Z) on feature committing the orchestrator's uncommitted state.json edits; owner answered \"I made it, keep it\" (owner_answers.stray_commit_26f0220). Non-Conventional message noted for audit; no history rewrite",
+    "2026-10-22T04:40:35Z orchestrator: committing state.json, then invoking developer T10 attempt 1. Budget 122/140 incl. this call. After T10 merges: re-run G4 on new feature head, then release prepare (CI green tick) and G5"
   ],
   "bootstrap": true,
   "owner_answers": {
@@ -934,9 +957,19 @@
       "at": "2026-10-22T04:25:45Z",
       "question": "The release agent stopped and needs your decision. PR #28's governance check fails whenever any checklist box in the PR body is unticked (`- [ ]`); it has no way to record a waiver. 'Manual checks done' is unticked because the phone checks were waived, not done, and 'CI green' can't be ticked until governance passes. How should the waiver be recorded?",
       "answer": "Tick it, marked WAIVED"
+    },
+    "flaky_release_ci": {
+      "at": "2026-10-22T04:40:35Z",
+      "question": "On the release PR head (253de44, a docs-only commit), build-test passed in the pull_request run but failed in the push run. The failing test was CheckViewModelTest.AC24_refresh_always_makes_a_new_request, a timing flake. This is the second flaky test in that class; AC15 is audit flag Q-03. 'CI green' can't be ticked while a build-test run is red. What should happen?",
+      "answer": "Fix flake as task 10"
+    },
+    "stray_commit_26f0220": {
+      "at": "2026-10-22T04:40:35Z",
+      "question": "A commit I didn't make appeared on the feature branch: 26f0220 \"Update state.json\" (body \"17\"), pushed at 04:33:23Z as greavemr-svg. It commits exactly my uncommitted state.json edits, so the content is right, but the message isn't a Conventional Commit. It looks like the earlier unexplained \"stage 8\" commit. Did you make it, and how should it be handled?",
+      "answer": "I made it, keep it"
     }
   },
-  "current_task": 9,
+  "current_task": 10,
   "toolchain": {
     "JAVA_HOME": "/c/Program Files/Eclipse Adoptium/jdk-17.0.20.101-hotspot",
     "python": "/c/Users/greav/AppData/Local/Programs/Python/Python312",
@@ -980,7 +1013,9 @@
     "T6 developer did not declare live elapsed time h:mm:ss as a deviation (reviewer found it)",
     "Manual checks pending before release: AC43 (gallery delete + restart) and AC50 (TalkBack, incl. polite announcements and focus-to-error) from T4; AC48 backup/restore from T1/T8; T5 TalkBack on check screen + profile load error announcement, 200% font visual check (AC52), system location permission dialog on real phone, Open settings flow after permanent denial (and return granted), About length/scrolling on device (incl. low-end phone stutter, reviewer M1); T6 AC29 10 min locked in pocket, AC31 airplane mode + GPS 5 min, AC34 real process kill + relaunch, AC50 TalkBack Home + recording, AC52 max font + display size, Start-to-Recording under 1 s, battery 60 min, persistent notification, Android 13+ refusal of precise/notifications, Android 14-16 FGS start rules incl. refused-foreground-start path (no startForeground crash), app swiped away during recording (Samsung process killing)",
     "2026-10-22: G4 PASS record lost from working-copy state.json via duplicate-key reformat; restored from HEAD by orchestrator (see log 04:16:35Z)",
-    "2026-10-22: governance check has no waiver state for the release checklist; owner chose to tick 'Manual checks' with explicit WAIVED / NOT done wording (g5_3_checkbox). Candidate owner follow-up: add a waiver state to .github/workflows/governance.yml + docs/governance/release-checklist.md"
+    "2026-10-22: governance check has no waiver state for the release checklist; owner chose to tick 'Manual checks' with explicit WAIVED / NOT done wording (g5_3_checkbox). Candidate owner follow-up: add a waiver state to .github/workflows/governance.yml + docs/governance/release-checklist.md",
+    "2026-10-22: owner commit 26f0220 \"Update state.json\" on feature (non-Conventional message), owner-confirmed",
+    "2026-10-22: T10 is the 10th task (limit 8); owner-approved via flaky_release_ci"
   ],
   "paused": {
     "at": "2026-10-22T04:04:53Z",
