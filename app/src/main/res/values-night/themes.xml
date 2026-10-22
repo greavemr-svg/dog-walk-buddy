@@ -3,6 +3,5 @@
     <!-- Dark window theme: the Field Kit dark background (ADR 0007). -->
     <style name="Theme.DogWalkBuddy" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@color/field_kit_background_dark</item>
-        <item name="colorControlNormal">?android:attr/colorControlNormal</item>
     </style>
 </resources>
