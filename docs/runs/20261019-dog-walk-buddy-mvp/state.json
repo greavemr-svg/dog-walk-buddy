@@ -2,7 +2,7 @@
   "run_id": "20261019-dog-walk-buddy-mvp",
   "idea": "Dog Walk Buddy: an Android app that helps UK dog owners decide when it's safe and pleasant to walk their dog, and keeps a simple record of their walks.\n\nUsers: everyday dog owners in the UK, using the app quickly before heading out, often one-handed.\n\nFirst release (MVP):\n1. \"Good time to walk?\" check for the user's current location:\n   - Combines temperature, rain, wind, a hot-pavement warning (estimated from air temperature and sunshine) and pollen level.\n   - Shows one clear result: Go / Caution / Avoid, with the main reason in plain words.\n   - Shows the best walking window in the next 12 hours.\n2. One-tap walk logging:\n   - Start/stop a walk; records duration, distance and route via GPS.\n   - Walk history list and weekly totals (walks, time, distance).\n   - Walk logging must work offline.\n3. Dog profile: name, breed, photo, and a heat-sensitivity setting (normal / sensitive) that makes heat warnings stricter.\n\nConstraints:\n- Android only, phones only.\n- Only free data sources that need no paid API keys.\n- Location and walk data stay on the device; no accounts, no backend, no analytics or tracking.\n- Accessible: large touch targets, readable in bright sunlight, works with TalkBack.\n- Safety advice is framed as guidance, not veterinary advice.\n\nLater releases (not this one): dog-friendly routes nearby, multiple dogs, walk reminders, sharing walks, Wear OS.\n",
   "status": "in_progress",
-  "stage": "verify",
+  "stage": "release",
   "created_at": "2026-10-19T12:17:05Z",
   "epic_issue": 7,
   "feature_branch": "feature/20261019-dog-walk-buddy-mvp",
@@ -21,8 +21,8 @@
   "gates": {
     "G4": {
       "result": "PASS",
-      "at": "2026-10-21T19:11:11Z",
-      "evidence": "gatekeeper G4 on 1abdcae: G4.1-G4.5 met; failing []; G4.4 NO_BASELINE + proposed baseline; gates/G4.md"
+      "at": "2026-10-22T07:54:30Z",
+      "evidence": "gatekeeper G4 re-run on 7b0d48c after T10 merge 2d6e741: G4.1-G4.5 met; failing []; CI push 39743013634 + PR 39743022453 success; security/perf evidence still holds (test-only change); gates/G4-7b0d48c.md (written with Write)"
     },
     "G1": {
       "result": "PASS",
@@ -58,6 +58,13 @@
         "at": "2026-10-19T15:18:10Z",
         "change": "compileSdk 36 -> 37 (targetSdk 36, minSdk 29 unchanged)",
         "evidence": "Owner answered \"The approved Compose version needs compileSdk 37, but ADR 0001 says 36. How should the stack be amended?\" with: \"compileSdk 37 (Recommended)\""
+      }
+    ],
+    "G4_history": [
+      {
+        "result": "PASS",
+        "at": "2026-10-21T19:11:11Z",
+        "evidence": "gatekeeper G4 on 1abdcae: G4.1-G4.5 met; failing []; G4.4 NO_BASELINE + proposed baseline; gates/G4.md"
       }
     ]
   },
@@ -653,7 +660,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 135,
+    "agent_invocations": 137,
     "invocation_limit": 160,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -1017,7 +1024,11 @@
     "2026-10-22T07:46:09Z gatekeeper G3 T10 re-run (opus): PASS on 6cd541b, G3.1-G3.6 met, failing []; orchestrator saved record verbatim to gates/G3-T10.md (gatekeeper write blocked by hook) and posted GATE G3: PASS with JSON on PR #30. Task-level G3 field updated via owner-approved script (task field); run-level gates{} block will still be written with Write",
     "2026-10-22T07:46:09Z orchestrator: invoking release (integrate) for PR #30 with model=opus. Budget 135/160 incl. this call",
     "2026-10-22T07:47:44Z release integrate PR #30 (opus): DONE, squash 2d6e741 into feature (merged 07:46:41Z, --match-head-commit 6cd541b), issue #29 closed manually with PR link, task branch deleted; local feature at 2d6e741 with uncommitted files intact. Release PR #28 governance re-ran on new head and FAILED as expected (CI green box unticked)",
-    "2026-10-22T07:47:44Z orchestrator: T10 done (3 attempts + PR-body fix). Stage build -> verify: G4 must be re-run on the new feature head (fix task merged). Committing run records (state.json, gates/G3-T10*.md) to feature"
+    "2026-10-22T07:47:44Z orchestrator: T10 done (3 attempts + PR-body fix). Stage build -> verify: G4 must be re-run on the new feature head (fix task merged). Committing run records (state.json, gates/G3-T10*.md) to feature",
+    "2026-10-22T07:47:56Z orchestrator: committed 7b0d48c and pushed (run records)",
+    "2026-10-22T07:47:56Z orchestrator: invoking gatekeeper G4 re-run on feature 7b0d48c (after T10 merge 2d6e741) with model=opus. Budget 136/160 incl. this call",
+    "2026-10-22T07:54:30Z gatekeeper G4 re-run (opus): PASS on 7b0d48c; G4.1-G4.5 met, failing []; security + performance not re-run (diff 1abdcae..7b0d48c test-only + CHANGELOG + docs). Record saved verbatim by orchestrator (Write) to gates/G4-7b0d48c.md; gates.G4 summary pointer updated by script (previous G4 kept in gates.G4_history). Noted for G5: release PR #28 governance FAIL (CI green unticked) + body cites old CI run 39657910806",
+    "2026-10-22T07:54:30Z orchestrator: stage verify -> release; invoking release (prepare, follow-up 3) with model=opus to refresh PR #28 (CI run refs, T10 in notes/CHANGELOG if needed, tick CI green when both checks pass on current head). Budget 137/160 incl. this call"
   ],
   "bootstrap": true,
   "owner_answers": {
