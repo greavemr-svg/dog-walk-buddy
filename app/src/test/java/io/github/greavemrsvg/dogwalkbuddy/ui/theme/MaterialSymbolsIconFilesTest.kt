@@ -1,5 +1,6 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.theme
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -41,6 +42,35 @@ class MaterialSymbolsIconFilesTest {
             val header = file.useLines { lines -> lines.first() }
             assertTrue("${file.name} header lacks the modification notice", header.contains("modified:"))
         }
+    }
+
+    @Test
+    fun the_three_rating_icons_are_the_adr_0008_symbols_with_the_platform_tint() {
+        val expected =
+            mapOf(
+                "ic_rating_go.xml" to "check_circle",
+                "ic_rating_caution.xml" to "warning",
+                "ic_rating_avoid.xml" to "dangerous",
+            )
+        val byName = iconFiles.associateBy { it.name }
+        expected.forEach { (fileName, symbol) ->
+            val file = checkNotNull(byName[fileName]) { "$fileName is not a Material Symbols Rounded file" }
+            val lines = file.readLines()
+            assertTrue("$fileName header names the $symbol symbol", lines.first().startsWith("<!-- $symbol (fill 1)."))
+            assertTrue(
+                "$fileName header names the fill 1 Rounded source file",
+                lines.first().contains("symbols/android/$symbol/materialsymbolsrounded/${symbol}_fill1_24px.xml"),
+            )
+            val tints = lines.drop(1).filter { it.contains("android:tint=") }
+            assertEquals("$fileName tint", listOf("android:tint=\"?android:attr/colorControlNormal\">"), tints.map { it.trim() })
+        }
+    }
+
+    @Test
+    fun the_guard_reads_the_real_drawable_folder() {
+        val folder = File("src/main/res/drawable")
+        assertTrue("drawable folder not found from ${File("").absolutePath}", folder.isDirectory)
+        assertTrue(File(folder, "ic_rating_go.xml").isFile)
     }
 
     private companion object {

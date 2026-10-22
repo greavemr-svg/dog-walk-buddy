@@ -3,6 +3,8 @@ package io.github.greavemrsvg.dogwalkbuddy.ui.theme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 import io.github.greavemrsvg.dogwalkbuddy.testutil.Wcag
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -169,6 +171,35 @@ class ContrastTest {
         listOf("light" to LightFieldKitColors, "dark" to DarkFieldKitColors).forEach { (name, colors) ->
             assertRatio("$name errorText on surface", colors.errorText, colors.surface, AA_TEXT)
             assertRatio("$name errorText on background", colors.errorText, colors.background, AA_TEXT)
+        }
+    }
+
+    @Test
+    fun UX_AC6_caution_and_avoid_driver_highlight_pairs_are_checked_in_light_and_dark() {
+        // assertRatingPairs skips a palette without a highlight, so the four highlights must exist for their pairs to run.
+        listOf("light" to LightRatingPalettes, "dark" to DarkRatingPalettes).forEach { (name, palettes) ->
+            listOf("Caution" to palettes.caution, "Avoid" to palettes.avoid).forEach { (rating, palette) ->
+                val highlight = checkNotNull(palette.driverHighlight) { "$name $rating has no driver highlight" }
+                assertRatio("$name $rating text on driver highlight", palette.onContainer, highlight.background, AA_TEXT)
+                assertRatio("$name $rating muted text on driver highlight", palette.onContainerMuted, highlight.background, AA_TEXT)
+            }
+        }
+    }
+
+    @Test
+    fun UX_AC6_the_contrast_check_fails_a_pair_below_its_floor() {
+        // Known WCAG values: black on white is 21:1; #777777 on white is about 4.48:1, just under the text floor.
+        assertEquals(21.0, Wcag.contrastRatio(Color.Black, Color.White), 0.001)
+        assertThrows(AssertionError::class.java) {
+            assertRatio("grey on white", Color(0xFF777777), Color.White, AA_TEXT)
+        }
+        assertThrows(AssertionError::class.java) {
+            assertRatio(
+                "light summary caption on surface",
+                LightFieldKitColors.summaryCaption,
+                LightFieldKitColors.surface,
+                AA_TEXT,
+            )
         }
     }
 
