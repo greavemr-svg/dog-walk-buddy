@@ -282,6 +282,41 @@ class CheckViewModelTest {
     }
 
     @Test
+    fun UX_AC21_no_location_fix_with_a_connection_shows_the_cached_result_without_the_offline_lead() {
+        stub.enqueueFixture()
+        newViewModel().apply {
+            onOpened()
+            awaitSettled()
+        }
+        clock.advance(Duration.ofMinutes(90))
+        locationSource = ApproximateLocationSource { null }
+
+        val online = rated(newViewModel(isOnline = { true }).apply { onOpened() }.awaitSettled())
+
+        assertTrue(online.isCached)
+        assertFalse(online.isOffline)
+        assertEquals(90L, online.ageMinutes)
+        assertEquals(1, stub.server.requestCount)
+    }
+
+    @Test
+    fun UX_AC21_no_connection_at_2h59m_shows_the_cached_result_as_offline_with_its_age() {
+        stub.enqueueFixture()
+        newViewModel().apply {
+            onOpened()
+            awaitSettled()
+        }
+        clock.advance(Duration.ofMinutes(179))
+        locationSource = ApproximateLocationSource { null }
+
+        val offline = rated(newViewModel(isOnline = { false }).apply { onOpened() }.awaitSettled())
+
+        assertTrue(offline.isCached)
+        assertTrue(offline.isOffline)
+        assertEquals(179L, offline.ageMinutes)
+    }
+
+    @Test
     fun AC22_at_3h_with_a_failing_request_there_is_no_rating() {
         stub.enqueueFixture().enqueueStatus(SERVER_ERROR)
         newViewModel().apply {

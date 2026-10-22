@@ -145,6 +145,121 @@ class RatingHeroCardTest {
     }
 
     @Test
+    fun UX_AC17_minus_2_4_shows_minus_2_minus_0_5_shows_minus_1_and_minus_0_4_shows_0_with_no_minus_sign() {
+        showConditions(HourlyConditions(HOUR, -2.4, 0.0, 5.0, 100.0), isDaylight = false)
+        show()
+        assertEquals(Reason.FREEZING, reason)
+        assertCell(Factor.AIR, "Air", "-2°C", highlighted = true)
+
+        showConditions(HourlyConditions(HOUR, -0.5, 0.0, 5.0, 100.0), isDaylight = false)
+        assertCell(Factor.AIR, "Air", "-1°C", highlighted = true)
+
+        showConditions(HourlyConditions(HOUR, -0.4, 0.0, 5.0, 100.0), isDaylight = false)
+        assertCell(Factor.AIR, "Air", "0°C", highlighted = true)
+        composeRule.onNode(hasText("-0°C"), useUnmergedTree = true).assertDoesNotExist()
+        composeRule.onNode(hasText("-0", substring = true), useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun UX_AC17_a_missing_rain_or_wind_value_reads_no_data_and_is_not_highlighted() {
+        showConditions(HourlyConditions(HOUR, 15.0, null, 5.0, 100.0), isDaylight = true)
+        show()
+        assertCell(Factor.AIR, "Air", "15°C", highlighted = false)
+        assertCell(Factor.RAIN, "Rain", "No data", highlighted = false)
+        assertCell(Factor.WIND, "Wind", "5 mph", highlighted = false)
+
+        showConditions(HourlyConditions(HOUR, 15.0, 0.0, null, 100.0), isDaylight = true)
+        assertCell(Factor.RAIN, "Rain", "0 mm/h", highlighted = false)
+        assertCell(Factor.WIND, "Wind", "No data", highlighted = false)
+    }
+
+    @Test
+    fun UX_AC17_exactly_the_cell_the_reason_names_is_highlighted_on_screen_for_every_reason() {
+        val expected =
+            mapOf(
+                Reason.GOOD to null,
+                Reason.DATA_MISSING to null,
+                Reason.WARM to Factor.AIR,
+                Reason.TOO_HOT to Factor.AIR,
+                Reason.FREEZING to Factor.AIR,
+                Reason.RAIN to Factor.RAIN,
+                Reason.HEAVY_RAIN to Factor.RAIN,
+                Reason.WINDY to Factor.WIND,
+                Reason.DANGEROUS_WINDS to Factor.WIND,
+                Reason.PAVEMENT_WARM to Factor.PAVEMENT,
+                Reason.PAVEMENT_TOO_HOT to Factor.PAVEMENT,
+            )
+        assertEquals(Reason.entries.toSet(), expected.keys)
+        rating = Rating.CAUTION
+        show()
+        expected.forEach { (current, driver) ->
+            reason = current
+            factors = FactorGrid.cells(HourlyConditions(HOUR, 15.0, 0.0, 9.0, 20.0), PavementFactor.Rated(Rating.CAUTION), current)
+            composeRule.waitForIdle()
+            Factor.entries.forEach { factor ->
+                composeRule
+                    .onNodeWithTag(factor.testTag(), useUnmergedTree = true)
+                    .assert(SemanticsMatcher.expectValue(FactorHighlighted, factor == driver))
+            }
+        }
+    }
+
+    @Test
+    fun UX_AC17_the_highlight_is_a_ring_as_well_as_a_fill_not_colour_alone() {
+        rating = Rating.CAUTION
+        reason = Reason.WINDY
+        factors = FactorGrid.cells(HourlyConditions(HOUR, 15.0, 0.0, 26.3, 100.0), PavementFactor.NotRated, Reason.WINDY)
+        show()
+        val palette = LightRatingPalettes.of(Rating.CAUTION)
+        val highlight = requireNotNull(palette.driverHighlight)
+
+        val wind = composeRule.onNodeWithTag(Factor.WIND.testTag(), useUnmergedTree = true).captureToImage().toPixelMap()
+        // Top edge, centre: 1 px down is inside the 2 dp ring; 8 px down is past the ring and inside the cell's fill.
+        assertEquals(highlight.ring, wind[wind.width / 2, 1])
+        assertEquals(highlight.background, wind[wind.width / 2, 8])
+
+        val air = composeRule.onNodeWithTag(Factor.AIR.testTag(), useUnmergedTree = true).captureToImage().toPixelMap()
+        assertEquals(palette.container, air[air.width / 2, 1])
+        assertEquals(palette.container, air[air.width / 2, 8])
+    }
+
+    @Test
+    fun UX_AC19_the_spoken_cells_use_the_shown_values_including_a_rounded_negative_and_no_data() {
+        showConditions(HourlyConditions(HOUR, -0.4, 0.0, 5.0, 100.0), isDaylight = false)
+        show()
+        assertEquals(Reason.FREEZING, reason)
+        composeRule
+            .onNodeWithTag(RATING_BLOCK_TAG)
+            .assertAnnouncesRatingThenReason(
+                RATING_WORDS.getValue(rating),
+                "Freezing: watch for ice and grit",
+                "Air 0°C, Rain 0 mm/h, Wind 5 mph, Pavement Not rated",
+            )
+
+        rating = Rating.CAUTION
+        reason = Reason.DATA_MISSING
+        factors = FactorGrid.cells(HourlyConditions(HOUR, 14.5, null, 24.6, 20.0), PavementFactor.NoData, Reason.DATA_MISSING)
+        composeRule
+            .onNodeWithTag(RATING_BLOCK_TAG)
+            .assertAnnouncesRatingThenReason(
+                "Caution",
+                "Some weather data isn't available",
+                "Air 15°C, Rain No data, Wind 25 mph, Pavement No data",
+            )
+
+        rating = Rating.AVOID
+        reason = Reason.PAVEMENT_TOO_HOT
+        factors = FactorGrid.cells(HourlyConditions(HOUR, 30.0, 0.4, 9.0, 20.0), PavementFactor.Rated(Rating.AVOID), reason)
+        composeRule
+            .onNodeWithTag(RATING_BLOCK_TAG)
+            .assertAnnouncesRatingThenReason(
+                "Avoid",
+                "Pavement likely too hot for paws",
+                "Air 30°C, Rain 0 mm/h, Wind 9 mph, Pavement Hot",
+            )
+    }
+
+    @Test
     fun UX_AC18_the_card_uses_the_rating_container_colour_and_icon_in_light() {
         assertContainerColours(LightRatingPalettes)
     }
@@ -169,5 +284,6 @@ class RatingHeroCardTest {
 
     private companion object {
         val HOUR: Instant = Instant.parse("2026-10-19T12:00:00Z")
+        val RATING_WORDS = mapOf(Rating.GO to "Go", Rating.CAUTION to "Caution", Rating.AVOID to "Avoid")
     }
 }
