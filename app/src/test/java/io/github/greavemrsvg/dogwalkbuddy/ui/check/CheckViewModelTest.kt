@@ -23,11 +23,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.withTimeout
+import okhttp3.Dispatcher
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -40,6 +40,8 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.AbstractExecutorService
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -53,6 +55,11 @@ class CheckViewModelTest {
     private lateinit var repository: CheckRepository
 
     private val fix = LocationFix(51.507351, -0.127758, accuracyM = 1000.0, timeUtc = START)
+
+    // All coroutines (viewModelScope on Main, the weather client) run on this one virtual-time scheduler and only
+    // advance when the test says so, so no assertion depends on thread timing or wall-clock time.
+    private val scheduler = TestCoroutineScheduler()
+    private val testDispatcher = StandardTestDispatcher(scheduler)
     private var permissionGranted = true
     private var locationCalls = 0
     private var locationSource = ApproximateLocationSource { fix }
@@ -61,13 +68,16 @@ class CheckViewModelTest {
 
     @Before
     fun setUp() {
-        // Real (not virtual) time on the main dispatcher, so the location timeout and OkHttp threads behave as in the app.
-        Dispatchers.setMain(Dispatchers.Unconfined)
-        stub = StubWeatherServer(temporaryFolder.newFolder())
+        Dispatchers.setMain(testDispatcher)
+        // OkHttp and Room normally finish on their own threads, which the test scheduler cannot see. Running their work
+        // on the calling thread makes every step complete inside advanceUntilIdle().
+        stub = StubWeatherServer(temporaryFolder.newFolder()) { dispatcher(Dispatcher(DirectExecutorService())) }
         database =
             Room
                 .inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), AppDatabase::class.java)
                 .allowMainThreadQueries()
+                .setQueryExecutor { it.run() }
+                .setTransactionExecutor { it.run() }
                 .build()
         clock = MutableClock(START)
         repository = repositoryOver(database.cachedCheckDao())
@@ -81,7 +91,7 @@ class CheckViewModelTest {
     }
 
     private fun repositoryOver(dao: CachedCheckDao) =
-        CheckRepository(MetNorwayClient(stub.baseUrl, stub.httpClient, Dispatchers.Unconfined), dao, clock)
+        CheckRepository(MetNorwayClient(stub.baseUrl, stub.httpClient, testDispatcher), dao, clock)
 
     private fun newViewModel(
         repo: CheckRepository = repository,
@@ -102,14 +112,22 @@ class CheckViewModelTest {
         logError = logError,
     )
 
-    private fun CheckViewModel.awaitSettled(): CheckUiState =
-        runBlocking { withTimeout(AWAIT_MS) { state.first { it !is CheckUiState.Loading } } }
+    // Runs everything that is scheduled, including virtual-time delays such as the location timeout.
+    private fun settle() = scheduler.advanceUntilIdle()
+
+    private fun CheckViewModel.awaitSettled(): CheckUiState {
+        settle()
+        return state.value.also { assertFalse("the check is still loading", it is CheckUiState.Loading) }
+    }
 
     private fun rated(state: CheckUiState) = state as CheckUiState.Rated
 
-    // The state is recomputed on the flow's own dispatch, so wait for the change instead of reading it at once.
-    private fun CheckViewModel.awaitRated(accept: (CheckUiState.Rated) -> Boolean): CheckUiState.Rated =
-        runBlocking { withTimeout(AWAIT_MS) { state.first { it is CheckUiState.Rated && accept(it) } } } as CheckUiState.Rated
+    private fun CheckViewModel.awaitRated(accept: (CheckUiState.Rated) -> Boolean): CheckUiState.Rated {
+        settle()
+        val current = rated(state.value)
+        assertTrue("the rated state was not the expected one: $current", accept(current))
+        return current
+    }
 
     private fun enqueueHours(temperatureC: Double) =
         stub.enqueueBody(MetBodies.hourly(START.minusSeconds(START.epochSecond % 3600), temperatureC))
@@ -134,6 +152,7 @@ class CheckViewModelTest {
         val viewModel = newViewModel()
 
         viewModel.onOpened()
+        settle()
 
         assertEquals(CheckUiState.NeedsLocationPermission, viewModel.state.value)
         assertEquals(0, stub.server.requestCount)
@@ -146,6 +165,7 @@ class CheckViewModelTest {
         stub.enqueueFixture()
         val viewModel = newViewModel()
         viewModel.onOpened()
+        settle()
 
         permissionGranted = true
         viewModel.refresh()
@@ -160,6 +180,7 @@ class CheckViewModelTest {
         val viewModel = newViewModel()
 
         viewModel.refresh()
+        settle()
 
         assertEquals(CheckUiState.NeedsLocationPermission, viewModel.state.value)
         assertEquals(0, stub.server.requestCount)
@@ -321,6 +342,7 @@ class CheckViewModelTest {
 
         clock.advance(Duration.ofMinutes(30))
         viewModel.onOpened()
+        settle()
 
         assertEquals(1, stub.server.requestCount)
         assertEquals(30L, rated(viewModel.state.value).ageMinutes)
@@ -369,6 +391,7 @@ class CheckViewModelTest {
 
         viewModel.onOpened()
         viewModel.onOpened()
+        scheduler.runCurrent()
 
         assertEquals(1, locationCalls)
         assertEquals(CheckUiState.Loading, viewModel.state.value)
@@ -470,8 +493,9 @@ class CheckViewModelTest {
         clock.advance(Duration.ofHours(3))
         viewModel.onShown()
 
-        val state = runBlocking { withTimeout(AWAIT_MS) { viewModel.state.first { it == CheckUiState.CantCheck } } }
-        assertEquals(CheckUiState.CantCheck, state)
+        settle()
+
+        assertEquals(CheckUiState.CantCheck, viewModel.state.value)
         assertEquals(1, stub.server.requestCount)
         assertEquals(1, locationCalls)
     }
@@ -512,7 +536,8 @@ class CheckViewModelTest {
         viewModel.awaitSettled()
         clock.advance(Duration.ofHours(3))
         viewModel.onShown()
-        runBlocking { withTimeout(AWAIT_MS) { viewModel.state.first { it == CheckUiState.CantCheck } } }
+        settle()
+        assertEquals(CheckUiState.CantCheck, viewModel.state.value)
         stub.enqueueBody(MetBodies.hourly(START.plus(Duration.ofHours(3)).let { it.minusSeconds(it.epochSecond % 3600) }, 12.0))
 
         viewModel.refresh()
@@ -540,6 +565,7 @@ class CheckViewModelTest {
         stub.enqueueFixture()
         val viewModel = newViewModel()
         viewModel.onOpened()
+        settle()
         viewModel.onPermissionResult(granted = false, canAskAgain = true)
 
         permissionGranted = true
@@ -560,6 +586,7 @@ class CheckViewModelTest {
         viewModel.onShown()
         assertTrue(viewModel.awaitSettled() is CheckUiState.Rated)
         viewModel.refresh()
+        settle()
 
         assertEquals(CheckUiState.NeedsLocationPermission, viewModel.state.value)
         assertEquals(1, stub.server.requestCount)
@@ -583,8 +610,10 @@ class CheckViewModelTest {
         permissionGranted = false
         val viewModel = newViewModel()
         viewModel.onOpened()
+        settle()
 
         viewModel.onPermissionResult(granted = false, canAskAgain = false)
+        settle()
 
         assertEquals(CheckUiState.LocationPermissionBlocked, viewModel.state.value)
         assertEquals(0, stub.server.requestCount)
@@ -596,9 +625,11 @@ class CheckViewModelTest {
         permissionGranted = false
         val viewModel = newViewModel()
         viewModel.onOpened()
+        settle()
         viewModel.onPermissionResult(granted = false, canAskAgain = false)
 
         viewModel.onPermissionResult(granted = false, canAskAgain = true)
+        settle()
 
         assertEquals(CheckUiState.NeedsLocationPermission, viewModel.state.value)
     }
@@ -609,6 +640,7 @@ class CheckViewModelTest {
         stub.enqueueFixture()
         val viewModel = newViewModel()
         viewModel.onOpened()
+        settle()
 
         permissionGranted = true
         viewModel.onPermissionResult(granted = true, canAskAgain = true)
@@ -622,6 +654,7 @@ class CheckViewModelTest {
         stub.enqueueFixture()
         val viewModel = newViewModel()
         viewModel.onOpened()
+        settle()
         viewModel.onPermissionResult(granted = false, canAskAgain = false)
 
         permissionGranted = true
@@ -636,9 +669,11 @@ class CheckViewModelTest {
         permissionGranted = false
         val viewModel = newViewModel()
         viewModel.onOpened()
+        settle()
         viewModel.onPermissionResult(granted = false, canAskAgain = false)
 
         viewModel.onShown()
+        settle()
 
         assertEquals(CheckUiState.LocationPermissionBlocked, viewModel.state.value)
         assertEquals(0, stub.server.requestCount)
@@ -689,10 +724,34 @@ class CheckViewModelTest {
 
     private companion object {
         const val SERVER_ERROR = 500
-        const val AWAIT_MS = 10_000L
         const val LOCATION_TIMEOUT_MS = 50L
 
         // Inside the first hourly period of the fixture, which starts 14:00 UTC on 19 October 2026.
         val START: Instant = Instant.parse("2026-10-19T14:20:00Z")
     }
+}
+
+/** Runs every task at once on the calling thread, so OkHttp finishes a call before enqueue returns. */
+private class DirectExecutorService : AbstractExecutorService() {
+    private var stopped = false
+
+    override fun execute(command: Runnable) = command.run()
+
+    override fun shutdown() {
+        stopped = true
+    }
+
+    override fun shutdownNow(): MutableList<Runnable> {
+        stopped = true
+        return mutableListOf()
+    }
+
+    override fun isShutdown() = stopped
+
+    override fun isTerminated() = stopped
+
+    override fun awaitTermination(
+        timeout: Long,
+        unit: TimeUnit,
+    ) = stopped
 }
