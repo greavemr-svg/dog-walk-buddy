@@ -11,6 +11,8 @@ import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkEntity
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkStatus
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkSummaryRow
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.WalkRepository
+import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DayDotState
+import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WeeklyTotals
 import io.github.greavemrsvg.dogwalkbuddy.testutil.MutableClock
 import io.github.greavemrsvg.dogwalkbuddy.testutil.awaitCondition
 import kotlinx.coroutines.CoroutineScope
@@ -93,6 +95,32 @@ class HistoryViewModelTest {
 
         assertFalse(latest!!.isEmpty)
         assertEquals(1, latest!!.thisWeek.count)
+    }
+
+    @Test
+    fun UX_AC41_the_state_has_the_current_weeks_day_dots_from_the_clock() {
+        addWalk("2026-10-19T08:00:00Z")
+
+        await("loaded with dots") { it.isLoaded && it.weeks.size == 1 }
+
+        val dots = latest!!.thisWeekDays
+        assertEquals(
+            WeeklyTotals.dayDots(
+                listOf(
+                    latest!!
+                        .weeks
+                        .single()
+                        .walks
+                        .single(),
+                ),
+                ZoneOffset.UTC,
+                clock.instant(),
+            ),
+            dots,
+        )
+        assertEquals(listOf(DayDotState.WALKED, DayDotState.PAST_NO_WALK), dots.take(2).map { it.state })
+        assertEquals(2, dots.indexOfFirst { it.isToday })
+        assertEquals(clock, viewModel.clock)
     }
 
     @Test

@@ -211,8 +211,8 @@ class AppFlowIntegrationTest {
         awaitText("Allow approximate location")
 
         tapNav(NAV_WALKS_TAG)
-        awaitText("Mon 19 Oct 2026 at 09:15")
-        composeRule.onNodeWithText("Mon 19 Oct 2026 at 09:15").performClick()
+        awaitText("at 09:15")
+        composeRule.onNode(hasText("Mon 19 Oct") and hasText("at 09:15")).performClick()
         awaitText("Walk details")
         awaitMap()
 
@@ -235,8 +235,8 @@ class AppFlowIntegrationTest {
         awaitText("Allow approximate location")
 
         tapNav(NAV_WALKS_TAG)
-        awaitText("Mon 19 Oct 2026 at 09:15")
-        composeRule.onNodeWithText("Mon 19 Oct 2026 at 09:15").performClick()
+        awaitText("at 09:15")
+        composeRule.onNode(hasText("Mon 19 Oct") and hasText("at 09:15")).performClick()
         awaitText("Map not available offline")
 
         assertEquals(0, test.routeMap.drawCount)
@@ -252,8 +252,8 @@ class AppFlowIntegrationTest {
         showApp()
         awaitText("Allow approximate location")
         tapNav(NAV_WALKS_TAG)
-        awaitText("Mon 19 Oct 2026 at 09:15")
-        composeRule.onNodeWithText("Mon 19 Oct 2026 at 09:15").performClick()
+        awaitText("at 09:15")
+        composeRule.onNode(hasText("Mon 19 Oct") and hasText("at 09:15")).performClick()
         awaitMap()
 
         composeRule.runOnUiThread { test.routeMap.failLoading() }

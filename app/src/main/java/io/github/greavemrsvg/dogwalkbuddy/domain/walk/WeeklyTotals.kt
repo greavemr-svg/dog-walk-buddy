@@ -18,6 +18,25 @@ data class WeekGroup(
     val weekEnd: LocalDate get() = weekStart.plusDays(6)
 }
 
+/** How a day of the current week is drawn in the this-week card (AC41). */
+enum class DayDotState {
+    /** At least one walk started that day. */
+    WALKED,
+
+    /** Today or an earlier day of the week with no walk. */
+    PAST_NO_WALK,
+
+    /** A later day of the week. */
+    FUTURE,
+}
+
+/** One day of the current Monday-to-Sunday week, for the this-week card's dot row (AC41). */
+data class DayDot(
+    val date: LocalDate,
+    val state: DayDotState,
+    val isToday: Boolean,
+)
+
 /** Groups walks by the week they started in (spec Assumption 8). Pure Kotlin. */
 object WeeklyTotals {
     /** The Monday of the week that contains [instant] in [zoneId]. */
@@ -47,6 +66,36 @@ object WeeklyTotals {
         val inWeek = walks.filter { weekStartOf(it.startUtc, zoneId) == weekStart }.sortedByDescending { it.startUtc }
         return weekGroup(weekStart, inWeek)
     }
+
+    /**
+     * The seven days, Monday to Sunday, of the week that contains [now] (AC41). A day is walked when a walk started on
+     * it in [zoneId]. Only walks in the current week are looked at.
+     */
+    fun dayDots(
+        walks: List<WalkSummary>,
+        zoneId: ZoneId,
+        now: Instant,
+    ): List<DayDot> {
+        val today = now.atZone(zoneId).toLocalDate()
+        val weekStart = weekStartOf(now, zoneId)
+        val walkedDays =
+            walks
+                .map { it.startUtc.atZone(zoneId).toLocalDate() }
+                .filter { !it.isBefore(weekStart) && it.isBefore(weekStart.plusDays(DAYS_IN_WEEK)) }
+                .toSet()
+        return (0 until DAYS_IN_WEEK).map { offset ->
+            val date = weekStart.plusDays(offset)
+            val state =
+                when {
+                    date in walkedDays -> DayDotState.WALKED
+                    date.isAfter(today) -> DayDotState.FUTURE
+                    else -> DayDotState.PAST_NO_WALK
+                }
+            DayDot(date = date, state = state, isToday = date == today)
+        }
+    }
+
+    private const val DAYS_IN_WEEK = 7L
 
     private fun weekGroup(
         weekStart: LocalDate,

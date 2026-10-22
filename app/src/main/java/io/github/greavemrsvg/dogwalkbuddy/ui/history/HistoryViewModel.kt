@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import io.github.greavemrsvg.dogwalkbuddy.AppContainer
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.WalkRepository
+import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DayDot
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WalkSummary
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WeekGroup
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WeeklyTotals
@@ -31,14 +32,19 @@ data class HistoryUiState(
     val pendingDelete: WalkSummary? = null,
     val deleteFailed: Boolean = false,
     val loadFailed: Boolean = false,
+    /** The seven days of the current week, Monday to Sunday, for the this-week card's dots (AC41). */
+    val thisWeekDays: List<DayDot> = emptyList(),
 ) {
     val isEmpty: Boolean get() = weeks.isEmpty()
 }
 
-/** Holds the history: weekly groups from the saved walks, and the delete confirmation (AC35, AC36, AC37, AC40). */
+/**
+ * Holds the history: weekly groups from the saved walks, the current week's day dots, and the delete confirmation
+ * (AC35, AC36, AC37, AC40, AC41). [clock] is also what the screen's date text uses for the current year (D7).
+ */
 class HistoryViewModel(
     private val repository: WalkRepository,
-    private val clock: Clock,
+    val clock: Clock,
     private val zoneId: ZoneId,
 ) : ViewModel() {
     private val pendingDelete = MutableStateFlow<WalkSummary?>(null)
@@ -51,6 +57,7 @@ class HistoryViewModel(
                 isLoaded = true,
                 thisWeek = WeeklyTotals.thisWeek(walks, zoneId, clock.instant()),
                 weeks = WeeklyTotals.group(walks, zoneId),
+                thisWeekDays = WeeklyTotals.dayDots(walks, zoneId, clock.instant()),
                 pendingDelete = pending,
                 deleteFailed = failed,
             )
@@ -98,6 +105,7 @@ class HistoryViewModel(
             isLoaded = isLoaded,
             thisWeek = WeeklyTotals.thisWeek(emptyList(), zoneId, clock.instant()),
             weeks = emptyList(),
+            thisWeekDays = WeeklyTotals.dayDots(emptyList(), zoneId, clock.instant()),
         )
 
     private fun loadFailedState() = emptyState(isLoaded = true).copy(loadFailed = true)

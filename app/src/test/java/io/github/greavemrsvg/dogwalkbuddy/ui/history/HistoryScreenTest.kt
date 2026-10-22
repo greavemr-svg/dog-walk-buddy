@@ -5,26 +5,40 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkEntity
 import io.github.greavemrsvg.dogwalkbuddy.data.db.WalkStatus
+import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DayDot
+import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DayDotState
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WalkSummary
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WeeklyTotals
 import io.github.greavemrsvg.dogwalkbuddy.testutil.TestAppContainer
 import io.github.greavemrsvg.dogwalkbuddy.testutil.awaitCondition
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.WithFontScale
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertAccessibleScreen
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertHeadingsMarked
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertHiddenFromAccessibility
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertNoTextTruncation
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertTouchTargetIsAtLeast
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.CONFIRM_SHEET_ICON_TAG
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -40,6 +54,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneOffset
 
 /** The history screen with a real in-memory database. The test clock is Monday 19 Oct 2026, 14:20 UTC. */
@@ -54,7 +69,7 @@ class HistoryScreenTest {
     val temporaryFolder = TemporaryFolder()
 
     private lateinit var test: TestAppContainer
-    private val walkRow = Regex("""^\w{3} \d+ \w{3} \d{4} at """)
+    private val walkRow = Regex("""^\w{3} \d+ \w{3}( \d{4})? at """)
 
     @Before
     fun setUp() {
@@ -110,13 +125,18 @@ class HistoryScreenTest {
 
     private fun hasNode(text: String) = composeRule.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()
 
-    /** The walk rows in screen order, as "date at time, duration, distance". */
+    /** The walk rows in screen order, as spoken: "date at time, duration, distance". */
     private fun walkLines(): List<String> =
         composeRule
-            .onAllNodes(hasText(" at ", substring = true))
+            .onAllNodes(hasClickAction())
             .fetchSemanticsNodes()
-            .mapNotNull { node -> node.config.getOrNull(SemanticsProperties.Text)?.joinToString(", ") { it.text } }
+            .mapNotNull { node -> node.config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString(", ") }
             .filter { walkRow.containsMatchIn(it) }
+
+    /** Opens the "More" menu of the row whose date is [rowDate] (OD2). */
+    private fun openMoreOf(rowDate: String) {
+        composeRule.onNode(hasContentDescription("More") and hasAnyAncestor(hasText(rowDate))).performClick()
+    }
 
     private fun savedIds(): List<Long> {
         val repository = test.container.walkRepository
@@ -141,9 +161,9 @@ class HistoryScreenTest {
 
         assertEquals(
             listOf(
-                "Mon 19 Oct 2026 at 09:15, 1:15, 2.0 mi",
-                "Thu 15 Oct 2026 at 17:30, 0:20, 0.5 mi",
-                "Mon 12 Oct 2026 at 08:00, 0:30, 1.0 mi",
+                "Mon 19 Oct at 09:15, 1:15, 2.0 mi",
+                "Thu 15 Oct at 17:30, 0:20, 0.5 mi",
+                "Mon 12 Oct at 08:00, 0:30, 1.0 mi",
             ),
             walkLines(),
         )
@@ -157,9 +177,9 @@ class HistoryScreenTest {
 
         show()
 
-        composeRule.onNodeWithText("Mon 12 Oct 2026 to Sun 18 Oct 2026").assertIsDisplayed()
-        composeRule.onNodeWithText("2 walks, 0:50, 1.5 mi").assertIsDisplayed()
-        composeRule.onNodeWithText("Mon 19 Oct 2026 to Sun 25 Oct 2026").assertIsDisplayed()
+        composeRule.onNodeWithText("Mon 12 – Sun 18 Oct").assertIsDisplayed()
+        composeRule.onNodeWithText("2 walks · 0:50 · 1.5 mi").assertIsDisplayed()
+        composeRule.onNode(hasText("Mon 19 – Sun 25 Oct") and isHeading()).assertIsDisplayed()
         composeRule.onNodeWithTag(THIS_WEEK_TAG).assertTextEquals("This week", "1 walk, 0:10, 0.3 mi")
     }
 
@@ -169,7 +189,10 @@ class HistoryScreenTest {
 
         show()
 
-        composeRule.onNodeWithTag(THIS_WEEK_TAG).assertTextEquals("This week", "0 walks, 0:00, 0.0 mi")
+        composeRule
+            .onNodeWithTag(THIS_WEEK_TAG)
+            .assertTextEquals("This week", "Mon 19 – Sun 25 Oct", "0", "walks", "0:00", "h:mm", "0.0", "miles")
+            .assertContentDescriptionEquals("This week: 0 walks, 0 minutes, 0.0 miles")
     }
 
     @Test
@@ -187,7 +210,7 @@ class HistoryScreenTest {
             composeRule.waitForIdle()
             walkLines().size == 2
         }
-        assertEquals("Mon 19 Oct 2026 at 14:20, 0:25, 0.0 mi", walkLines().first())
+        assertEquals("Mon 19 Oct at 14:20, 0:25, 0.0 mi", walkLines().first())
     }
 
     @Test
@@ -195,6 +218,7 @@ class HistoryScreenTest {
         val id = addWalk("2026-10-12T08:00:00Z", 30, 1609.344)
         show()
 
+        openMoreOf("Mon 12 Oct")
         composeRule.onNodeWithContentDescription("Delete walk on Mon 12 Oct 2026 at 08:00").performClick()
         composeRule.onNodeWithText("Delete this walk?").assertIsDisplayed()
         composeRule.onNodeWithText("Cancel").performClick()
@@ -211,6 +235,7 @@ class HistoryScreenTest {
         show()
         composeRule.onNodeWithTag(THIS_WEEK_TAG).assertTextEquals("This week", "1 walk, 0:30, 1.0 mi")
 
+        openMoreOf("Mon 19 Oct")
         composeRule.onNodeWithContentDescription("Delete walk on Mon 19 Oct 2026 at 08:00").performClick()
         composeRule.onNodeWithText("Delete walk").performClick()
 
@@ -218,7 +243,10 @@ class HistoryScreenTest {
             composeRule.waitForIdle()
             walkLines().size == 1
         }
-        composeRule.onNodeWithTag(THIS_WEEK_TAG).assertTextEquals("This week", "0 walks, 0:00, 0.0 mi")
+        composeRule
+            .onNodeWithTag(THIS_WEEK_TAG)
+            .assertTextEquals("This week", "Mon 19 – Sun 25 Oct", "0", "walks", "0:00", "h:mm", "0.0", "miles")
+            .assertContentDescriptionEquals("This week: 0 walks, 0 minutes, 0.0 miles")
         assertEquals(listOf(keep), savedIds())
     }
 
@@ -227,6 +255,7 @@ class HistoryScreenTest {
         addWalk("2026-10-19T08:00:00Z", 30, 1609.344)
         show()
 
+        openMoreOf("Mon 19 Oct")
         composeRule.onNodeWithContentDescription("Delete walk on Mon 19 Oct 2026 at 08:00").performClick()
         composeRule.onNodeWithText("Delete walk").performClick()
 
@@ -251,7 +280,9 @@ class HistoryScreenTest {
         addWalk("2026-10-12T08:00:00Z", 30, 1609.344)
         show()
 
+        openMoreOf("Mon 19 Oct")
         composeRule.onNodeWithContentDescription("Delete walk on Mon 19 Oct 2026 at 08:00").assertIsDisplayed()
+        openMoreOf("Mon 12 Oct")
         composeRule.onNodeWithContentDescription("Delete walk on Mon 12 Oct 2026 at 08:00").assertIsDisplayed()
     }
 
@@ -427,5 +458,261 @@ class HistoryScreenTest {
         composeRule.waitForIdle()
 
         composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertIsDisplayed()
+    }
+
+    // ---- UX redesign, task 6 (Walks) ----
+
+    private fun addSpecWalks() {
+        addWalk("2026-10-12T08:00:00Z", 30, 1609.344)
+        addWalk("2026-10-18T23:30:00Z", 20, 804.672)
+        addWalk("2026-10-19T00:10:00Z", 10, 482.8032)
+    }
+
+    private fun headingTop(text: String): Float =
+        composeRule
+            .onNode(hasText(text) and isHeading())
+            .fetchSemanticsNode()
+            .boundsInRoot.top
+
+    private fun row(
+        rowDate: String,
+        time: String,
+    ) = composeRule.onNode(hasClickAction() and hasText(rowDate) and hasText(time))
+
+    private fun assertWalksTab(
+        newestRange: String,
+        olderRange: String,
+        rowDate: String,
+        spoken: String,
+    ) {
+        composeRule.assertHeadingsMarked("Walks", newestRange, olderRange)
+        composeRule.onNodeWithText("Back").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("Back").assertDoesNotExist()
+        assertTrue("newest week first", headingTop(newestRange) < headingTop(olderRange))
+        composeRule.onNodeWithText("1 walk · 0:10 · 0.3 mi").assertIsDisplayed()
+        composeRule.onNodeWithText("2 walks · 0:50 · 1.5 mi").assertIsDisplayed()
+        val newest = row(rowDate, "at 00:10")
+        newest.assertTextEquals(rowDate, "at 00:10", "0.3 mi", "0:10")
+        newest.assertContentDescriptionEquals(spoken)
+        newest.assertHasClickAction()
+        newest.assertHeightIsAtLeast(64.dp)
+        assertEquals(1, composeRule.onAllNodes(hasClickAction() and hasText(rowDate) and hasText("at 00:10")).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun UX_AC39_the_walks_tab_shows_week_sections_newest_first_with_D7_dates_and_totals() {
+        addSpecWalks()
+        show()
+
+        assertWalksTab(
+            newestRange = "Mon 19 – Sun 25 Oct",
+            olderRange = "Mon 12 – Sun 18 Oct",
+            rowDate = "Mon 19 Oct",
+            spoken = "Mon 19 Oct at 00:10, 0:10, 0.3 mi",
+        )
+        assertEquals(3, walkLines().size)
+    }
+
+    @Test
+    fun UX_AC39_with_the_clock_in_2027_the_dates_and_a_year_spanning_week_show_the_year() {
+        addSpecWalks()
+        addWalk("2026-12-30T10:00:00Z", 20, 804.672)
+        test.clock.advance(Duration.ofDays(365))
+        show()
+
+        composeRule.onNode(hasText("Mon 28 Dec 2026 – Sun 3 Jan 2027") and isHeading()).assertExists()
+        assertWalksTab(
+            newestRange = "Mon 19 – Sun 25 Oct 2026",
+            olderRange = "Mon 12 – Sun 18 Oct 2026",
+            rowDate = "Mon 19 Oct 2026",
+            spoken = "Mon 19 Oct 2026 at 00:10, 0:10, 0.3 mi",
+        )
+    }
+
+    private fun assertZeroThisWeekCard() {
+        composeRule
+            .onNodeWithTag(THIS_WEEK_TAG)
+            .assertTextEquals("This week", "Mon 19 – Sun 25 Oct", "0", "walks", "0:00", "h:mm", "0.0", "miles")
+            .assertContentDescriptionEquals("This week: 0 walks, 0 minutes, 0.0 miles")
+    }
+
+    @Test
+    fun UX_AC40_the_this_week_card_shows_zero_stats_with_captions_and_is_spoken_as_one_summary() {
+        addWalk("2026-10-12T08:00:00Z", 30, 1609.344)
+        show()
+
+        assertZeroThisWeekCard()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun UX_AC40_the_this_week_card_reads_the_same_in_dark() {
+        addWalk("2026-10-12T08:00:00Z", 30, 1609.344)
+        show()
+
+        assertZeroThisWeekCard()
+    }
+
+    @Test
+    fun UX_AC40_three_walks_are_spoken_with_hours_and_minutes() {
+        addWalk("2026-10-19T06:00:00Z", 45, 3218.688)
+        addWalk("2026-10-19T09:00:00Z", 30, 2414.016)
+        addWalk("2026-10-19T12:00:00Z", 10, 1126.5408)
+        show()
+
+        composeRule
+            .onNodeWithTag(THIS_WEEK_TAG)
+            .assertTextEquals("This week", "Mon 19 – Sun 25 Oct", "3", "walks", "1:25", "h:mm", "4.2", "miles")
+            .assertContentDescriptionEquals("This week: 3 walks, 1 hour 25 minutes, 4.2 miles")
+    }
+
+    @Test
+    fun UX_AC40_one_walk_this_week_uses_the_singular_caption() {
+        addWalk("2026-10-19T06:00:00Z", 45, 3218.688)
+        show()
+
+        composeRule
+            .onNodeWithTag(THIS_WEEK_TAG)
+            .assertTextEquals("This week", "Mon 19 – Sun 25 Oct", "1", "walk", "0:45", "h:mm", "2.0", "miles")
+            .assertContentDescriptionEquals("This week: 1 walk, 45 minutes, 2.0 miles")
+    }
+
+    private fun dot(index: Int): DayDot =
+        composeRule
+            .onNodeWithTag(WEEK_DOT_TAG_PREFIX + index, useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .config[DayDotKey]
+
+    private fun assertThursdayDots() {
+        assertEquals(
+            listOf(
+                DayDotState.WALKED,
+                DayDotState.PAST_NO_WALK,
+                DayDotState.WALKED,
+                DayDotState.PAST_NO_WALK,
+                DayDotState.FUTURE,
+                DayDotState.FUTURE,
+                DayDotState.FUTURE,
+            ),
+            (0..6).map { dot(it).state },
+        )
+        assertEquals(listOf(3), (0..6).filter { dot(it).isToday })
+        assertEquals(LocalDate.of(2026, 10, 19), dot(0).date)
+        assertEquals(LocalDate.of(2026, 10, 25), dot(6).date)
+        composeRule.assertHiddenFromAccessibility(WEEK_DOTS_TAG)
+    }
+
+    @Test
+    fun UX_AC41_the_dots_show_walked_past_today_and_future_days_and_are_hidden_from_accessibility() {
+        addWalk("2026-10-19T08:00:00Z", 30, 1609.344)
+        addWalk("2026-10-21T08:00:00Z", 30, 1609.344)
+        test.clock.advance(Duration.ofDays(3))
+        show()
+
+        assertThursdayDots()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun UX_AC41_the_dots_show_the_same_states_in_dark() {
+        addWalk("2026-10-19T08:00:00Z", 30, 1609.344)
+        addWalk("2026-10-21T08:00:00Z", 30, 1609.344)
+        test.clock.advance(Duration.ofDays(3))
+        show()
+
+        assertThursdayDots()
+    }
+
+    @Test
+    fun UX_AC42_with_no_walks_the_empty_state_has_the_exact_text_and_a_decorative_icon() {
+        show()
+
+        composeRule.onNodeWithText("No walks yet").assertIsDisplayed()
+        composeRule.onNodeWithTag(HISTORY_EMPTY_ICON_TAG, useUnmergedTree = true).assertIsDisplayed()
+        composeRule.assertHiddenFromAccessibility(HISTORY_EMPTY_ICON_TAG)
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun UX_AC43_a_load_failure_shows_the_exact_text_in_dark() {
+        showContent(mutableStateOf(contentState(count = 0, loadFailed = true)))
+
+        composeRule.onNodeWithText("Couldn't load your walks.").assertIsDisplayed()
+        composeRule.onNodeWithTag(THIS_WEEK_TAG).assertDoesNotExist()
+        composeRule.assertHeadingsMarked("Walks")
+    }
+
+    @Test
+    fun UX_AC44_delete_is_in_the_rows_More_menu_and_the_sheet_keeps_the_MVP_texts() {
+        val id = addWalk("2026-10-19T08:00:00Z", 30, 1609.344)
+        show()
+        composeRule.onNodeWithText("Delete").assertDoesNotExist()
+
+        openMoreOf("Mon 19 Oct")
+        composeRule
+            .onNodeWithContentDescription("Delete walk on Mon 19 Oct 2026 at 08:00")
+            .assertTextEquals("Delete")
+            .assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+            .performClick()
+
+        composeRule.onNodeWithText("Delete this walk?").assertIsDisplayed()
+        composeRule.assertHeadingsMarked("Delete this walk?")
+        composeRule
+            .onNodeWithText("The walk on Mon 19 Oct 2026 at 08:00 and its route will be removed from this phone. This can't be undone.")
+            .assertIsDisplayed()
+        composeRule.onNodeWithText("Delete walk").assertHeightIsAtLeast(56.dp)
+        composeRule.onNodeWithText("Cancel").assertHeightIsAtLeast(56.dp)
+        composeRule.assertHiddenFromAccessibility(CONFIRM_SHEET_ICON_TAG)
+        composeRule.onNodeWithText("Cancel").performClick()
+
+        composeRule.onNodeWithText("Delete this walk?").assertDoesNotExist()
+        assertEquals(listOf(id), savedIds())
+    }
+
+    private fun assertTabAndSheetAccessible(rowDate: String) {
+        composeRule.assertAccessibleScreen()
+        openMoreOf(rowDate)
+        composeRule.onNodeWithContentDescription("Delete walk on $rowDate 2026 at 08:00").performClick()
+        composeRule.onNodeWithText("Delete this walk?").assertIsDisplayed()
+        composeRule.assertAccessibleScreen()
+    }
+
+    @Test
+    fun UX_AC58_the_walks_tab_and_the_delete_sheet_are_accessible_in_light() {
+        addWalk("2026-10-19T08:00:00Z", 30, 1609.344)
+        addWalk("2026-10-12T08:00:00Z", 30, 1609.344)
+        show()
+
+        assertTabAndSheetAccessible("Mon 19 Oct")
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun UX_AC58_the_walks_tab_and_the_delete_sheet_are_accessible_in_dark() {
+        addWalk("2026-10-19T08:00:00Z", 30, 1609.344)
+        addWalk("2026-10-12T08:00:00Z", 30, 1609.344)
+        show()
+
+        assertTabAndSheetAccessible("Mon 12 Oct")
+    }
+
+    @Test
+    fun UX_AC60_at_200_percent_the_walks_tab_is_not_truncated_and_scrolls() {
+        addSpecWalks()
+        addWalk("2026-10-20T08:00:00Z", 735, 160934.4)
+        show(fontScale = 2f)
+
+        composeRule.assertNoTextTruncation()
+        composeRule.onNodeWithTag(HISTORY_LIST_TAG).performScrollToIndex(5)
+        composeRule.onNodeWithText("Mon 12 – Sun 18 Oct").assertIsDisplayed()
+        composeRule.assertNoTextTruncation()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun UX_AC60_at_200_percent_the_empty_state_is_not_truncated_in_dark() {
+        show(fontScale = 2f)
+
+        composeRule.assertNoTextTruncation()
     }
 }
