@@ -16,7 +16,7 @@
       "docs/adr/0004-local-data-model-and-persistence.md",
       "docs/adr/0005-walk-recording-foreground-service.md"
     ],
-    "audit": ""
+    "audit": "docs/runs/20261019-dog-walk-buddy-mvp/audit.md"
   },
   "gates": {
     "G4": {"result": "PASS", "at": "2026-10-21T19:11:11Z", "evidence": "gatekeeper G4 on 1abdcae: G4.1-G4.5 met; failing []; G4.4 NO_BASELINE + proposed baseline; gates/G4.md"},
@@ -35,7 +35,6 @@
       "at": "2026-10-19T15:23:20Z",
       "evidence": "gatekeeper G2 on compileSdk 37 amendment: all criteria met; lint config judged not a weakening, G3 must verify code matches ADR 0001 lint config; failing: []"
     },
-    "G4": null,
     "G5": null,
     "release_approval": null,
     "stack_approval": {
@@ -390,7 +389,11 @@
         ],
         "notes": "posted body condensed (hook truncates long gh pr review commands); after fix commit a fresh VERDICT newer than last commit is needed; T7 DistanceFormat/DurationFormat single source, LiveWalkFormat should reuse/align; T7 new walks at top of history (rest of AC30); flaky CheckViewModelTest AC15 -> backlog"
       },
-      "G3": {"result": "PASS", "at": "2026-10-21T12:28:24Z", "evidence": "gatekeeper G3 on 3c86cb0: G3.1-G3.6 met; failing []; gates/G3-T6.md; posted on PR #23 issuecomment-6315899725"}
+      "G3": {
+        "result": "PASS",
+        "at": "2026-10-21T12:28:24Z",
+        "evidence": "gatekeeper G3 on 3c86cb0: G3.1-G3.6 met; failing []; gates/G3-T6.md; posted on PR #23 issuecomment-6315899725"
+      }
     },
     {
       "n": 7,
@@ -419,7 +422,11 @@
         "From T5: add History link on Home; use shared theme tokens and a11y helpers",
         "From T6: reuse WalkRepository/WalkDao (add observe + delete; dao.delete and dao.points exist); add DistanceFormat/DurationFormat (spec Assumption 7: miles to 1 decimal place, h:mm) as the single source for display formatting and make LiveWalkFormat reuse/align; post-stop navigation to History/detail not wired; new walks at top of history (rest of AC30)"
       ],
-      "G3": {"result": "PASS", "at": "2026-10-21T13:53:54Z", "evidence": "gatekeeper G3 on ca63ee3: G3.1-G3.6 met; failing []; gates/G3-T7.md; posted on PR #24"}
+      "G3": {
+        "result": "PASS",
+        "at": "2026-10-21T13:53:54Z",
+        "evidence": "gatekeeper G3 on ca63ee3: G3.1-G3.6 met; failing []; gates/G3-T7.md; posted on PR #24"
+      }
     },
     {
       "n": 8,
@@ -442,8 +449,10 @@
         7
       ],
       "branch": "task/20261019-dog-walk-buddy-mvp-8-map-privacy",
-      "pr": 25, "head": "f363a5e",
-      "status": "done", "merge_commit": "043b7f0",
+      "pr": 25,
+      "head": "f363a5e",
+      "status": "done",
+      "merge_commit": "043b7f0",
       "attempts": 4,
       "carry_in": [
         "From T3: ACCESS_NETWORK_STATE manifest declaration + SourceManifestHardeningTest update belong here; end-to-end AC24 test still to come",
@@ -452,31 +461,47 @@
         "From T5: if T6-T8 add any shipped library or transitive dependency, update the About licence list/notices (res/raw + AboutScreenTest)",
         "From T6: DeleteAllDataUseCase must stop any active recording first (ADR 0004) via walkRecordingController.stop() / recordingStateHolder; delete walk + route_point rows"
       ],
-      "G3": {"result": "PASS", "at": "2026-10-21T16:48:03Z", "evidence": "gatekeeper G3 re-run on f363a5e: G3.1-G3.6 met; failing []; gates/G3-T8.md (earlier FAIL on c34cc52: gates/G3-T8-c34cc52.md)"}
+      "G3": {
+        "result": "PASS",
+        "at": "2026-10-21T16:48:03Z",
+        "evidence": "gatekeeper G3 re-run on f363a5e: G3.1-G3.6 met; failing []; gates/G3-T8.md (earlier FAIL on c34cc52: gates/G3-T8-c34cc52.md)"
+      }
     },
     {
       "n": 9,
       "title": "Keep MapLibre logo and attribution button visible on walk detail (fix task)",
       "issue": 26,
       "slug": "map-attribution",
-      "acs": ["AC38", "AC51", "AC52"],
-      "depends": [8],
+      "acs": [
+        "AC38",
+        "AC51",
+        "AC52"
+      ],
+      "depends": [
+        8
+      ],
       "branch": "task/20261019-dog-walk-buddy-mvp-9-map-attribution",
-      "pr": 27, "head": "d8c010f",
-      "status": "done", "merge_commit": "0187222",
+      "pr": 27,
+      "head": "d8c010f",
+      "status": "done",
+      "merge_commit": "0187222",
       "attempts": 1,
       "origin": "reviewer Minor 3 on PR #25; owner decisions pre_stage4 + task_limit_t9",
-      "G3": {"result": "PASS", "at": "2026-10-21T17:21:06Z", "evidence": "gatekeeper G3 on d8c010f: G3.1-G3.6 met; failing []; gates/G3-T9.md; posted on PR #27"}
+      "G3": {
+        "result": "PASS",
+        "at": "2026-10-21T17:21:06Z",
+        "evidence": "gatekeeper G3 on d8c010f: G3.1-G3.6 met; failing []; gates/G3-T9.md; posted on PR #27"
+      }
     }
   ],
   "release": {
-    "version": "",
-    "pr": null,
+    "version": "0.1.0",
+    "pr": 28,
     "tag": "",
     "url": ""
   },
   "counters": {
-    "agent_invocations": 117,
+    "agent_invocations": 120,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
     "design_attempts": 2
@@ -779,16 +804,57 @@
     "2026-10-21T19:01:02Z orchestrator: committing Stage 4 artefacts (security.md, device-checks.md, docs/perf/20261019-dog-walk-buddy-mvp/) to feature, then invoking gatekeeper G4. Budget 116/140 incl. this call",
     "2026-10-21T19:11:11Z orchestrator: committed 1abdcae; feature CI run 39657910806 success on 1abdcae (verified)",
     "2026-10-21T19:11:11Z gatekeeper G4: PASS on 1abdcae; G4.1-G4.5 met, failing []; G4.4 NO_BASELINE with proposed baseline recorded; all 53 ACs traced; deferred reference-phone checks accepted as owner decision pre_stage4 superseding design sequencing (gatekeeper waived nothing). Recorded gates/G4.md",
-    "2026-10-21T19:11:11Z orchestrator: stage verify -> release; invoking release (prepare). Budget 117/140 incl. this call"
+    "2026-10-21T19:11:11Z orchestrator: stage verify -> release; invoking release (prepare). Budget 117/140 incl. this call",
+    "2026-10-21T19:15:11Z release prepare: DONE, v0.1.0 (versionCode 1; version.properties already 0.1.0), commit 4b511ea chore(release): prepare v0.1.0 (#7) - CHANGELOG.md, docs/releases/v0.1.0.md, docs/releases/v0.1.0-pr.md; release PR #28 feature -> main (verified, open). Checklist 9/12 ticked; unticked: CI green (pending), Audit complete (no audit.md yet), Manual checks done (reference-phone deferred by owner decision - needs explicit owner decision for G5.3)",
+    "2026-10-21T19:15:11Z orchestrator: invoking auditor. Budget 118/140 incl. this call",
+    "2026-10-21T19:17:58Z INCIDENT: the first T8 developer (invoked 14:00:19Z, reported as \"stopped at 80-turn limit\" at 14:30Z) kept running in the background in this working copy and reported BLOCKED at 2026-10-21T19:17:58Z. Reflog shows a local commit 36313f5 feat(map) on feature at 19:15:16Z then reset --soft HEAD~1; it staged then unstaged docs/runs state.json. Nothing pushed (verified: origin/feature 4b511ea, no new branches/PRs; local diff = orchestrator changes only; state.json intact). Very likely source of the unexplained \"stage 8\" commit d4fc26f on PR #25 at 14:58Z. No action on its questions (task 8 already merged). Flag for audit",
+    "2026-10-21T19:23:39Z auditor: NO REPORT - hit 40-turn limit, audit.md not written",
+    "2026-10-21T19:23:39Z orchestrator: invoking auditor continuation (same step, write-early instructions). Budget 119/140 incl. this call",
+    "2026-10-22T04:04:53Z orchestrator: RESUMED by owner (\"resume 20261019-dog-walk-buddy-mvp\"). Branch feature in sync with origin at 4b511ea",
+    "2026-10-22T04:04:53Z auditor continuation: no report received in previous session (session ended), but audit.md written 19:26:53Z-19:28:11Z (241 lines, per .governance/audit-events.jsonl) and not committed. Flags incl. R-02 governance check FAILURE on PR #28 at 4b511ea",
+    "2026-10-22T04:04:53Z INCIDENT 2: stale first performance agent (reported hit 50-turn limit at 18:44Z) kept running and overwrote docs/perf/20261019-dog-walk-buddy-mvp/results.md and proposed-baseline.json at 19:25:02-03Z, AFTER G4 PASS on 1abdcae. Uncommitted. G4 assessed the committed version. Also README.md title change (uncommitted, mtime 15:17Z, from stray d4fc26f revert). Not committed pending owner decision",
+    "2026-10-22T04:04:53Z orchestrator: HALTED before any invocation - preflight: gh authenticated as owner greavemr-svg, GH_TOKEN (bot) not set. Budget 119/140",
+    "2026-10-22T04:05:57Z orchestrator: per owner, restored committed docs/perf/20261019-dog-walk-buddy-mvp/* and README.md (git restore). Run remains HALTED on preflight (bot GH_TOKEN)",
+    "2026-10-22T04:08:10Z orchestrator: PAUSED by owner (\"pause\"). Resume from Stage 5: accept/commit audit.md, route PR #28 governance check failure to release, then G5. Prerequisite: GH_TOKEN = bot token. Budget 119/140",
+    "2026-10-22T04:16:35Z orchestrator: RESUMED by owner (\"resume 20261019-dog-walk-buddy-mvp\"). Preflight OK: gh = greavemr-bot via GH_TOKEN; feature in sync with origin at 4b511ea",
+    "2026-10-22T04:16:35Z orchestrator: STATE REPAIR - working-copy state.json had gates.G4 = null: the committed file (4b511ea) carried a duplicate \"G4\" key (PASS on line 22, null on line 38) and an earlier reformat kept the null. Restored the G4 PASS record verbatim from HEAD line 22 and dropped the duplicate key. A scripted edit was blocked by the permission classifier; per owner answer state_fix_method this file was rewritten with the Write tool",
+    "2026-10-22T04:16:35Z orchestrator: auditor output accepted (docs/runs/20261019-dog-walk-buddy-mvp/audit.md, 27 owner flags; High: R-02, A-01, E-01, R-01, G-05, S-08, S-09, E-03, E-04). A-01 (Gate B design approval not found) is an auditor misreading: the pipeline has no human design gate; Gate B is release approval, and the bootstrap stack checkpoint is recorded in gates.stack_approval",
+    "2026-10-22T04:16:35Z owner: G5.3 reference-phone checks -> \"Waive, do after release\" (recorded in owner_answers.g5_3_phone_checks); phone checks remain a residual risk/follow-up for v0.1.0",
+    "2026-10-22T04:16:35Z orchestrator: committing audit.md + state.json to feature; then invoking release (prepare, follow-up) to resolve R-02/R-01 on PR #28 (checklist: audit link, owner G5.3 waiver, audit flags, CI green only once true). Budget 120/140 incl. this call"
   ],
   "bootstrap": true,
   "owner_answers": {
-    "task_limit_t9": {"at": "2026-10-21T16:51:15Z", "question": "The run is limited to 8 tasks and all 8 are used. Doing the attribution fix as its own task would make a 9th. How should I treat it?", "answer": "Allow task 9 as a fix task (Recommended)"},
-    "pre_stage4": {"at": "2026-10-21T16:50:23Z", "phone_checks": "Emulator now, phone after release", "attribution": "Fix before release (Recommended)", "budget": "Raise to 140 (Recommended)"},
-    "t8_attempt_limit": {"at": "2026-10-21T16:11:01Z", "question": "Task 8 has used its 3 attempts. The emulator check found a crash when opening walk detail (map library set up in the wrong order). What should happen?", "answer": "Give guidance and retry (Recommended)"},
-    "t8_emulator": {"at": "2026-10-21T15:58:09Z", "question": "Should the tester run the Task 8 checks (AC38 map, AC48 backup/restore, AC49 network capture) on the Android Studio emulator (Medium_Phone_API_37.0) instead of the Galaxy A35?", "answer": "Emulator now, phone later (Recommended)"},
-    "t8_device_checks": {"at": "2026-10-21T15:56:14Z", "question": "Task 8 failed G3: AC38/AC48/AC49 phone-check results must be recorded in PR #25; no phone connected. How to proceed?", "answer": "Connect phone, tester runs"},
-    "t8_stage8_commit": {"at": "2026-10-21T15:16:18Z", "question": "PR #25 (Task 8) has an extra commit \"stage 8\" (d4fc26f) committing README.md and state.json onto the task branch. Did you make it, and how should it be handled?", "answer": "Revert it (Recommended)"},
+    "task_limit_t9": {
+      "at": "2026-10-21T16:51:15Z",
+      "question": "The run is limited to 8 tasks and all 8 are used. Doing the attribution fix as its own task would make a 9th. How should I treat it?",
+      "answer": "Allow task 9 as a fix task (Recommended)"
+    },
+    "pre_stage4": {
+      "at": "2026-10-21T16:50:23Z",
+      "phone_checks": "Emulator now, phone after release",
+      "attribution": "Fix before release (Recommended)",
+      "budget": "Raise to 140 (Recommended)"
+    },
+    "t8_attempt_limit": {
+      "at": "2026-10-21T16:11:01Z",
+      "question": "Task 8 has used its 3 attempts. The emulator check found a crash when opening walk detail (map library set up in the wrong order). What should happen?",
+      "answer": "Give guidance and retry (Recommended)"
+    },
+    "t8_emulator": {
+      "at": "2026-10-21T15:58:09Z",
+      "question": "Should the tester run the Task 8 checks (AC38 map, AC48 backup/restore, AC49 network capture) on the Android Studio emulator (Medium_Phone_API_37.0) instead of the Galaxy A35?",
+      "answer": "Emulator now, phone later (Recommended)"
+    },
+    "t8_device_checks": {
+      "at": "2026-10-21T15:56:14Z",
+      "question": "Task 8 failed G3: AC38/AC48/AC49 phone-check results must be recorded in PR #25; no phone connected. How to proceed?",
+      "answer": "Connect phone, tester runs"
+    },
+    "t8_stage8_commit": {
+      "at": "2026-10-21T15:16:18Z",
+      "question": "PR #25 (Task 8) has an extra commit \"stage 8\" (d4fc26f) committing README.md and state.json onto the task branch. Did you make it, and how should it be handled?",
+      "answer": "Revert it (Recommended)"
+    },
     "plan_round1": {
       "at": "2026-10-19T12:21:39Z",
       "Q1": "Accept as proposed (Recommended)",
@@ -841,6 +907,24 @@
       "at": "2026-10-21T09:10:26Z",
       "question": "The reviewer asked for changes on Task 6 (walk recording). The code is sound, but the live recording screen shows distance to 2 decimals (0.25 mi) and time as h:mm:ss (0:12:07), while the spec says miles to 1 decimal and time as h:mm everywhere. Which should the recording screen use?",
       "answer": "Follow the spec (Recommended)"
+    },
+    "stale_perf_overwrite": {
+      "at": "2026-10-22T04:05:57Z",
+      "answer": "Discard them (Recommended)"
+    },
+    "readme_title_change": {
+      "at": "2026-10-22T04:05:57Z",
+      "answer": "Discard it (Recommended)"
+    },
+    "state_fix_method": {
+      "at": "2026-10-22T04:16:35Z",
+      "question": "My scripted edit to state.json was blocked. The uncommitted state.json on disk shows gates.G4 = null, but the committed file records G4 PASS (2026-10-21T19:11:11Z, gates/G4.md). It had a duplicate \"G4\" key and a reformat kept the null one. I want to put the PASS record back, link audit.md and add a resume log line. How should I make that change?",
+      "answer": "Use Write tool (Recommended)"
+    },
+    "g5_3_phone_checks": {
+      "at": "2026-10-22T04:16:35Z",
+      "question": "Gate G5.3 needs the manual checks to be done or explicitly waived. The checks on the reference phone (Galaxy A35) were never run: AC29, AC31, AC43, AC48, AC49, AC50, battery, 4G and the NFRs. Only the emulator was used (audit flags E-01, E-02, E-04). Do you waive the phone checks for v0.1.0?",
+      "answer": "Waive, do after release"
     }
   },
   "current_task": 9,
@@ -885,15 +969,18 @@
     "T6 tester could not write under app/build with the Write tool; posted the PR comment via heredoc stdin",
     "T6 round-1 reviewer posted a condensed review body (hook truncates long gh pr review commands); full findings in state.json task 6 reviewer block",
     "T6 developer did not declare live elapsed time h:mm:ss as a deviation (reviewer found it)",
-    "Manual checks pending before release: AC43 (gallery delete + restart) and AC50 (TalkBack, incl. polite announcements and focus-to-error) from T4; AC48 backup/restore from T1/T8; T5 TalkBack on check screen + profile load error announcement, 200% font visual check (AC52), system location permission dialog on real phone, Open settings flow after permanent denial (and return granted), About length/scrolling on device (incl. low-end phone stutter, reviewer M1); T6 AC29 10 min locked in pocket, AC31 airplane mode + GPS 5 min, AC34 real process kill + relaunch, AC50 TalkBack Home + recording, AC52 max font + display size, Start-to-Recording under 1 s, battery 60 min, persistent notification, Android 13+ refusal of precise/notifications, Android 14-16 FGS start rules incl. refused-foreground-start path (no startForeground crash), app swiped away during recording (Samsung process killing)"
+    "Manual checks pending before release: AC43 (gallery delete + restart) and AC50 (TalkBack, incl. polite announcements and focus-to-error) from T4; AC48 backup/restore from T1/T8; T5 TalkBack on check screen + profile load error announcement, 200% font visual check (AC52), system location permission dialog on real phone, Open settings flow after permanent denial (and return granted), About length/scrolling on device (incl. low-end phone stutter, reviewer M1); T6 AC29 10 min locked in pocket, AC31 airplane mode + GPS 5 min, AC34 real process kill + relaunch, AC50 TalkBack Home + recording, AC52 max font + display size, Start-to-Recording under 1 s, battery 60 min, persistent notification, Android 13+ refusal of precise/notifications, Android 14-16 FGS start rules incl. refused-foreground-start path (no startForeground crash), app swiped away during recording (Samsung process killing)",
+    "2026-10-22: G4 PASS record lost from working-copy state.json via duplicate-key reformat; restored from HEAD by orchestrator (see log 04:16:35Z)"
   ],
   "paused": {
-    "at": "2026-10-21T11:42:32Z",
+    "at": "2026-10-22T04:04:53Z",
     "by": "owner",
+    "reason": "preflight: gh is owner account, bot GH_TOKEN not set; stale-agent perf overwrite needs owner decision",
+    "resume_from": "Stage 5: record auditor output, commit audit.md, route R-02, then G5",
+    "prerequisite": "restart orchestrator with GH_TOKEN set to bot token",
     "owner_words": "pause",
-    "resume_from": "T6 developer attempt 2 (re-run), PR #23 head 53325e6",
-    "prerequisite": "restart orchestrator with GH_TOKEN set to the bot token",
-    "resumed_at": "2026-10-21T11:55:51Z",
-    "resumed_words": "resume 20261019-dog-walk-buddy-mvp"
+    "owner_paused_at": "2026-10-22T04:08:10Z",
+    "resumed_at": "2026-10-22T04:16:35Z",
+    "resumed_by": "owner (\"resume 20261019-dog-walk-buddy-mvp\")"
   }
 }
