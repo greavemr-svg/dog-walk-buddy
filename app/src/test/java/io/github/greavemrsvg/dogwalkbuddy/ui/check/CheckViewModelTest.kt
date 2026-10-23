@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -901,6 +902,25 @@ class CheckViewModelTest {
         changes.tryEmit(Unit)
         assertFalse(rated(viewModel.awaitSettled()).isOffline)
         assertEquals(1, stub.server.requestCount)
+    }
+
+    @Test
+    fun UX_AC21_a_failing_network_change_source_keeps_the_offline_lead_read_on_open_and_logs_the_error() {
+        stub.enqueueFixture()
+        newViewModel().apply {
+            onOpened()
+            awaitSettled()
+        }
+        clock.advance(Duration.ofMinutes(90))
+        locationSource = ApproximateLocationSource { null }
+        val logged = mutableListOf<String>()
+        val failing = flow<Unit> { throw SecurityException("callback refused") }
+        val viewModel = newViewModel(isOnline = { false }, logError = { logged += it }, connectivityChanges = failing)
+
+        viewModel.onOpened()
+
+        assertTrue(rated(viewModel.awaitSettled()).isOffline)
+        assertEquals(listOf(SecurityException::class.java.name), logged)
     }
 
     private companion object {

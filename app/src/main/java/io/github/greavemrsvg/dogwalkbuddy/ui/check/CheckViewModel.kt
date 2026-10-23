@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -86,7 +87,12 @@ class CheckViewModel(
                 source.value = Source.Idle
             }
         }
-        viewModelScope.launch { connectivityChanges.collect { shown.update { it + 1 } } }
+        // A failing change source must not crash the app: the offline lead then keeps its on-open reading (R-02).
+        viewModelScope.launch {
+            connectivityChanges
+                .catch { error -> logError(error.javaClass.name) }
+                .collect { shown.update { it + 1 } }
+        }
     }
 
     val state: StateFlow<CheckUiState> =
