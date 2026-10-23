@@ -439,7 +439,8 @@
     "2026-10-23T12:17:35Z owner: test_device -> Samsung Galaxy Z Flip3 is the device to use for on-device checks; connect when ready",
     "2026-10-23T12:22:30Z owner connected phone SM-F711B (R5CR71NEQ8M); owner chose to unplug until the emulator performance check and G4 finish",
     "2026-10-23T14:17:15Z performance (opus): first run ended with no report (turn limit); raw timings in scratchpad res_base.json/res_redesign*.json; re-invoking with continuation brief",
-    "2026-10-23T15:23:25Z performance (opus): DONE; emulator, same-day base vs redesign; cold start median +10.6% (interleaved +7.4%) over +10% limit; history p95 one outlier 1625 ms in n=8 (median -12.7%); start walk, check, PSS ok. REGRESSION_BEYOND_THRESHOLD yes (marginal). results in docs/perf/20261022-ux-redesign/"
+    "2026-10-23T15:23:25Z performance (opus): DONE; emulator, same-day base vs redesign; cold start median +10.6% (interleaved +7.4%) over +10% limit; history p95 one outlier 1625 ms in n=8 (median -12.7%); start walk, check, PSS ok. REGRESSION_BEYOND_THRESHOLD yes (marginal). results in docs/perf/20261022-ux-redesign/",
+    "2026-10-23T15:23:50Z owner: perf_breach -> Confirm on phone first; G4 waits for phone perf comparison"
   ],
   "bootstrap": false,
   "base": {
@@ -609,6 +610,11 @@
     "phone_timing": {
       "at": "2026-10-23T12:22:30Z",
       "answer": "Unplug until perf done"
+    },
+    "perf_breach": {
+      "answer": "Confirm on phone first (Recommended)",
+      "at": "2026-10-23T15:23:50Z",
+      "meaning": "measure cold start and history open, base vs redesign, on Galaxy Z Flip3; fix task only if breach reproduces on phone"
     }
   },
   "carry_forward": [
