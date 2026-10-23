@@ -89,3 +89,46 @@ Thresholds come from `definition-of-done.md`: p95 interaction time +10 %, cold s
 - All timings on the reference phone, in particular cold start and history open, to confirm or clear the marginal emulator findings above.
 - Check time over real 4G with 20 runs.
 - PSS on the device, with a same-day base re-measure.
+
+## Phone confirmation (Galaxy Z Flip3)
+
+Run on 23 Oct 2026, owner decision `perf_breach`: confirm the emulator findings on the reference phone. A fix task is needed only if a breach repeats here.
+
+### Test conditions
+- Device: Samsung Galaxy Z Flip3 SM-F711B, Android 14, 1080x2640 at 480 dpi, on USB power. The screen was kept on with `svc power stayon usb` (owner approved), then set back to 0 (checked with `dumpsys power`). No other settings were changed.
+- Builds (prebuilt, not rebuilt): base = MVP `a8b4506` debug (md5 `aebb5f94...2109`), redesign = `da65ae2` debug (md5 `d5a5ac9c...445d`, same app code as HEAD). Builds were swapped with `install -r -d`.
+- Data: 500 walks from the debug "Seed 500 sample walks" action, seeded once. `install -r` keeps the data, and both builds showed the same totals (this week: 14 walks, 12:52, 38.4 mi). Location permission was not granted, so Today showed the location rationale in both builds.
+- Order: interleaved blocks of 5 (cold start A B A B A B A B, history A B A B, PSS A B A B). Each install was followed by one warm-up launch that was not counted.
+
+### Method
+- **Cold start:** `am force-stop`, wait 2 s, `am start -W`, TotalTime. n=20 per build.
+- **History open (500 walks):** cold launch to Today and wait 4 s. Then `screenrecord` (540x1320, 8 Mbps) and `input tap` on Walk history (base) or the Walks tab (redesign). n=10 per build.
+  - Start of clock: the first frame where a small region around the tapped control changes, which is the press ripple onset. The same rule is used for both builds. The ripple shows in that region in both builds (MVP button and redesign nav pill), so this is the frame closest to the tap event that is visible in the video. A screenrecord timeline cannot be matched to `dumpsys input` event times, because the MP4 timestamps start at zero.
+  - End of clock: the first frame after which every later frame is within 1.5 grey levels (MAD) of the final settled list frame. The status bar is cropped.
+  - Both builds first cross-fade to an empty "0 walks" frame and then fill the list. Both phases are included.
+- **PSS:** cold launch, 8 s on Today, `dumpsys meminfo` TOTAL PSS. 4 samples per build.
+- No battery test (out of scope for this pass). Screen recordings were analysed and then deleted. The temporary files on the phone were removed.
+
+### Raw numbers (ms)
+| Metric | Base | Redesign |
+|---|---|---|
+| Cold start TotalTime (n=20) | 694 702 695 694 688 / 686 685 692 693 694 / 689 689 686 693 683 / 679 691 685 691 681 | 738 748 741 750 740 / 734 738 740 729 735 / 740 734 733 728 734 / 740 741 747 744 725 |
+| History open, ripple onset to settled list (n=10) | 667.3 666.6 666.2 660.0 658.8 666.5 658.7 650.4 659.7 665.9 | 554.0 558.6 565.7 562.0 576.5 562.0 557.1 566.5 567.3 557.4 |
+| TOTAL PSS on Today, KB (n=4) | 128,740 128,836 128,797 128,906 | 133,133 132,810 132,759 133,100 |
+
+p95 uses nearest rank. With n=10 that is the largest run, and with n=20 the 19th.
+
+### Results
+| Metric | Base (phone) | Redesign (phone) | Delta | Limit | Verdict |
+|---|---|---|---|---|---|
+| Cold start median | 690.0 | 739.0 | +7.1 % | +10 % (DoD, spec A6) | ok |
+| Cold start p95 | 695 | 748 | +7.6 % | +10 % | ok |
+| History open median | 663.0 | 562.0 | -15.2 % | +10 %; target <= 1000 ms | ok |
+| History open p95 | 667.3 | 576.5 | -13.6 % | +10 % | ok |
+| PSS on Today (median) | 128,817 KB | 132,955 KB | +3.2 % | +15 % (peak memory) | ok |
+
+### Conclusions
+- **Cold start:** PASS on the phone. The redesign is slower by a small but steady amount: about 45 to 56 ms in every block (block medians 694/741, 692/735, 689/734, 685/741), which is +7.1 % on the median. This is inside the +10 % limit. The emulator's +10.6 % pooled figure was mostly emulator noise, but the direction (redesign slower) is real.
+- **History open:** PASS. All 10 redesign runs fall between 554 and 577 ms, well under the 1000 ms target and faster than the base. The 1625 ms outlier from the emulator did not happen again on the phone. The phone results are very tight: base spread 17 ms, redesign spread 23 ms.
+- **Memory:** PASS. PSS on Today is +3.2 % (the emulator showed +12.7 % against old MVP figures that were not re-measured).
+- No breach on the phone. Under the owner's decision, no fix task is needed.

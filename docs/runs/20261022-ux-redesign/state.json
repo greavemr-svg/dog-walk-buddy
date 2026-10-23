@@ -225,7 +225,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 94,
+    "agent_invocations": 97,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -441,7 +441,11 @@
     "2026-10-23T14:17:15Z performance (opus): first run ended with no report (turn limit); raw timings in scratchpad res_base.json/res_redesign*.json; re-invoking with continuation brief",
     "2026-10-23T15:23:25Z performance (opus): DONE; emulator, same-day base vs redesign; cold start median +10.6% (interleaved +7.4%) over +10% limit; history p95 one outlier 1625 ms in n=8 (median -12.7%); start walk, check, PSS ok. REGRESSION_BEYOND_THRESHOLD yes (marginal). results in docs/perf/20261022-ux-redesign/",
     "2026-10-23T15:23:50Z owner: perf_breach -> Confirm on phone first; G4 waits for phone perf comparison",
-    "2026-10-23T15:28:26Z performance pass 1 (opus, same invocation 93, had not ended earlier): DONE, wrote nothing to repo; paired emulator set: cold start +6.6%, start walk +3.5%, history -46.6%, check -7.2%, PSS within +15%; release APK +590,568 B (+1.13%). Draft saved verbatim as docs/perf/20261022-ux-redesign/results-pass1.md. Owner decision perf_breach (confirm on phone) stands"
+    "2026-10-23T15:28:26Z performance pass 1 (opus, same invocation 93, had not ended earlier): DONE, wrote nothing to repo; paired emulator set: cold start +6.6%, start walk +3.5%, history -46.6%, check -7.2%, PSS within +15%; release APK +590,568 B (+1.13%). Draft saved verbatim as docs/perf/20261022-ux-redesign/results-pass1.md. Owner decision perf_breach (confirm on phone) stands",
+    "2026-10-23T15:30:05Z phone R5CR71NEQ8M authorised (Android 14, app not installed, battery 100%, USB); invoking performance (opus) for phone cold start + history comparison base a8b4506 vs redesign",
+    "2026-10-23T15:33:36Z performance (opus): BLOCKED - phone screen timeout 30 s locks keyguard; no measurements. Asks owner: (a) allow adb 'svc power stayon usb' temporarily, or (b) owner sets screen timeout 10 min. APKs cached in scratchpad base.apk/red.apk",
+    "2026-10-23T15:34:06Z owner: phone_stay_awake -> agent may set stay-awake-while-charging temporarily; phone unlocked; re-invoking performance (opus)",
+    "2026-10-23T15:52:41Z performance (opus): DONE on phone SM-F711B; cold start +7.1% median/+7.6% p95, history -15.2% (max 577 ms), PSS +3.2%; no regression beyond threshold on phone -> no fix task per perf_breach; stay-on restored 0 (orchestrator verified)"
   ],
   "bootstrap": false,
   "base": {
@@ -616,6 +620,11 @@
       "answer": "Confirm on phone first (Recommended)",
       "at": "2026-10-23T15:23:50Z",
       "meaning": "measure cold start and history open, base vs redesign, on Galaxy Z Flip3; fix task only if breach reproduces on phone"
+    },
+    "phone_stay_awake": {
+      "answer": "Let the agent keep it awake (Recommended)",
+      "at": "2026-10-23T15:34:06Z",
+      "meaning": "agent may run svc power stayon usb for the session and must restore svc power stayon false (original mStayOnWhilePluggedInSetting=0) at end; no other settings"
     }
   },
   "carry_forward": [
