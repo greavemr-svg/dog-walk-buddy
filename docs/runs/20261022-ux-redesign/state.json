@@ -223,7 +223,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 91,
+    "agent_invocations": 93,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -430,7 +430,9 @@
     "2026-10-23T11:25:24Z gatekeeper G3 T8 (opus): PASS on cdc9e7c. Record gates/G3-T8.md; posting on PR #47",
     "2026-10-23T11:25:24Z orchestrator: T8 invoking release integrate (opus). Budget 90/200 incl. this call",
     "2026-10-23T11:29:58Z release integrate T8 (opus): PR #47 squash-merged as d6d0c96 (match-head cdc9e7c); issue #39 closed (comment 6363799607); feature CI 39946023968 in progress. T8 done; all 8 tasks done",
-    "2026-10-23T11:29:58Z orchestrator: auto-mode classifier flagged the T8 integrate report as 'Merge Without Review' (GitHub review state COMMENTED not APPROVED, bot cannot approve own PR; same as T1-T7; reviewer VERDICT APPROVE + G3 PASS; merge into feature branch only, guard allowed). Surfacing to owner before Stage 4"
+    "2026-10-23T11:29:58Z orchestrator: auto-mode classifier flagged the T8 integrate report as 'Merge Without Review' (GitHub review state COMMENTED not APPROVED, bot cannot approve own PR; same as T1-T7; reviewer VERDICT APPROVE + G3 PASS; merge into feature branch only, guard allowed). Surfacing to owner before Stage 4",
+    "2026-10-23T11:30:48Z owner: merge_review_flag -> \"Accepted, continue\"",
+    "2026-10-23T11:30:48Z orchestrator: Stage 4: invoking security and performance in parallel on feature/20261022-ux-redesign (opus). Budget 93/200 incl. these 2 calls"
   ],
   "bootstrap": false,
   "base": {
@@ -585,6 +587,11 @@
       "at": "2026-10-23T10:37:58Z",
       "question": "In the About thresholds table (see the dark screenshot), \"20 to below 25 °C\" wraps so \"°C\" starts a new line on its own, and \"25 °C or above\" splits similarly. Should task 8 keep numbers and \"°C\" together?",
       "answer": "Keep them together"
+    },
+    "merge_review_flag": {
+      "at": "2026-10-23T11:30:48Z",
+      "question": "All 8 tasks are merged into the redesign branch. A safety check flagged the last merge (task 8) as \"merge without review\". The reason: the reviewer agent posts its verdict as a GitHub comment (\"VERDICT: APPROVE\"), not a formal GitHub approval, because the bot account can't approve its own PRs. All 8 task merges worked this way. Each also had a tester pass, a reviewer verdict and a gate G3 pass, and went only into the redesign branch, never main. Main still needs your own approval on GitHub at Gate B. How do you want to proceed?",
+      "answer": "Accepted, continue"
     }
   },
   "carry_forward": [
