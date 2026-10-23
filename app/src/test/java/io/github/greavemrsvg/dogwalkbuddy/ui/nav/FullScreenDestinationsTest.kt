@@ -122,7 +122,7 @@ class FullScreenDestinationsTest {
         composeRule.onNodeWithTag(NAV_WALKS_TAG).performClick()
         awaitText("at 09:15")
         composeRule.onNode(hasText("Mon 19 Oct") and hasText("at 09:15")).performClick()
-        awaitText("Walk details")
+        awaitText("Monday 19 October")
 
         assertFullScreenAndGoBack()
 

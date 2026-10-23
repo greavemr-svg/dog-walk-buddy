@@ -195,7 +195,7 @@ class AppFlowIntegrationTest {
 
         openPrivacy()
 
-        composeRule.onNodeWithText("Weather check").assertIsDisplayed()
+        composeRule.onNodeWithText("MET Norway · when the check runs").assertIsDisplayed()
         composeRule.onNodeWithText("Delete all my data").performScrollTo().assertIsDisplayed()
         backFromPrivacyToToday()
         composeRule.onNodeWithTag(NAV_TODAY_TAG).assertIsSelected()
@@ -213,15 +213,15 @@ class AppFlowIntegrationTest {
         tapNav(NAV_WALKS_TAG)
         awaitText("at 09:15")
         composeRule.onNode(hasText("Mon 19 Oct") and hasText("at 09:15")).performClick()
-        awaitText("Walk details")
+        awaitText("Monday 19 October")
         awaitMap()
 
         composeRule.onNodeWithTag(FAKE_MAP_TAG).assertIsDisplayed()
         assertEquals(listOf(LatLon(51.5, -0.12), LatLon(51.51, -0.12), LatLon(51.52, -0.12)), test.routeMap.lastRoute)
         composeRule.onNodeWithText("© OpenStreetMap contributors", substring = true).assertIsDisplayed()
         composeRule.onNodeWithText("© OpenMapTiles", substring = true).assertIsDisplayed()
-        composeRule.onNodeWithText("Duration 1:15").assertIsDisplayed()
-        composeRule.onNodeWithText("Distance 2.0 mi").assertIsDisplayed()
+        composeRule.onNode(hasText("Duration") and hasText("1:15")).assertIsDisplayed()
+        composeRule.onNode(hasText("Distance") and hasText("2.0 mi")).assertIsDisplayed()
         back()
         awaitText("This week")
     }
@@ -240,9 +240,10 @@ class AppFlowIntegrationTest {
         awaitText("Map not available offline")
 
         assertEquals(0, test.routeMap.drawCount)
-        composeRule.onNodeWithText("Mon 19 Oct 2026 at 09:15").assertIsDisplayed()
-        composeRule.onNodeWithText("Duration 1:15").assertIsDisplayed()
-        composeRule.onNodeWithText("Distance 2.0 mi").assertIsDisplayed()
+        composeRule.onNodeWithText("Monday 19 October").assertIsDisplayed()
+        composeRule.onNodeWithText("09:15 – 10:30").assertIsDisplayed()
+        composeRule.onNode(hasText("Duration") and hasText("1:15")).assertIsDisplayed()
+        composeRule.onNode(hasText("Distance") and hasText("2.0 mi")).assertIsDisplayed()
     }
 
     @Test
@@ -259,7 +260,7 @@ class AppFlowIntegrationTest {
         composeRule.runOnUiThread { test.routeMap.failLoading() }
 
         awaitText("Map not available offline")
-        composeRule.onNodeWithText("Duration 1:15").assertIsDisplayed()
+        composeRule.onNode(hasText("Duration") and hasText("1:15")).assertIsDisplayed()
     }
 
     @Test

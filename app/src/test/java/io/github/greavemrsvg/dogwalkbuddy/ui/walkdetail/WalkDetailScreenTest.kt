@@ -8,7 +8,9 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LatLon
@@ -17,7 +19,9 @@ import io.github.greavemrsvg.dogwalkbuddy.testutil.FAKE_MAP_TAG
 import io.github.greavemrsvg.dogwalkbuddy.testutil.FakeRouteMap
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.WithFontScale
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertAccessibleScreen
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertHeadingsMarked
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertNoTextTruncation
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertTouchTargetIsAtLeast
 import io.github.greavemrsvg.dogwalkbuddy.ui.history.WalkDateFormats
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import org.junit.Assert.assertEquals
@@ -28,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -67,6 +72,7 @@ class WalkDetailScreenTest {
                         formats = formats,
                         onBack = { backs++ },
                         onMapLoadFailed = { mapFailures++ },
+                        clock = Clock.fixed(Instant.parse("2026-10-23T12:00:00Z"), ZoneOffset.UTC),
                     )
                 }
             }
@@ -147,9 +153,10 @@ class WalkDetailScreenTest {
     fun AC38_the_date_duration_and_distance_are_shown_in_the_standard_formats() {
         show(loaded())
 
-        composeRule.onNodeWithText("Mon 19 Oct 2026 at 09:15").assertIsDisplayed()
-        composeRule.onNodeWithText("Duration 1:15").assertIsDisplayed()
-        composeRule.onNodeWithText("Distance 2.0 mi").assertIsDisplayed()
+        composeRule.onNodeWithText("Monday 19 October").assertIsDisplayed()
+        composeRule.onNodeWithText("09:15 – 10:30").assertIsDisplayed()
+        composeRule.onNode(hasText("Duration") and hasText("1:15")).assertIsDisplayed()
+        composeRule.onNode(hasText("Distance") and hasText("2.0 mi")).assertIsDisplayed()
     }
 
     @Test
@@ -159,9 +166,10 @@ class WalkDetailScreenTest {
         composeRule.onNodeWithText("Map not available offline").assertIsDisplayed()
         assertEquals(0, map.drawCount)
         assertNull(map.lastRoute)
-        composeRule.onNodeWithText("Mon 19 Oct 2026 at 09:15").assertIsDisplayed()
-        composeRule.onNodeWithText("Duration 1:15").assertIsDisplayed()
-        composeRule.onNodeWithText("Distance 2.0 mi").assertIsDisplayed()
+        composeRule.onNodeWithText("Monday 19 October").assertIsDisplayed()
+        composeRule.onNodeWithText("09:15 – 10:30").assertIsDisplayed()
+        composeRule.onNode(hasText("Duration") and hasText("1:15")).assertIsDisplayed()
+        composeRule.onNode(hasText("Distance") and hasText("2.0 mi")).assertIsDisplayed()
         composeRule.onNodeWithText("© OpenStreetMap contributors", substring = true).assertDoesNotExist()
     }
 
@@ -213,7 +221,7 @@ class WalkDetailScreenTest {
     fun while_loading_only_the_heading_and_back_are_shown() {
         show(WalkDetailUiState.Loading)
 
-        composeRule.onNodeWithText("Walk details").assertIsDisplayed()
+        composeRule.onNodeWithText("Walk details").assertDoesNotExist()
         composeRule.onNodeWithContentDescription("Back").assertIsDisplayed()
         assertEquals(0, composeRule.onAllNodes(hasText("Duration", substring = true)).fetchSemanticsNodes().size)
     }
@@ -262,5 +270,222 @@ class WalkDetailScreenTest {
 
         composeRule.assertNoTextTruncation()
         composeRule.onNodeWithText("Map not available offline").assertExists()
+    }
+
+    // UX redesign (task 7): the edge-to-edge map, the sheet and the delete flow.
+
+    private val deletion = mutableStateOf(WalkDeletionState())
+    private var deleteRequests = 0
+    private var deleteConfirms = 0
+    private var deleteCancels = 0
+
+    private fun showDetail(
+        state: WalkDetailUiState = loaded(),
+        clock: Clock = Clock.fixed(Instant.parse("2026-10-23T12:00:00Z"), ZoneOffset.UTC),
+        fontScale: Float = 1f,
+    ) {
+        current.value = state
+        composeRule.setContent {
+            DogWalkBuddyTheme {
+                WithFontScale(fontScale) {
+                    WalkDetailContent(
+                        state = current.value,
+                        routeMap = map,
+                        formats = formats,
+                        onBack = { backs++ },
+                        onMapLoadFailed = { mapFailures++ },
+                        clock = clock,
+                        deletion = deletion.value,
+                        onRequestDelete = {
+                            deleteRequests++
+                            deletion.value = WalkDeletionState(confirming = true)
+                        },
+                        onConfirmDelete = {
+                            deleteConfirms++
+                            deletion.value = WalkDeletionState()
+                        },
+                        onCancelDelete = {
+                            deleteCancels++
+                            deletion.value = WalkDeletionState()
+                        },
+                        onDismissDeleteFailure = { deletion.value = WalkDeletionState() },
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun UX_AC45_the_map_fills_the_top_edge_to_edge_with_a_floating_back_of_at_least_48dp() {
+        showDetail()
+
+        val root = composeRule.onRoot().getUnclippedBoundsInRoot()
+        val area = composeRule.onNodeWithTag(WALK_MAP_AREA_TAG).getUnclippedBoundsInRoot()
+        assertEquals(root.top.value, area.top.value, 0.5f)
+        assertEquals(root.left.value, area.left.value, 0.5f)
+        assertEquals(root.right.value, area.right.value, 0.5f)
+        composeRule.onNodeWithTag(FAKE_MAP_TAG).assertIsDisplayed()
+        composeRule
+            .onNodeWithContentDescription("Back")
+            .assertIsDisplayed()
+            .assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.onNodeWithText("© OpenStreetMap contributors", substring = true).assertIsDisplayed()
+        composeRule.onNodeWithText("© OpenMapTiles", substring = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun UX_AC45_the_sheet_overlaps_the_map_by_28dp_and_the_attribution_stays_above_it() {
+        showDetail()
+
+        val area = composeRule.onNodeWithTag(WALK_MAP_AREA_TAG).getUnclippedBoundsInRoot()
+        val sheet = composeRule.onNodeWithTag(WALK_DETAIL_SHEET_TAG).getUnclippedBoundsInRoot()
+        val strip = composeRule.onNodeWithTag(WALK_MAP_ATTRIBUTION_TAG).getUnclippedBoundsInRoot()
+        assertEquals(470f - 28f, sheet.top.value, 0.5f)
+        // The drawn map ends where the sheet starts, so MapLibre's logo and the attribution are never covered.
+        assertEquals(sheet.top.value, area.bottom.value, 0.5f)
+        assertTrue("attribution must be above the sheet", strip.bottom <= sheet.top)
+    }
+
+    @Test
+    fun UX_AC46_the_sheet_shows_the_date_heading_time_range_two_cards_and_delete() {
+        showDetail()
+
+        composeRule.onNodeWithText("Monday 19 October").assertIsDisplayed()
+        composeRule.assertHeadingsMarked("Monday 19 October")
+        composeRule.onNodeWithText("09:15 – 10:30").assertIsDisplayed()
+        composeRule.onNode(hasText("Duration") and hasText("1:15")).assertIsDisplayed()
+        composeRule.onNode(hasText("Distance") and hasText("2.0 mi")).assertIsDisplayed()
+        // Each card is one node: its caption is not a separate node in the merged tree.
+        assertEquals(1, composeRule.onAllNodes(hasText("Duration")).fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodes(hasText("Distance")).fetchSemanticsNodes().size)
+        composeRule
+            .onNodeWithText("Delete this walk")
+            .assertIsDisplayed()
+            .assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.onNodeWithText("Walk details").assertDoesNotExist()
+    }
+
+    @Test
+    fun UX_AC46_a_walk_from_another_year_shows_the_year_in_the_heading() {
+        showDetail(clock = Clock.fixed(Instant.parse("2027-01-05T12:00:00Z"), ZoneOffset.UTC))
+
+        composeRule.onNodeWithText("Monday 19 October 2026").assertIsDisplayed()
+        composeRule.onNodeWithText("Monday 19 October").assertDoesNotExist()
+    }
+
+    @Test
+    fun UX_AC47_offline_the_map_area_says_so_with_the_sub_line_and_the_facts_still_show() {
+        showDetail(loaded(mapAvailable = false))
+
+        composeRule.onNodeWithText("Map not available offline").assertIsDisplayed()
+        composeRule.onNodeWithText("Your route is saved. It'll show here next time you're online.").assertIsDisplayed()
+        assertEquals(0, map.drawCount)
+        composeRule.onNodeWithText("Monday 19 October").assertIsDisplayed()
+        composeRule.onNode(hasText("Duration") and hasText("1:15")).assertIsDisplayed()
+        composeRule.onNode(hasText("Distance") and hasText("2.0 mi")).assertIsDisplayed()
+    }
+
+    @Test
+    fun UX_AC48_delete_asks_in_a_sheet_with_the_exact_texts_and_buttons_of_at_least_48dp() {
+        showDetail()
+
+        composeRule.onNodeWithText("Delete this walk").performClick()
+
+        assertEquals(1, deleteRequests)
+        composeRule.onNodeWithText("Delete this walk?").assertIsDisplayed()
+        composeRule
+            .onNodeWithText("The walk on Mon 19 Oct 2026 at 09:15 and its route will be removed from this phone. This can't be undone.")
+            .assertIsDisplayed()
+        composeRule.onNodeWithText("Delete walk").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.onNodeWithText("Cancel").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        assertEquals(0, deleteConfirms)
+    }
+
+    @Test
+    fun UX_AC48_confirming_deletes_and_cancel_changes_nothing() {
+        showDetail()
+
+        composeRule.onNodeWithText("Delete this walk").performClick()
+        composeRule.onNodeWithText("Cancel").performClick()
+        composeRule.waitForIdle()
+        assertEquals(1, deleteCancels)
+        assertEquals(0, deleteConfirms)
+        composeRule.onNodeWithText("Delete this walk?").assertDoesNotExist()
+
+        composeRule.onNodeWithText("Delete this walk").performClick()
+        composeRule.onNodeWithText("Delete walk").performClick()
+        assertEquals(1, deleteConfirms)
+        assertEquals(0, backs)
+    }
+
+    @Test
+    fun UX_AC48_once_the_walk_is_deleted_the_screen_returns_to_walks() {
+        showDetail()
+
+        composeRule.runOnIdle { deletion.value = WalkDeletionState(deleted = true) }
+        composeRule.waitForIdle()
+
+        assertEquals(1, backs)
+    }
+
+    @Test
+    fun UX_AC48_a_failed_delete_shows_the_existing_message() {
+        deletion.value = WalkDeletionState(failed = true)
+        showDetail()
+
+        composeRule.onNodeWithText("Couldn't delete the walk. Try again.").assertIsDisplayed()
+        assertEquals(0, backs)
+    }
+
+    @Test
+    fun UX_AC49_no_route_not_found_and_load_failed_show_the_exact_existing_texts() {
+        showDetail(loaded(route = emptyList()))
+        composeRule.onNodeWithText("No route was recorded for this walk").assertIsDisplayed()
+        composeRule.onNodeWithText("Monday 19 October").assertIsDisplayed()
+
+        composeRule.runOnIdle { current.value = WalkDetailUiState.NotFound }
+        composeRule.onNodeWithText("This walk can't be found. It may have been deleted.").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Back").assertIsDisplayed()
+
+        composeRule.runOnIdle { current.value = WalkDetailUiState.LoadFailed }
+        composeRule.onNodeWithText("Couldn't load this walk.").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Back").assertIsDisplayed()
+    }
+
+    private fun assertDetailAndSheetAccessible() {
+        showDetail()
+        composeRule.assertAccessibleScreen()
+        composeRule.onNodeWithText("Delete this walk").performClick()
+        composeRule.onNodeWithText("Delete this walk?").assertIsDisplayed()
+        composeRule.assertAccessibleScreen()
+    }
+
+    @Test
+    fun UX_AC58_the_walk_detail_and_its_delete_sheet_are_accessible_in_light() {
+        assertDetailAndSheetAccessible()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun UX_AC58_the_walk_detail_and_its_delete_sheet_are_accessible_in_dark() {
+        assertDetailAndSheetAccessible()
+    }
+
+    @Test
+    fun UX_AC60_a_at_200_percent_the_detail_is_not_truncated_and_scrolls_to_delete() {
+        showDetail(fontScale = 2f)
+
+        composeRule.assertNoTextTruncation()
+        composeRule.onNodeWithText("Delete this walk").performScrollTo().assertIsDisplayed()
+        composeRule.assertNoTextTruncation()
+    }
+
+    @Test
+    fun UX_AC60_a_at_200_percent_offline_the_message_and_sub_line_are_not_truncated() {
+        showDetail(loaded(mapAvailable = false), fontScale = 2f)
+
+        composeRule.assertNoTextTruncation()
+        composeRule.onNodeWithText("Your route is saved. It'll show here next time you're online.").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Delete this walk").performScrollTo().assertIsDisplayed()
     }
 }

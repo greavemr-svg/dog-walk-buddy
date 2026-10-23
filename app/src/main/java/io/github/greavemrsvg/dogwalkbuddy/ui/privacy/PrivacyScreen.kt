@@ -109,17 +109,17 @@ fun PrivacyContent(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(TopBarGap)) {
                 BackButton(onClick = onBack, contentDescription = stringResource(R.string.privacy_back))
-                Heading(R.string.privacy_title, FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
+                Heading(R.string.privacy_title, style = FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
             }
-            Heading(R.string.privacy_headline, FieldKit.typography.screenTitle.copy(fontSize = HeadlineSize))
+            Heading(R.string.privacy_headline, style = FieldKit.typography.screenTitle.copy(fontSize = HeadlineSize))
             PrivacyCard(icon = R.drawable.ic_phone, heading = R.string.privacy_card_local_heading) {
                 Body(R.string.privacy_local)
                 Body(R.string.privacy_no_tracking)
             }
             PrivacyCard(icon = R.drawable.ic_send_out, heading = R.string.privacy_card_sent_heading) {
-                Heading(R.string.privacy_entry_met_heading, FieldKit.typography.label)
+                Heading(R.string.privacy_entry_met_heading, style = FieldKit.typography.label)
                 Body(R.string.privacy_weather)
-                Heading(R.string.privacy_entry_map_heading, FieldKit.typography.label, Modifier.padding(top = EntryGap))
+                Heading(R.string.privacy_entry_map_heading, Modifier.padding(top = EntryGap), FieldKit.typography.label)
                 Body(R.string.privacy_map)
             }
             Column(verticalArrangement = Arrangement.spacedBy(FieldKitSpacing.stackGap)) {
@@ -164,7 +164,7 @@ private fun PrivacyCard(
                 tint = colors.primary,
                 modifier = Modifier.size(CardIconSize),
             )
-            Heading(heading, FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold))
+            Heading(heading, style = FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold))
         }
         content()
     }
@@ -200,8 +200,8 @@ private fun Status(
 @Composable
 private fun Heading(
     @StringRes resId: Int,
-    style: TextStyle = FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold, fontSize = SectionHeadingSize),
     modifier: Modifier = Modifier,
+    style: TextStyle = FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold, fontSize = SectionHeadingSize),
 ) {
     Text(text = stringResource(resId), style = style, color = FieldKit.colors.onSurface, modifier = modifier.semantics { heading() })
 }

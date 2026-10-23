@@ -213,7 +213,8 @@ private fun LoadedWalk(
     // The whole screen scrolls, so nothing is cut off at large font sizes (AC60).
     Column(modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         // Offline at large font sizes the message may need more than the map's height, so the area grows.
-        val areaHeight = if (state.route.isEmpty() || !state.mapAvailable) Modifier.heightIn(min = MapHeight) else Modifier.height(MapHeight)
+        val showsMessage = state.route.isEmpty() || !state.mapAvailable
+        val areaHeight = if (showsMessage) Modifier.heightIn(min = MapHeight) else Modifier.height(MapHeight)
         Box(modifier = Modifier.fillMaxWidth()) {
             MapArea(state, routeMap, onMapLoadFailed, Modifier.fillMaxWidth().then(areaHeight).padding(bottom = SheetOverlap))
             BackButton(
