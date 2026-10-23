@@ -132,3 +132,23 @@ p95 uses nearest rank. With n=10 that is the largest run, and with n=20 the 19th
 - **History open:** PASS. All 10 redesign runs fall between 554 and 577 ms, well under the 1000 ms target and faster than the base. The 1625 ms outlier from the emulator did not happen again on the phone. The phone results are very tight: base spread 17 ms, redesign spread 23 ms.
 - **Memory:** PASS. PSS on Today is +3.2 % (the emulator showed +12.7 % against old MVP figures that were not re-measured).
 - No breach on the phone. Under the owner's decision, no fix task is needed.
+
+## Re-check after task 9 (d9a9e13)
+Run on 23 Oct 2026 for the stage 4 re-run after fix task 9 (issue #48, PR #49). Branch head `b3dbd78`. Method: code review of `git diff da65ae2..d9a9e13 -- app/src/main` (4 files, +50/-12). No new measurement was run, because no plausible effect on a measured metric was found.
+
+### What changed
+- **Recording timer loop** (`RecordingScreen.kt`, new `TimerTick.kt`): the loop used to wait a fixed 1000 ms after each clock read. It now waits until the elapsed time next reaches a whole second (`1000 - (elapsedMs mod 1000)`, always between 1 and 1000 ms).
+- **Connectivity** (`ConnectivityStatus.kt`, `CheckViewModel.kt`): `registerDefaultNetworkCallback` is wrapped in try/catch, and the collector has a `.catch` that logs. The happy path still registers and unregisters exactly one callback.
+
+### Impact per metric
+| Metric | Impact | Reasoning |
+|---|---|---|
+| Cold start | none | Neither change runs at startup. `TimerTick` is only used once the Recording screen is composed. The connectivity flow is cold and only collected by the Check screen. A try block and one extra flow operator cost nothing that can be measured. |
+| Start walk | none | The Start path and service are unchanged. The first timer tick now comes at most 1 s after the screen opens, the same as before. |
+| History open | none | No code on this path changed. |
+| Check time | none | One `.catch` operator on the connectivity collector, and a try/catch around one system call. Both cost less than a microsecond. Lookup and network code are unchanged. |
+| Memory (PSS) | none | No new allocations that stay alive. Each tick allocates one `Duration`, which is short-lived. One small new class is loaded only on the Recording screen. |
+| Battery during recording (timer wake-ups) | none | Both loops wake up about once a second. The old loop's period was 1000 ms plus the loop body time, so it drifted and was slightly slower than 1 Hz. The new loop lines up with whole seconds, so it runs at exactly 1 Hz. Over a 1-hour walk that is at most a few more wake-ups, out of about 3600. A 1 ms wait can only happen once, when the screen first opens and the read lands just before a boundary. After that each wait is about 1000 ms, because Handler-based `delay` never resumes early. A wall-clock jump still gives a wait between 1 and 1000 ms, so the loop cannot spin. As before, the loop only runs while the Recording screen is composed. GPS and the foreground service are unchanged. |
+
+### Verdict
+No metric is affected. The phone confirmation above (cold start +7.1 %, history open -15.2 %, PSS +3.2 %) still applies to `d9a9e13`. No regression beyond the thresholds.

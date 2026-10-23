@@ -73,3 +73,38 @@ Counts: critical=0 high=0 medium=0 low=2 info=5
 
 STATUS: DONE
 BLOCKING: 0
+
+---
+
+# Security review, Stage 4 re-run after fix task 9 (delta da65ae2..b3dbd78)
+
+Recorded by the orchestrator from the security agent's report, 2026-10-23, model opus. One edit: the phone's adb serial named in R-08 is redacted here as well.
+
+**Summary.** R-02 is resolved. The code in d9a9e13 guards network callback registration in two places, at the source and where the flow is collected. Neither guard can swallow coroutine cancellation, and only exception class names are logged. The delta adds no dependency, host, permission or manifest change. There is one new Low finding (R-08): the hardware serial number of the owner's own phone was committed in the run state file. Nothing has regressed from the earlier review.
+
+Counts: critical 0, high 0, medium 0, low 2 (R-01 open, R-08 new), info 5 (R-03 to R-07); R-02 resolved.
+
+| ID | Severity | Location | Issue | Fix | Owner | Status |
+|---|---|---|---|---|---|---|
+| R-01 | Low | `.github/dependabot.yml`; repo settings | No dependency alerting. | As before. | owner | Open (owner action later, owner_answers.dependabot_r01) |
+| R-02 | Low | `data/net/ConnectivityStatus.kt:57-70`, `ui/check/CheckViewModel.kt:90-95` | `register()` catches `RuntimeException` (covers `TooManyRequestsException` and `SecurityException`) and returns false; the flow closes without emitting and only unregisters a callback that registered. `CheckViewModel` adds `.catch { logError(error.javaClass.name) }`. Cancellation cannot be swallowed (non-suspend call; `Flow.catch` passes cancellation through). Only the class name is logged, and a test checks this. Covered by 3 ViewModel tests and Robolectric shadow tests. | None | developer | **Resolved** in d9a9e13 (PR #49) |
+| R-03 | Info | `ConnectivityStatus.kt`, `CheckViewModel.kt` | Callback lifecycle is correct; a refused callback is now handled too. | Optional `WhileSubscribed` | developer | Open (unchanged) |
+| R-04 | Info | `ui/profile/ProfileViewModel.kt` | Narrow race between delete-all and save. | As before | developer | Open (unchanged) |
+| R-05 | Info | strings / drawables | Material Symbols not named on About. | As before | architect | Open (unchanged) |
+| R-06 | Info | `docs/ux-evidence/**` | Screenshots contain only test data; unchanged in the delta. | None | n/a | Unchanged |
+| R-07 | Info | `DeleteAllDataUseCase.kt`, `PrivacyViewModel.kt`, `proguard-rules.pro` | MVP S-01, S-02 and S-04 still apply. | As before | developer | Open (unchanged) |
+| R-08 | Low | `docs/runs/20261022-ux-redesign/state.json` (added in commits 1bcfa43 and f592e69) | The adb serial of the owner's Galaxy Z Flip3 was recorded 3 times in a public repo. It is a persistent hardware identifier, and the commit email links it to the owner. Low risk: the serial alone gives no access. The perf docs do not contain it. | Replace it with a neutral label in `state.json` before the release PR; log the device model, not the serial, in future. It stays in feature-branch history (removing it would need a history rewrite, and force-push is forbidden, so that is the owner's call). A squash merge of the release PR keeps it out of `main`'s history. | orchestrator / owner | **New**. Redacted from state.json by the orchestrator on 2026-10-23; history copy is the owner's call |
+
+### Other checks on the delta
+- App code: only `ConnectivityStatus.kt`, `CheckViewModel.kt`, `RecordingScreen.kt` and new `TimerTick.kt`. The timer change is pure arithmetic (`floorMod` keeps the delay between 1 and 1000 ms) with no I/O, logging or new state.
+- No changes to `gradle/`, `*.gradle.kts`, `settings.gradle.kts` or `AndroidManifest.xml`, and no new URLs: no new dependency, host or permission.
+- Secrets scan of the added lines: clean, apart from synthetic test strings and the emulator serial `emulator-5554`.
+- No regressions: `DeleteAllDataUseCase`, `PrivacyViewModel`, the manifest, the source sets, `MapConfig` and the privacy strings are untouched.
+
+### Tools run
+- `git diff da65ae2..HEAD`, plus `--stat` and `--name-status`.
+- A grep scan of added lines for secrets and identifiers.
+- `git log -S <serial>` and `gh repo view` (repo is PUBLIC).
+
+BLOCKING: 0
+STATUS: DONE
