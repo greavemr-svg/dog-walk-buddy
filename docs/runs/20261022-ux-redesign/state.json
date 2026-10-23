@@ -2,7 +2,7 @@
   "run_id": "20261022-ux-redesign",
   "idea": "Restyle Dog Walk Buddy to the owner's UX design pack at C:/Users/greav/projects/dog-walk-buddy-ux (README.md, ux-spec.md, tokens.json, screens/*.dc.html). Owner: \"I would like to cahgne the UX to follow the designs in C:/Users/greav/projects/dog-walk-buddy-ux\". Pack rules: MVP spec/ACs win; existing strings win unless owner approves copy changes in spec; a11y floors unchanged (AC51-AC53); dark mode required.",
   "status": "in_progress",
-  "stage": "build",
+  "stage": "feature_verification",
   "created_at": "2026-10-22T09:36:24Z",
   "epic_issue": 31,
   "feature_branch": "feature/20261022-ux-redesign",
@@ -203,10 +203,17 @@
         2,
         7
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "branch": "task/20261022-ux-redesign-8-dog-profile-and-about",
-      "pr": null
+      "pr": 47,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-23T11:25:24Z",
+        "head": "cdc9e7c",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T8.md"
+      },
+      "merge_commit": "d6d0c96"
     }
   ],
   "release": {
@@ -216,7 +223,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 82,
+    "agent_invocations": 91,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -405,7 +412,25 @@
     "2026-10-23T09:43:34Z gatekeeper G3 T7 (opus): PASS on f38b5a3. Record gates/G3-T7.md; posting on PR #46. State (owner answers) committed to feature after merge",
     "2026-10-23T09:43:34Z orchestrator: T7 invoking release integrate (opus). Budget 81/200 incl. this call",
     "2026-10-23T09:48:22Z release integrate T7 (opus): PR #46 squash-merged as 5f80492 (match-head f38b5a3); issue #38 closed (comment 6362084354); branches deleted; feature CI 39934009763 in progress. T7 done",
-    "2026-10-23T09:48:22Z orchestrator: T8 attempt 1: invoking developer (opus). Budget 82/200 incl. this call"
+    "2026-10-23T09:48:22Z orchestrator: T8 attempt 1: invoking developer (opus). Budget 82/200 incl. this call",
+    "2026-10-23T09:52:16Z developer T8 attempt 1 (opus): BLOCKED at step 0 (no code); 13 unlisted test lines from T2-era tests (C8/C9)",
+    "2026-10-23T09:52:16Z owner: t8_test_edits -> \"Approve all 13\"",
+    "2026-10-23T09:52:16Z orchestrator: T8 continue attempt 1 (owner unblock). Budget 83/200 incl. this call",
+    "2026-10-23T10:37:58Z developer T8 (continue attempt 1, opus): DONE after turn limit; PR #47 head 41a8460 (code f2eb30c); 1031 tests, CI coverage 99.0% (4870/4919), changed 100%; 10 screenshots + AC59 checklist under docs/ux-evidence/task-8; PrimaryButton added (T3 never created it); defect: °C wrap in About table",
+    "2026-10-23T10:37:58Z owner: t8_degree_wrap -> \"Keep them together\" (non-breaking space; visible text unchanged)",
+    "2026-10-23T10:37:58Z orchestrator: T8 developer applies NBSP fix + test + retake About shots (same attempt, owner-directed). Budget 85/200 incl. this call (84 = T8 continue)",
+    "2026-10-23T10:57:24Z developer T8 degree-wrap fix (opus): DONE; NBSP in 8 about_table_* cells (3422002), 2 new AC56 tests failed before fix; PR-own tests updated exactly; 1033 tests, CI 99.0%; screenshots retaken; head 66db9de; CI pass",
+    "2026-10-23T10:57:24Z orchestrator: T8 invoking tester (opus). Budget 86/200 incl. this call",
+    "2026-10-23T11:11:26Z tester T8 (opus): PASSED on cdc9e7c (+8 tests incl. drawn 48dp K4, end-to-end sensitivity save and photo errors, literal threshold sentences); 1041/0/0 x3; 99.0%, changed 99%; audit: 22 assertion lines allowed, 10 helper lines. Comment 6363544829",
+    "2026-10-23T11:11:26Z orchestrator: T8 developer PR-body refresh to cdc9e7c before review. Budget 87/200 incl. this call",
+    "2026-10-23T11:19:28Z developer T8 body refresh (opus): DONE; body at cdc9e7c (1041 tests; local 99.0% 4871, CI 99.0% 4869 labelled); CI pass (run 39944174547)",
+    "2026-10-23T11:19:28Z orchestrator: T8 invoking reviewer (opus). Budget 88/200 incl. this call",
+    "2026-10-23T11:22:23Z reviewer T8 (opus): APPROVE (head cdc9e7c), review 5627525325; 3 Minor + 1 Nit non-blocking; CI green",
+    "2026-10-23T11:22:23Z orchestrator: T8 invoking gatekeeper G3 (opus, focused). Budget 89/200 incl. this call",
+    "2026-10-23T11:25:24Z gatekeeper G3 T8 (opus): PASS on cdc9e7c. Record gates/G3-T8.md; posting on PR #47",
+    "2026-10-23T11:25:24Z orchestrator: T8 invoking release integrate (opus). Budget 90/200 incl. this call",
+    "2026-10-23T11:29:58Z release integrate T8 (opus): PR #47 squash-merged as d6d0c96 (match-head cdc9e7c); issue #39 closed (comment 6363799607); feature CI 39946023968 in progress. T8 done; all 8 tasks done",
+    "2026-10-23T11:29:58Z orchestrator: auto-mode classifier flagged the T8 integrate report as 'Merge Without Review' (GitHub review state COMMENTED not APPROVED, bot cannot approve own PR; same as T1-T7; reviewer VERDICT APPROVE + G3 PASS; merge into feature branch only, guard allowed). Surfacing to owner before Stage 4"
   ],
   "bootstrap": false,
   "base": {
@@ -545,6 +570,21 @@
       "at": "2026-10-23T08:21:20Z",
       "question": "On Walk detail, the details sheet overlaps the bottom of the map by 28 dp, which would cover the map's logo and info (\"i\") button. Map attribution must stay visible (an existing MVP check protects it). The developer plans to shrink the map's drawn area by 28 dp at the bottom so the logo and attribution sit above the sheet, and list it as a difference from your mock-up. OK?",
       "answer": "Yes, keep visible"
+    },
+    "t8_test_edits": {
+      "at": "2026-10-23T09:52:16Z",
+      "question": "Task 8 needs 13 test lines that aren't on the approved list. They were all added during task 2 (bottom-nav tests), so the design's lists couldn't include them. 12 wait for or tap the \"Save profile\" button, which becomes \"Save\" (your approved C9). One checks the \"Dog profile\" heading, which becomes \"Your dog\" (your approved C8). Each swaps in the new text exactly; \"Save\" is the only button with exactly that text on the Dog tab. Approve all 13?",
+      "answer": "Approve all 13",
+      "lines": [
+        "BottomNavEdgeCasesTest.kt:113,133,150,164,167",
+        "BottomNavTest.kt:157,197,225,243,255,361,363",
+        "FullScreenDestinationsTest.kt:142"
+      ]
+    },
+    "t8_degree_wrap": {
+      "at": "2026-10-23T10:37:58Z",
+      "question": "In the About thresholds table (see the dark screenshot), \"20 to below 25 °C\" wraps so \"°C\" starts a new line on its own, and \"25 °C or above\" splits similarly. Should task 8 keep numbers and \"°C\" together?",
+      "answer": "Keep them together"
     }
   },
   "carry_forward": [
@@ -647,6 +687,26 @@
       "from": "T7 review 5626492807 (Minor)",
       "to": "backlog",
       "item": "Map label under status bar on walk detail; optional top scrim"
+    },
+    {
+      "from": "T8 developer",
+      "to": "backlog / owner copy decision",
+      "item": "About Heat threshold sentence (MVP fixed text, kept word for word) still wraps 'Avoid from 25 / °C' at 540 px; changing it needs an owner decision on a fixed MVP text"
+    },
+    {
+      "from": "T8 review 5627525325 (Minor)",
+      "to": "backlog",
+      "item": "ProfileScreen mutedOptionalLabel splits at first '('; pass suffix explicitly"
+    },
+    {
+      "from": "T8 review 5627525325 (Minor)",
+      "to": "backlog",
+      "item": "ProfileTextField always composes empty error Text into merged semantics"
+    },
+    {
+      "from": "T8 review 5627525325 (Minor)",
+      "to": "backlog / AC59 phone check",
+      "item": "ThresholdsTable: all 9 header cells marked heading(), floods TalkBack heading nav"
     }
   ]
 }
