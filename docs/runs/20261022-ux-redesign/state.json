@@ -2,7 +2,7 @@
   "run_id": "20261022-ux-redesign",
   "idea": "Restyle Dog Walk Buddy to the owner's UX design pack at C:/Users/greav/projects/dog-walk-buddy-ux (README.md, ux-spec.md, tokens.json, screens/*.dc.html). Owner: \"I would like to cahgne the UX to follow the designs in C:/Users/greav/projects/dog-walk-buddy-ux\". Pack rules: MVP spec/ACs win; existing strings win unless owner approves copy changes in spec; a11y floors unchanged (AC51-AC53); dark mode required.",
   "status": "in_progress",
-  "stage": "build",
+  "stage": "feature_verification",
   "created_at": "2026-10-22T09:36:24Z",
   "epic_issue": 31,
   "feature_branch": "feature/20261022-ux-redesign",
@@ -232,11 +232,25 @@
         5,
         3
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "branch": "task/20261022-ux-redesign-9-timer-drift-and-network-guard",
-      "pr": null,
-      "fix_task": true
+      "pr": 49,
+      "fix_task": true,
+      "dev_head": "16bc297",
+      "tester_head": "7e0e3de",
+      "review": {
+        "verdict": "APPROVE",
+        "head": "7e0e3de",
+        "id": 5631383571
+      },
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-23T16:32:26Z",
+        "head": "7e0e3de",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T9.md"
+      },
+      "merge_commit": "d9a9e13"
     }
   ],
   "release": {
@@ -246,7 +260,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 99,
+    "agent_invocations": 105,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -469,7 +483,12 @@
     "2026-10-23T15:52:41Z performance (opus): DONE on phone SM-F711B; cold start +7.1% median/+7.6% p95, history -15.2% (max 577 ms), PSS +3.2%; no regression beyond threshold on phone -> no fix task per perf_breach; stay-on restored 0 (orchestrator verified)",
     "2026-10-23T15:53:00Z invoking gatekeeper (opus) for G4 on feature head 1bcfa43",
     "2026-10-23T16:02:08Z gatekeeper (opus): G4 PASS on 1bcfa43 (CI 39982037824); perf via owner perf_breach phone confirmation. Manual phone checks owed before G5",
-    "2026-10-23T16:03:43Z owner: fix timer drift + R-02 in task 9 (cap exceeded with approval); R-01 owner later. Issue #48 created. Invoking developer (opus) for T9"
+    "2026-10-23T16:03:43Z owner: fix timer drift + R-02 in task 9 (cap exceeded with approval); R-01 owner later. Issue #48 created. Invoking developer (opus) for T9",
+    "2026-10-23T16:13:44Z developer (opus): T9 DONE, PR #49 head 16bc297; ci.sh pass, changed-line coverage 100%; no existing test changed. Invoking tester (opus)",
+    "2026-10-23T16:23:56Z tester (opus): T9 DONE head 7e0e3de; 1056/1056 tests, changed lines 100%, 7 tests added (AC table PR comment 6369562419). PR body has no stale head refs. Invoking reviewer (opus)",
+    "2026-10-23T16:30:59Z reviewer (opus): T9 APPROVE head 7e0e3de (review 5631383571), 3 Minor carried forward. Invoking gatekeeper (opus) G3-T9",
+    "2026-10-23T16:32:26Z gatekeeper (opus): G3-T9 PASS head 7e0e3de; posted on PR #49. Invoking release (opus) integrate",
+    "2026-10-23T16:33:19Z release (opus) integrate: PR #49 squash-merged d9a9e13; issue #48 closed. Stage 4 re-run: security delta check, then G4"
   ],
   "bootstrap": false,
   "base": {
@@ -794,6 +813,21 @@
       "from": "security R-02 (Low)",
       "to": "developer / backlog",
       "item": "ConnectivityStatus registerDefaultNetworkCallback can throw; collected with bare viewModelScope.launch; add runCatching/.catch"
+    },
+    {
+      "from": "T9 review 5631383571 (Minor)",
+      "to": "backlog",
+      "item": "CheckViewModel.kt:93 .catch catches Throwable; rethrow non-Exception"
+    },
+    {
+      "from": "T9 review 5631383571 (Minor)",
+      "to": "backlog",
+      "item": "RecordingScreen.kt:145 remember(clock) vs LaunchedEffect(clock,start) keys; use remember(clock,start)"
+    },
+    {
+      "from": "T9 review 5631383571 (Minor)",
+      "to": "backlog",
+      "item": "ConnectivityCallbackLimitTest static counters not parallel-safe"
     }
   ]
 }
