@@ -29,7 +29,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.resetMain
@@ -901,6 +903,82 @@ class CheckViewModelTest {
         changes.tryEmit(Unit)
         assertFalse(rated(viewModel.awaitSettled()).isOffline)
         assertEquals(1, stub.server.requestCount)
+    }
+
+    @Test
+    fun UX_AC21_a_failing_network_change_source_keeps_the_offline_lead_read_on_open_and_logs_the_error() {
+        stub.enqueueFixture()
+        newViewModel().apply {
+            onOpened()
+            awaitSettled()
+        }
+        clock.advance(Duration.ofMinutes(90))
+        locationSource = ApproximateLocationSource { null }
+        val logged = mutableListOf<String>()
+        val failing = flow<Unit> { throw SecurityException("callback refused") }
+        val viewModel = newViewModel(isOnline = { false }, logError = { logged += it }, connectivityChanges = failing)
+
+        viewModel.onOpened()
+
+        assertTrue(rated(viewModel.awaitSettled()).isOffline)
+        assertEquals(listOf(SecurityException::class.java.name), logged)
+    }
+
+    @Test
+    fun UX_AC21_R02_a_change_source_that_fails_later_keeps_the_last_reading_and_the_view_model_keeps_working() {
+        stub.enqueueFixture()
+        newViewModel().apply {
+            onOpened()
+            awaitSettled()
+        }
+        clock.advance(Duration.ofMinutes(90))
+        locationSource = ApproximateLocationSource { null }
+        var online = true
+        var refuse = false
+        val logged = mutableListOf<String>()
+        val changes = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        // Like the system refusing the callback partway, for example above the per-app limit (a RuntimeException).
+        val failingLater = changes.map { if (refuse) throw IllegalStateException("too many requests") }
+        val viewModel = newViewModel(isOnline = { online }, logError = { logged += it }, connectivityChanges = failingLater)
+        viewModel.onOpened()
+        assertFalse(rated(viewModel.awaitSettled()).isOffline)
+
+        online = false
+        changes.tryEmit(Unit)
+        assertTrue("a change before the failure still updates the lead", rated(viewModel.awaitSettled()).isOffline)
+
+        refuse = true
+        online = true
+        changes.tryEmit(Unit)
+        assertTrue("the failure itself is not treated as a change", rated(viewModel.awaitSettled()).isOffline)
+        assertEquals(listOf(IllegalStateException::class.java.name), logged)
+
+        viewModel.onShown()
+        assertFalse("the screen shown again still re-reads the connection", rated(viewModel.awaitSettled()).isOffline)
+
+        stub.enqueueFixture()
+        locationSource = ApproximateLocationSource { fix }
+        viewModel.refresh()
+        val fresh = rated(viewModel.awaitSettled())
+        assertNull("a refresh after the failure still runs a fresh check", fresh.ageMinutes)
+        assertFalse(fresh.isOffline)
+        assertEquals(2, stub.server.requestCount)
+        assertEquals("only the one failure is logged", 1, logged.size)
+    }
+
+    @Test
+    fun UX_AC21_R02_a_change_source_failing_on_open_logs_only_the_class_name() {
+        stub.enqueueFixture()
+        val logged = mutableListOf<String>()
+        val failing = flow<Unit> { throw SecurityException("callback refused for uid 10123 and secret detail") }
+        val viewModel = newViewModel(logError = { logged += it }, connectivityChanges = failing)
+
+        viewModel.onOpened()
+        val state = rated(viewModel.awaitSettled())
+
+        assertNull("the check on open is unaffected", state.ageMinutes)
+        assertFalse(state.isOffline)
+        assertEquals(listOf("java.lang.SecurityException"), logged)
     }
 
     private companion object {

@@ -91,8 +91,6 @@ const val TIMER_TAG = "recording_timer"
 const val LIVE_DOT_TAG = "recording_live_dot"
 const val STOP_ICON_TAG = "recording_stop_icon"
 
-private const val TICK_MS = 1_000L
-
 /**
  * The recording screen: elapsed time, distance, start time, the route so far and Stop (AC28, AC33-AC37). It is
  * always dark. It closes itself when no walk is being recorded, which includes the moment after Stop has saved the
@@ -122,7 +120,7 @@ fun RecordingRoute(
     if (current != null) {
         RecordingContent(
             session = current,
-            now = rememberNow(clock),
+            now = rememberNow(clock, current.startUtc),
             route = route,
             startedFormat = startedFormat,
             stopping = stopping,
@@ -138,14 +136,18 @@ private fun notificationsAllowed(context: Context): Boolean =
     Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
         ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
-/** The current time from [clock], refreshed every second while the screen is shown. */
+/** The current time from [clock], refreshed on each whole second since [start] while the screen is shown. */
 @Composable
-private fun rememberNow(clock: Clock): Instant {
+private fun rememberNow(
+    clock: Clock,
+    start: Instant,
+): Instant {
     var now by remember(clock) { mutableStateOf(clock.instant()) }
-    LaunchedEffect(clock) {
+    LaunchedEffect(clock, start) {
         while (true) {
-            now = clock.instant()
-            delay(TICK_MS)
+            val reading = clock.instant()
+            now = reading
+            delay(millisUntilNextWholeSecond(start, reading))
         }
     }
     return now

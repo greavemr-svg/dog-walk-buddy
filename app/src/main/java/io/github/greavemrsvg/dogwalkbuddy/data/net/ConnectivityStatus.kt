@@ -31,7 +31,10 @@ class AndroidConnectivityStatus(
             capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 
-    /** A default-network callback while collected; it is unregistered when collection stops. */
+    /**
+     * A default-network callback while collected; it is unregistered when collection stops. If the system refuses the
+     * callback, the flow ends without emitting, so a screen keeps the connection state it read when it opened.
+     */
     override fun changes(): Flow<Unit> =
         callbackFlow {
             val callback =
@@ -51,7 +54,18 @@ class AndroidConnectivityStatus(
                         trySend(Unit)
                     }
                 }
-            manager.registerDefaultNetworkCallback(callback)
-            awaitClose { manager.unregisterNetworkCallback(callback) }
+            val registered = register(callback)
+            if (!registered) close()
+            awaitClose { if (registered) manager.unregisterNetworkCallback(callback) }
         }.conflate()
+
+    private fun register(callback: ConnectivityManager.NetworkCallback): Boolean =
+        try {
+            manager.registerDefaultNetworkCallback(callback)
+            true
+        } catch (_: RuntimeException) {
+            // Too many callbacks for this app (TooManyRequestsException) or ACCESS_NETWORK_STATE missing
+            // (SecurityException): live updates are optional, so carry on without them (security review R-02).
+            false
+        }
 }
