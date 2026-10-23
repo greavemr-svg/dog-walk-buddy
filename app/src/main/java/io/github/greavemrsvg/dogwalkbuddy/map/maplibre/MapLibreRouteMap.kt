@@ -17,6 +17,7 @@ import io.github.greavemrsvg.dogwalkbuddy.map.MapConfig
 import io.github.greavemrsvg.dogwalkbuddy.map.RouteBounds
 import io.github.greavemrsvg.dogwalkbuddy.map.RouteGeoJson
 import io.github.greavemrsvg.dogwalkbuddy.map.RouteMap
+import io.github.greavemrsvg.dogwalkbuddy.map.RouteStyle
 import okhttp3.OkHttpClient
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraUpdateFactory
@@ -25,13 +26,14 @@ import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
 import org.maplibre.android.module.http.HttpRequestUtil
+import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.layers.LineLayer
 import org.maplibre.android.style.layers.PropertyFactory
 import org.maplibre.android.style.sources.GeoJsonSource
 
 /**
  * Draws the route with MapLibre Native on the OpenFreeMap style (ADR 0003). It is excluded from coverage and
- * checked by hand (AC38). The route line is built on the device from the stored points: only the style and the
+ * checked by hand (AC38, AC45). The route line is built on the device from the stored points: only the style and the
  * tiles are downloaded, through the app's own HTTP client, and nothing about the route is logged.
  */
 class MapLibreRouteMap(
@@ -92,12 +94,30 @@ class MapLibreRouteMap(
     ) {
         if (route.isEmpty()) return
         style.addSource(GeoJsonSource(ROUTE_SOURCE_ID, RouteGeoJson.lineString(route)))
+        // A light casing under the line keeps the route readable on any tile colour (AC45).
         style.addLayer(
-            LineLayer(ROUTE_LAYER_ID, ROUTE_SOURCE_ID).withProperties(
-                PropertyFactory.lineColor(ROUTE_COLOUR),
-                PropertyFactory.lineWidth(ROUTE_WIDTH),
+            LineLayer(ROUTE_CASING_LAYER_ID, ROUTE_SOURCE_ID).withProperties(
+                PropertyFactory.lineColor(RouteStyle.CASING_COLOUR),
+                PropertyFactory.lineWidth(RouteStyle.CASING_WIDTH_DP),
                 PropertyFactory.lineCap("round"),
                 PropertyFactory.lineJoin("round"),
+            ),
+        )
+        style.addLayer(
+            LineLayer(ROUTE_LAYER_ID, ROUTE_SOURCE_ID).withProperties(
+                PropertyFactory.lineColor(RouteStyle.LINE_COLOUR),
+                PropertyFactory.lineWidth(RouteStyle.LINE_WIDTH_DP),
+                PropertyFactory.lineCap("round"),
+                PropertyFactory.lineJoin("round"),
+            ),
+        )
+        style.addSource(GeoJsonSource(START_SOURCE_ID, RouteStyle.startMarkerGeoJson(route)))
+        style.addLayer(
+            CircleLayer(START_LAYER_ID, START_SOURCE_ID).withProperties(
+                PropertyFactory.circleColor(RouteStyle.START_MARKER_FILL),
+                PropertyFactory.circleRadius(RouteStyle.START_MARKER_RADIUS_DP),
+                PropertyFactory.circleStrokeColor(RouteStyle.START_MARKER_STROKE),
+                PropertyFactory.circleStrokeWidth(RouteStyle.START_MARKER_STROKE_WIDTH_DP),
             ),
         )
         val bounds = RouteBounds.of(route) ?: return
@@ -109,8 +129,9 @@ class MapLibreRouteMap(
     private companion object {
         const val ROUTE_SOURCE_ID = "walk-route"
         const val ROUTE_LAYER_ID = "walk-route-line"
-        const val ROUTE_COLOUR = "#0B57D0"
-        const val ROUTE_WIDTH = 6f
+        const val ROUTE_CASING_LAYER_ID = "walk-route-casing"
+        const val START_SOURCE_ID = "walk-route-start"
+        const val START_LAYER_ID = "walk-route-start-marker"
         const val FIT_PADDING_DP = 32
     }
 }

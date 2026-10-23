@@ -208,4 +208,68 @@ class WalkDetailViewModelTest {
         assertEquals(4500, loaded(vm).walk.durationSeconds)
         store.clear()
     }
+
+    @Test
+    fun UX_AC48_asking_to_delete_opens_the_confirmation_and_deletes_nothing() {
+        val id = addWalk()
+        val vm = viewModel(id)
+        loaded(vm)
+
+        vm.requestDelete()
+
+        assertTrue(vm.deletion.value.confirming)
+        assertFalse(vm.deletion.value.deleted)
+        assertEquals(id, runBlocking { test.database.walkDao().get(id) }?.id)
+    }
+
+    @Test
+    fun UX_AC48_cancelling_closes_the_confirmation_and_keeps_the_walk() {
+        val id = addWalk()
+        val vm = viewModel(id)
+        loaded(vm)
+
+        vm.requestDelete()
+        vm.cancelDelete()
+        // Confirming after a cancel does nothing, because nothing is being confirmed.
+        vm.confirmDelete()
+
+        assertEquals(WalkDeletionState(), vm.deletion.value)
+        assertEquals(id, runBlocking { test.database.walkDao().get(id) }?.id)
+        assertEquals(3, runBlocking { test.database.walkDao().points(id) }.size)
+    }
+
+    @Test
+    fun UX_AC48_confirming_removes_the_walk_and_its_route_and_reports_it_deleted() {
+        val id = addWalk()
+        val vm = viewModel(id)
+        loaded(vm)
+
+        vm.requestDelete()
+        vm.confirmDelete()
+
+        awaitCondition("walk deleted") { vm.deletion.value.deleted }
+        assertFalse(vm.deletion.value.confirming)
+        assertEquals(null, runBlocking { test.database.walkDao().get(id) })
+        assertTrue(runBlocking { test.database.walkDao().points(id) }.isEmpty())
+    }
+
+    @Test
+    fun UX_AC48_a_delete_that_fails_is_reported_and_can_be_dismissed() {
+        val id = addWalk()
+        val vm = viewModel(id)
+        loaded(vm)
+        // A broken table makes the delete fail, as a damaged database would.
+        test.database.openHelper.writableDatabase
+            .execSQL("DROP TABLE route_point")
+        test.database.openHelper.writableDatabase
+            .execSQL("DROP TABLE walk")
+
+        vm.requestDelete()
+        vm.confirmDelete()
+
+        awaitCondition("delete failed") { vm.deletion.value.failed }
+        assertFalse(vm.deletion.value.deleted)
+        vm.dismissDeleteFailure()
+        assertEquals(WalkDeletionState(), vm.deletion.value)
+    }
 }

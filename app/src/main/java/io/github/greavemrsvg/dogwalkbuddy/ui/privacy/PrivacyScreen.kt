@@ -1,43 +1,60 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.privacy
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.ui.common.BackButton
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.ConfirmSheet
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.DestructiveOutlinedButton
 import io.github.greavemrsvg.dogwalkbuddy.ui.common.ErrorSnackbarEffect
-import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKit
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitShapes
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitSpacing
 
-/** What the app sends and keeps (AC46), and "Delete all my data" (AC47). */
+private val TopBarGap = 8.dp
+private val HeadlineSize = 30.sp
+private val SectionHeadingSize = 18.sp
+private val CardGap = 10.dp
+private val CardIconSize = 22.dp
+private val EntryGap = 6.dp
+
+/**
+ * What the app sends and keeps, in two cards with the exact MVP sentences (AC54, K10), and "Delete all my data" with
+ * its confirmation sheet and status texts (AC55).
+ */
 @Composable
 fun PrivacyRoute(
     viewModel: PrivacyViewModel,
@@ -77,34 +94,80 @@ fun PrivacyContent(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0),
+        containerColor = FieldKit.colors.background,
         snackbarHost = { SnackbarHost(snackbarHost, modifier = Modifier.safeDrawingPadding()) },
     ) { scaffoldPadding ->
-        Surface(modifier = Modifier.padding(scaffoldPadding).fillMaxSize()) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .safeDrawingPadding()
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
+        Column(
+            modifier =
+                Modifier
+                    .padding(scaffoldPadding)
+                    .fillMaxSize()
+                    .safeDrawingPadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = FieldKitSpacing.gutter, vertical = FieldKitSpacing.stackGap),
+            verticalArrangement = Arrangement.spacedBy(FieldKitSpacing.sectionGap),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(TopBarGap)) {
                 BackButton(onClick = onBack, contentDescription = stringResource(R.string.privacy_back))
-                Heading(R.string.privacy_title, MaterialTheme.typography.headlineMedium)
-                Heading(R.string.privacy_weather_heading)
-                Body(R.string.privacy_weather)
-                Heading(R.string.privacy_map_heading)
-                Body(R.string.privacy_map)
-                Heading(R.string.privacy_local_heading)
+                Heading(R.string.privacy_title, style = FieldKit.typography.button)
+            }
+            Heading(R.string.privacy_headline, style = FieldKit.typography.screenTitle.copy(fontSize = HeadlineSize))
+            PrivacyCard(icon = R.drawable.ic_phone, heading = R.string.privacy_card_local_heading) {
                 Body(R.string.privacy_local)
                 Body(R.string.privacy_no_tracking)
+            }
+            PrivacyCard(icon = R.drawable.ic_send_out, heading = R.string.privacy_card_sent_heading) {
+                Heading(R.string.privacy_entry_met_heading, style = FieldKit.typography.label)
+                Body(R.string.privacy_weather)
+                Heading(R.string.privacy_entry_map_heading, Modifier.padding(top = EntryGap), FieldKit.typography.label)
+                Body(R.string.privacy_map)
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(FieldKitSpacing.stackGap)) {
                 Heading(R.string.privacy_delete_heading)
                 Body(R.string.privacy_delete_explanation)
                 DeleteControls(state, onRequestDelete)
             }
         }
     }
-    if (state.confirming) DeleteDialog(onConfirm = onConfirmDelete, onCancel = onCancelDelete)
+    if (state.confirming) {
+        ConfirmSheet(
+            title = stringResource(R.string.privacy_delete_title),
+            message = stringResource(R.string.privacy_delete_message),
+            confirmLabel = stringResource(R.string.privacy_delete_confirm),
+            cancelLabel = stringResource(R.string.privacy_delete_cancel),
+            onConfirm = onConfirmDelete,
+            onCancel = onCancelDelete,
+        )
+    }
+}
+
+/** A `surface` card with a decorative icon beside its [heading], then [content] (AC54). */
+@Composable
+private fun PrivacyCard(
+    @DrawableRes icon: Int,
+    @StringRes heading: Int,
+    content: @Composable () -> Unit,
+) {
+    val colors = FieldKit.colors
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(colors.surface, FieldKitShapes.card)
+                .padding(FieldKitSpacing.cardPadding),
+        verticalArrangement = Arrangement.spacedBy(CardGap),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(CardGap)) {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = colors.primary,
+                modifier = Modifier.size(CardIconSize),
+            )
+            Heading(heading, style = FieldKit.typography.factorValue)
+        }
+        content()
+    }
 }
 
 @Composable
@@ -112,18 +175,11 @@ private fun DeleteControls(
     state: PrivacyUiState,
     onRequestDelete: () -> Unit,
 ) {
-    Button(
+    DestructiveOutlinedButton(
+        label = stringResource(R.string.privacy_delete_all),
         onClick = onRequestDelete,
         enabled = !state.deleting,
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError,
-            ),
-        modifier = Modifier.heightIn(min = MinTouchTarget),
-    ) {
-        Text(stringResource(R.string.privacy_delete_all))
-    }
+    )
     // Announced when it appears, so a TalkBack user hears that the deletion is running and when it is done.
     if (state.deleting) Status(R.string.privacy_deleting)
     if (state.deleted) Status(R.string.privacy_deleted)
@@ -135,44 +191,24 @@ private fun Status(
 ) {
     Text(
         text = stringResource(resId),
-        style = MaterialTheme.typography.titleMedium,
+        style = FieldKit.typography.button,
+        color = FieldKit.colors.onSurface,
         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-    )
-}
-
-@Composable
-private fun DeleteDialog(
-    onConfirm: () -> Unit,
-    onCancel: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onCancel,
-        title = { Text(stringResource(R.string.privacy_delete_title)) },
-        text = { Text(stringResource(R.string.privacy_delete_message)) },
-        confirmButton = {
-            TextButton(onClick = onConfirm, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                Text(stringResource(R.string.privacy_delete_confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onCancel, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                Text(stringResource(R.string.privacy_delete_cancel))
-            }
-        },
     )
 }
 
 @Composable
 private fun Heading(
     @StringRes resId: Int,
-    style: TextStyle = MaterialTheme.typography.titleLarge,
+    modifier: Modifier = Modifier,
+    style: TextStyle = FieldKit.typography.button.copy(fontSize = SectionHeadingSize),
 ) {
-    Text(text = stringResource(resId), style = style, modifier = Modifier.semantics { heading() })
+    Text(text = stringResource(resId), style = style, color = FieldKit.colors.onSurface, modifier = modifier.semantics { heading() })
 }
 
 @Composable
 private fun Body(
     @StringRes resId: Int,
 ) {
-    Text(text = stringResource(resId), style = MaterialTheme.typography.bodyLarge)
+    Text(text = stringResource(resId), style = FieldKit.typography.body, color = FieldKit.colors.onSurfaceVariant)
 }

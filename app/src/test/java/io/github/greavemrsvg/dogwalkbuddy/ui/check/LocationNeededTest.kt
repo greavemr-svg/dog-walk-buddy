@@ -106,7 +106,7 @@ class LocationNeededTest {
             composeRule.onNodeWithText("Allow approximate location").assertIsDisplayed()
             composeRule.onNodeWithText(LINK).performScrollTo().performClick()
 
-            awaitText("Privacy")
+            awaitText("Privacy & your data")
             assertEquals(0, test.stub.server.requestCount)
         } finally {
             test.close()

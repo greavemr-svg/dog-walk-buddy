@@ -10,10 +10,13 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.WithFontScale
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertAccessibleScreen
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertHeadingsMarked
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertNoTextTruncation
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertTouchTargetIsAtLeast
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -197,6 +200,107 @@ class PrivacyScreenTest {
     fun AC52_the_screen_at_the_largest_font_size_is_not_truncated() {
         show(fontScale = 2.0f)
 
+        composeRule.assertNoTextTruncation()
+    }
+
+    // UX redesign (task 7): title, headline, cards and the delete-all sheet.
+
+    @Test
+    fun UX_AC54_privacy_shows_back_title_headline_and_the_two_cards_with_their_headings() {
+        show()
+
+        composeRule
+            .onNodeWithContentDescription("Back")
+            .assertIsDisplayed()
+            .assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.onNodeWithText("Privacy & your data").assertIsDisplayed()
+        composeRule.onNodeWithText("Your walks stay on your phone").assertIsDisplayed()
+        composeRule.assertHeadingsMarked(
+            "Privacy & your data",
+            "Your walks stay on your phone",
+            "Never leaves this phone",
+            "Only sent when you use a feature",
+            "MET Norway · when the check runs",
+            "OpenFreeMap · when you view a walk map",
+            "Delete your data",
+        )
+        listOf("Weather check", "Walk maps", "Your data stays on your phone").forEach {
+            composeRule.onNodeWithText(it).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun UX_AC54_the_existing_sentences_show_word_for_word_including_cloudflare() {
+        show()
+
+        listOf(
+            "When a check runs, your approximate location (rounded to about 1 km) is sent to MET Norway, the weather " +
+                "provider. MET Norway also receives your phone's IP address. Nothing is sent to MET Norway at any other time.",
+            "When you view a walk map, the map provider, OpenFreeMap (served through its CDN provider, Cloudflare), " +
+                "receives requests for the map area shown and your phone's IP address.",
+            "Your walk routes, your dog's profile and your walk history never leave your phone. They are left out of " +
+                "Android cloud backup and device-to-device transfer, so they are not copied to a new phone.",
+            "There are no accounts, analytics or tracking.",
+            "This removes all your walks and routes, your dog's profile and photo, and the saved weather check from this phone.",
+        ).forEach { composeRule.onNodeWithText(it).performScrollTo().assertIsDisplayed() }
+    }
+
+    @Test
+    fun UX_AC54_the_outlined_delete_all_button_is_at_least_48dp_high() {
+        show()
+
+        composeRule
+            .onNodeWithText("Delete all my data")
+            .performScrollTo()
+            .assertIsDisplayed()
+            .assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+    }
+
+    @Test
+    fun UX_AC55_the_delete_all_sheet_has_the_exact_texts_and_its_buttons_call_through() {
+        show(PrivacyUiState(confirming = true))
+
+        composeRule.onNodeWithText("Delete all your data?").assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                "All your walks and routes, your dog's profile and photo, and the saved weather check will be removed " +
+                    "from this phone. A walk being recorded will be stopped and removed. This can't be undone.",
+            ).assertIsDisplayed()
+        composeRule.onNodeWithText("Delete everything").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.onNodeWithText("Cancel").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+
+        composeRule.onNodeWithText("Cancel").performClick()
+        assertEquals(1, cancels)
+        assertEquals(0, confirms)
+        composeRule.onNodeWithText("Delete everything").performClick()
+        assertEquals(1, confirms)
+    }
+
+    private fun assertPrivacyAndSheetAccessible() {
+        show()
+        composeRule.assertAccessibleScreen()
+        composeRule.runOnIdle { current.value = PrivacyUiState(confirming = true) }
+        composeRule.onNodeWithText("Delete all your data?").assertIsDisplayed()
+        composeRule.assertAccessibleScreen()
+    }
+
+    @Test
+    fun UX_AC58_privacy_and_the_delete_all_sheet_are_accessible_in_light() {
+        assertPrivacyAndSheetAccessible()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun UX_AC58_privacy_and_the_delete_all_sheet_are_accessible_in_dark() {
+        assertPrivacyAndSheetAccessible()
+    }
+
+    @Test
+    fun UX_AC60_a_at_200_percent_privacy_is_not_truncated_and_scrolls_to_delete() {
+        show(fontScale = 2f)
+
+        composeRule.assertNoTextTruncation()
+        composeRule.onNodeWithText("Delete all my data").performScrollTo().assertIsDisplayed()
         composeRule.assertNoTextTruncation()
     }
 }

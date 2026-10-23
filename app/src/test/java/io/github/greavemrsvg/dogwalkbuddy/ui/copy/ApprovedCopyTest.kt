@@ -76,6 +76,20 @@ class ApprovedCopyTest {
             R.string.history_summary_spoken to "This week: %1\$s, %2\$s, %3\$s miles",
             R.string.history_caption_hmm to "h:mm",
             R.string.history_caption_miles to "miles",
+            // Task 7: C14, C17, D8 and D10.
+            R.string.walk_detail_time_range to "%1\$s – %2\$s",
+            R.string.walk_detail_map_unavailable_sub to "Your route is saved. It'll show here next time you're online.",
+            R.string.walk_detail_duration_caption to "Duration",
+            R.string.walk_detail_distance_caption to "Distance",
+            R.string.walk_detail_distance_value to "%1\$s mi",
+            R.string.walk_detail_delete to "Delete this walk",
+            R.string.walk_detail_back to "Back",
+            R.string.privacy_title to "Privacy & your data",
+            R.string.privacy_headline to "Your walks stay on your phone",
+            R.string.privacy_card_local_heading to "Never leaves this phone",
+            R.string.privacy_card_sent_heading to "Only sent when you use a feature",
+            R.string.privacy_entry_met_heading to "MET Norway · when the check runs",
+            R.string.privacy_entry_map_heading to "OpenFreeMap · when you view a walk map",
         )
 
     @Test
