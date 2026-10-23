@@ -499,7 +499,8 @@
     "2026-10-23T16:46:16Z gatekeeper (opus): G4 PASS (re-run) on f6d629d, CI 39988136025. Next: owner phone checks, then release prepare",
     "2026-10-23T16:47:14Z orchestrator: built debug APK at 394f5a2 (md5 bbd488d6) for owner phone checks; phone-checks.md checklist P1-P13 created; waiting for owner to connect phone",
     "2026-10-23T16:49:24Z orchestrator: final debug build (394f5a2, md5 bbd488d6) installed on owner's Flip3 (SM-F711B), data kept; battery 100%; owner phone checks P1-P13 in progress. Invoking release (opus) prepare in parallel",
-    "2026-10-23T16:54:48Z release (opus) prepare: DONE; release PR #50 (v0.1.0, MVP + redesign, supersedes #28) head 23987ac; unticked: CI, audit, manual checks. Notes: ship merge style vs R-08 is owner's call; #7/#28 closure to handle with owner. Auditor waits for phone checks"
+    "2026-10-23T16:54:48Z release (opus) prepare: DONE; release PR #50 (v0.1.0, MVP + redesign, supersedes #28) head 23987ac; unticked: CI, audit, manual checks. Notes: ship merge style vs R-08 is owner's call; #7/#28 closure to handle with owner. Auditor waits for phone checks",
+    "2026-10-23T17:35:54Z owner asked to install on a second phone (Galaxy Z Flip7, SM-F766B, Android 16); old MVP build uninstalled per owner, final build installed (user 0)"
   ],
   "bootstrap": false,
   "base": {
@@ -692,6 +693,11 @@
     "task_limit_t9": {
       "answer": "Allow task 9 (Recommended)",
       "at": "2026-10-23T16:03:43Z"
+    },
+    "second_phone_reinstall": {
+      "answer": "Uninstall and install new",
+      "at": "2026-10-23T17:35:54Z",
+      "meaning": "owner's second phone (Galaxy Z Flip7 SM-F766B, Android 16) had the MVP build with a different signing key; uninstalled (its app data deleted) and installed final debug build 394f5a2"
     }
   },
   "carry_forward": [
