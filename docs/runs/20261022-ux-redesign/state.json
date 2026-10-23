@@ -43,7 +43,12 @@
         "docs/runs/20261022-ux-redesign/gates/G2-attempt2.md (FAIL)"
       ]
     },
-    "G4": null,
+    "G4": {
+      "result": "PASS",
+      "head": "1bcfa43",
+      "record": "docs/runs/20261022-ux-redesign/gates/G4.md",
+      "at": "2026-10-23T16:02:08Z"
+    },
     "G5": null,
     "release_approval": null
   },
@@ -225,7 +230,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 97,
+    "agent_invocations": 98,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -445,7 +450,9 @@
     "2026-10-23T15:30:05Z phone R5CR71NEQ8M authorised (Android 14, app not installed, battery 100%, USB); invoking performance (opus) for phone cold start + history comparison base a8b4506 vs redesign",
     "2026-10-23T15:33:36Z performance (opus): BLOCKED - phone screen timeout 30 s locks keyguard; no measurements. Asks owner: (a) allow adb 'svc power stayon usb' temporarily, or (b) owner sets screen timeout 10 min. APKs cached in scratchpad base.apk/red.apk",
     "2026-10-23T15:34:06Z owner: phone_stay_awake -> agent may set stay-awake-while-charging temporarily; phone unlocked; re-invoking performance (opus)",
-    "2026-10-23T15:52:41Z performance (opus): DONE on phone SM-F711B; cold start +7.1% median/+7.6% p95, history -15.2% (max 577 ms), PSS +3.2%; no regression beyond threshold on phone -> no fix task per perf_breach; stay-on restored 0 (orchestrator verified)"
+    "2026-10-23T15:52:41Z performance (opus): DONE on phone SM-F711B; cold start +7.1% median/+7.6% p95, history -15.2% (max 577 ms), PSS +3.2%; no regression beyond threshold on phone -> no fix task per perf_breach; stay-on restored 0 (orchestrator verified)",
+    "2026-10-23T15:53:00Z invoking gatekeeper (opus) for G4 on feature head 1bcfa43",
+    "2026-10-23T16:02:08Z gatekeeper (opus): G4 PASS on 1bcfa43 (CI 39982037824); perf via owner perf_breach phone confirmation. Manual phone checks owed before G5"
   ],
   "bootstrap": false,
   "base": {
