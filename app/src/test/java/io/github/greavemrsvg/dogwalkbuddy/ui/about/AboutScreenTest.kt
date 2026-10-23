@@ -3,27 +3,36 @@ package io.github.greavemrsvg.dogwalkbuddy.ui.about
 import android.content.Context
 import androidx.annotation.RawRes
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.R
+import io.github.greavemrsvg.dogwalkbuddy.domain.rating.Rating
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.WithFontScale
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertAccessibleScreen
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertHeadingsMarked
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertHiddenFromAccessibility
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertNoTextTruncation
+import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertTouchTargetIsAtLeast
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
@@ -263,6 +272,159 @@ class AboutScreenTest {
         composeRule.onNodeWithContentDescription("Back").assertIsDisplayed().performClick()
 
         assertEquals(1, backs)
+    }
+
+    /** The node is the table cell at [row] and [column], spanning one row and one column. */
+    private fun cellAt(
+        row: Int,
+        column: Int,
+    ) = SemanticsMatcher("cell at row $row, column $column") { node ->
+        node.config.getOrNull(SemanticsProperties.CollectionItemInfo)?.let {
+            it.rowIndex == row && it.columnIndex == column && it.rowSpan == 1 && it.columnSpan == 1
+        } == true
+    }
+
+    private fun heading(text: String) = composeRule.onNode(hasText(text) and SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+
+    private fun topOf(text: String) =
+        composeRule
+            .onNodeWithText(text)
+            .fetchSemanticsNode()
+            .positionInRoot.y
+
+    @Test
+    fun UX_AC56_about_has_a_back_control_the_title_headline_and_intro() {
+        show()
+
+        composeRule.onNodeWithContentDescription("Back").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.assertHeadingsMarked("About this advice", "How we rate the weather", "Rating thresholds")
+        composeRule
+            .onNodeWithText("The overall rating is the worst of these. Heat-sensitive dogs use the values in brackets.")
+            .assertIsDisplayed()
+        composeRule.onNodeWithText("Rating thresholds").assertIsDisplayed()
+    }
+
+    @Test
+    fun UX_AC56_the_table_has_the_column_headers_with_rating_icons_and_exactly_the_D11_cells_in_order() {
+        show()
+
+        listOf("Factor", "Go", "Caution", "Avoid").forEachIndexed { column, header ->
+            heading(header)
+                .assert(cellAt(0, column))
+        }
+        val expected =
+            listOf(
+                "Heat" to listOf("below 20 °C (16 °C)", "20 to below 25 °C (16 to below 21 °C)", "25 °C or above (21 °C or above)"),
+                "Pavement" to listOf("below 20 °C (16 °C)", "20 to below 25 °C (16 to below 21 °C)", "25 °C or above (21 °C or above)"),
+                "Rain" to listOf("below 0.5", "0.5 to 4", "above 4"),
+                "Wind" to listOf("below 25", "25 to below 39", "39 or above"),
+                "Cold" to listOf("above 0 °C", "0 °C or below", "never"),
+            )
+        val columns = listOf("Go", "Caution", "Avoid")
+        expected.forEachIndexed { index, (row, cells) ->
+            heading(row)
+                .assert(cellAt(index + 1, 0))
+            cells.forEachIndexed { column, cell ->
+                composeRule
+                    .onNodeWithContentDescription("$row, ${columns[column]}, $cell")
+                    .assert(hasText(cell))
+                    .assert(
+                        cellAt(index + 1, column + 1),
+                    )
+            }
+        }
+        val rowTops = expected.map { (row, _) -> topOf(row) }
+        assertEquals(rowTops.sorted(), rowTops)
+        Rating.entries.forEach { rating ->
+            composeRule.assertHiddenFromAccessibility(ratingHeaderIconTag(rating))
+            val icon = composeRule.onNodeWithTag(ratingHeaderIconTag(rating), useUnmergedTree = true).fetchSemanticsNode()
+            val word = heading(ratingWord(rating)).fetchSemanticsNode()
+            assertTrue("$rating icon sits in its header", word.boundsInRoot.contains(icon.boundsInRoot.center))
+        }
+    }
+
+    private fun ratingWord(rating: Rating) =
+        when (rating) {
+            Rating.GO -> "Go"
+            Rating.CAUTION -> "Caution"
+            Rating.AVOID -> "Avoid"
+        }
+
+    @Test
+    fun UX_AC56_the_table_is_a_collection_of_6_rows_and_4_columns() {
+        show()
+
+        composeRule
+            .onNodeWithTag(THRESHOLDS_TABLE_TAG)
+            .assert(
+                SemanticsMatcher("a 6 x 4 table") { node ->
+                    node.config.getOrNull(SemanticsProperties.CollectionInfo)?.let { it.rowCount == 6 && it.columnCount == 4 } == true
+                },
+            )
+    }
+
+    @Test
+    fun UX_AC56_every_existing_threshold_sentence_stays_word_for_word_below_the_table() {
+        show()
+
+        val tableBottom =
+            composeRule
+                .onNodeWithTag(THRESHOLDS_TABLE_TAG)
+                .fetchSemanticsNode()
+                .boundsInRoot.bottom
+        listOf(
+            R.string.about_overall,
+            R.string.about_heat,
+            R.string.about_pavement,
+            R.string.about_rain,
+            R.string.about_wind,
+            R.string.about_cold,
+        ).forEach { resId ->
+            val sentence = ApplicationProvider.getApplicationContext<Context>().getString(resId)
+            assertTrue(sentence, topOf(sentence) > tableBottom)
+        }
+        composeRule
+            .onNodeWithText(
+                "Heat (air temperature). Normal: Go below 20 °C, Caution from 20 °C to below 25 °C, Avoid from 25 °C. " +
+                    "Sensitive: Go below 16 °C, Caution from 16 °C to below 21 °C, Avoid from 21 °C.",
+            ).assertExists()
+    }
+
+    @Test
+    fun UX_AC57_the_sources_heading_reads_where_this_comes_from_and_the_existing_texts_stay() {
+        show()
+
+        composeRule.assertHeadingsMarked("Where this comes from", "Data", "Open-source licences")
+        composeRule.onNodeWithText("Guidance sources").assertDoesNotExist()
+        listOf(
+            "The thresholds are based on this guidance. It is general guidance, and forecasts can be wrong.",
+            "Vets Now: heat-related illness can start above about 20 °C.",
+            "FOUR PAWS UK: asphalt reaches about 52 °C when the air is 25 °C.",
+            "The wind thresholds follow the Beaufort scale's mean wind speeds, as published by the Royal Meteorological Society.",
+            "Guidance only, not veterinary advice. If you're worried about your dog, contact a vet.",
+            "Weather data: MET Norway (CC BY 4.0)",
+            "© OpenStreetMap contributors · © OpenMapTiles",
+            "Pollen isn't included in this check",
+        ).forEach { composeRule.onNodeWithText(it).assertExists() }
+        assertTrue(topOf("Where this comes from") < topOf("Weather data: MET Norway (CC BY 4.0)"))
+    }
+
+    @Test
+    fun UX_AC60_about_has_no_truncated_text_at_200_percent_in_the_dark_theme() {
+        RuntimeEnvironment.setQualifiers("+night")
+        show(fontScale = 2.0f)
+
+        composeRule.assertNoTextTruncation()
+        composeRule.onNodeWithContentDescription("Heat, Caution, 20 to below 25 °C (16 to below 21 °C)").assertExists()
+    }
+
+    @Test
+    fun UX_AC58_about_is_accessible_in_the_dark_theme() {
+        RuntimeEnvironment.setQualifiers("+night")
+        show()
+
+        composeRule.assertAccessibleScreen()
+        listOf("Factor", "Go", "Caution", "Avoid", "Heat", "Pavement", "Rain", "Wind", "Cold").forEach { heading(it).assertExists() }
     }
 
     private companion object {

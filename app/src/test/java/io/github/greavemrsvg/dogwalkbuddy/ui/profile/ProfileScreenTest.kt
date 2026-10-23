@@ -114,7 +114,7 @@ class ProfileScreenTest {
 
     private fun typeBreed(text: String) = composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(text)
 
-    private fun save() = composeRule.onNodeWithText("Save profile").performClick()
+    private fun save() = composeRule.onNodeWithText("Save").performClick()
 
     private fun photoFiles() = File(filesDir, "profile").list().orEmpty().toList()
 
@@ -309,14 +309,17 @@ class ProfileScreenTest {
 
     @Test
     fun AC41_the_sensitivity_hint_only_says_what_the_setting_changes() {
-        composeRule.onNodeWithText("Sensitive uses stricter heat and pavement limits.").assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                "Sensitive makes the heat and hot-pavement warnings start 4°C sooner. Rain, wind and cold stay the same.",
+            ).assertIsDisplayed()
     }
 
     @Test
     fun AC51_the_controls_are_at_least_48dp_high_and_save_is_larger() {
         composeRule.assertAccessibleScreen()
         composeRule.onNodeWithText("Choose photo").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
-        composeRule.onNodeWithText("Save profile").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.onNodeWithText("Save").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
         composeRule.onNodeWithText("Normal").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
         composeRule.onNodeWithText("Privacy & data").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
         composeRule.onNodeWithText("About the advice").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)

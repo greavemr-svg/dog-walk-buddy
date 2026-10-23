@@ -73,7 +73,7 @@
     <string name="recording_notification_text">Dog Walk Buddy is recording your walk.</string>
 
     <!-- Dog profile -->
-    <string name="profile_title">Dog profile</string>
+    <string name="profile_title">Your dog</string>
     <!-- Dog tab tiles (D9) -->
     <string name="profile_privacy_tile">Privacy &amp; data</string>
     <string name="profile_about_tile">About the advice</string>
@@ -82,13 +82,17 @@
     <string name="profile_photo_description">Photo of your dog</string>
     <string name="profile_no_photo">No photo</string>
     <string name="profile_choose_photo">Choose photo</string>
-    <string name="profile_replace_photo">Replace photo</string>
+    <string name="profile_replace_photo">Change photo</string>
     <string name="profile_remove_photo">Remove photo</string>
     <string name="profile_sensitivity_label">Heat sensitivity</string>
     <string name="profile_sensitivity_normal">Normal</string>
     <string name="profile_sensitivity_sensitive">Sensitive</string>
-    <string name="profile_sensitivity_hint">Sensitive uses stricter heat and pavement limits.</string>
-    <string name="profile_save">Save profile</string>
+    <string name="profile_sensitivity_hint">Sensitive makes the heat and hot-pavement warnings start 4°C sooner. Rain, wind and cold stay the same.</string>
+    <string name="profile_band_normal">Caution from 20°C / Avoid from 25°C</string>
+    <string name="profile_band_sensitive">Caution from 16°C / Avoid from 21°C</string>
+    <!-- The live character counter under a profile field, for example "7 / 30". -->
+    <string name="profile_counter">%1$d / %2$d</string>
+    <string name="profile_save">Save</string>
     <string name="profile_saved">Profile saved</string>
     <string name="profile_load_failed">Couldn\'t load your dog\'s profile.</string>
     <string name="profile_save_failed">Couldn\'t save the profile. Try again.</string>
@@ -213,14 +217,39 @@
     <!-- About this advice -->
     <string name="about_title">About this advice</string>
     <string name="about_back">Back</string>
+    <string name="about_headline">How we rate the weather</string>
+    <string name="about_intro">The overall rating is the worst of these. Heat-sensitive dogs use the values in brackets.</string>
     <string name="about_thresholds_heading">Rating thresholds</string>
+    <string name="about_table_factor">Factor</string>
+    <string name="about_table_heat">Heat</string>
+    <string name="about_table_pavement">Pavement</string>
+    <string name="about_table_rain">Rain</string>
+    <string name="about_table_wind">Wind</string>
+    <string name="about_table_cold">Cold</string>
+    <string name="about_table_temp_go">below 20 °C</string>
+    <string name="about_table_temp_go_sensitive">(16 °C)</string>
+    <string name="about_table_temp_caution">20 to below 25 °C</string>
+    <string name="about_table_temp_caution_sensitive">(16 to below 21 °C)</string>
+    <string name="about_table_temp_avoid">25 °C or above</string>
+    <string name="about_table_temp_avoid_sensitive">(21 °C or above)</string>
+    <string name="about_table_rain_go">below 0.5</string>
+    <string name="about_table_rain_caution">0.5 to 4</string>
+    <string name="about_table_rain_avoid">above 4</string>
+    <string name="about_table_wind_go">below 25</string>
+    <string name="about_table_wind_caution">25 to below 39</string>
+    <string name="about_table_wind_avoid">39 or above</string>
+    <string name="about_table_cold_go">above 0 °C</string>
+    <string name="about_table_cold_caution">0 °C or below</string>
+    <string name="about_table_cold_avoid">never</string>
+    <!-- A table cell's spoken text: row header, column header, then the cell, for example "Heat, Go, below 20 °C (16 °C)". -->
+    <string name="about_table_cell_spoken">%1$s, %2$s, %3$s</string>
     <string name="about_overall">The overall rating for an hour is the worst of these factors. Sensitivity changes only the heat and pavement limits.</string>
     <string name="about_heat">Heat (air temperature). Normal: Go below 20 °C, Caution from 20 °C to below 25 °C, Avoid from 25 °C. Sensitive: Go below 16 °C, Caution from 16 °C to below 21 °C, Avoid from 21 °C.</string>
     <string name="about_pavement">Hot pavement: rated only in daylight (between local sunrise and sunset) when the forecast cloud cover is below 50 percent. It uses the same temperature bands as heat.</string>
     <string name="about_rain">Rain (precipitation rate): Go below 0.5 mm/h, Caution from 0.5 mm/h to 4 mm/h, Avoid above 4 mm/h.</string>
     <string name="about_wind">Wind (mean speed): Go below 25 mph, Caution from 25 mph to below 39 mph, Avoid from 39 mph. Gusts are not rated.</string>
     <string name="about_cold">Cold (air temperature): Caution at 0 °C or below. Cold never gives Avoid.</string>
-    <string name="about_sources_heading">Guidance sources</string>
+    <string name="about_sources_heading">Where this comes from</string>
     <string name="about_sources_intro">The thresholds are based on this guidance. It is general guidance, and forecasts can be wrong.</string>
     <string name="about_source_vets_now">Vets Now: heat-related illness can start above about 20 °C.</string>
     <string name="about_source_four_paws">FOUR PAWS UK: asphalt reaches about 52 °C when the air is 25 °C.</string>

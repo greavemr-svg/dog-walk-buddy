@@ -238,7 +238,7 @@ class CheckScreenIntegrationTest {
             .assertIsDisplayed()
             .performClick()
 
-        composeRule.onNodeWithText("Save profile").assertIsDisplayed()
+        composeRule.onNodeWithText("Save").assertIsDisplayed()
     }
 
     @Test
@@ -249,7 +249,7 @@ class CheckScreenIntegrationTest {
         composeRule.onNodeWithTag(NAV_DOG_TAG).performClick()
         composeRule.onAllNodes(hasSetTextAction())[0].performTextInput("Biscuit")
         composeRule.onNodeWithText("Sensitive").performClick()
-        composeRule.onNodeWithText("Save profile").performClick()
+        composeRule.onNodeWithText("Save").performClick()
         awaitText("Profile saved")
 
         composeRule.onNodeWithTag(NAV_TODAY_TAG).performClick()

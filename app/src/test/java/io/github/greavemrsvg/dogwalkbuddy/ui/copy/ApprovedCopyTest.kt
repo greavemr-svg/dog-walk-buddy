@@ -90,6 +90,38 @@ class ApprovedCopyTest {
             R.string.privacy_card_sent_heading to "Only sent when you use a feature",
             R.string.privacy_entry_met_heading to "MET Norway · when the check runs",
             R.string.privacy_entry_map_heading to "OpenFreeMap · when you view a walk map",
+            // Task 8: C8, C9, C10, C11, D9 and D11.
+            R.string.profile_title to "Your dog",
+            R.string.profile_save to "Save",
+            R.string.profile_replace_photo to "Change photo",
+            R.string.profile_sensitivity_hint to
+                "Sensitive makes the heat and hot-pavement warnings start 4°C sooner. Rain, wind and cold stay the same.",
+            R.string.profile_band_normal to "Caution from 20°C / Avoid from 25°C",
+            R.string.profile_band_sensitive to "Caution from 16°C / Avoid from 21°C",
+            R.string.about_headline to "How we rate the weather",
+            R.string.about_intro to "The overall rating is the worst of these. Heat-sensitive dogs use the values in brackets.",
+            R.string.about_sources_heading to "Where this comes from",
+            R.string.about_table_factor to "Factor",
+            R.string.about_table_heat to "Heat",
+            R.string.about_table_pavement to "Pavement",
+            R.string.about_table_rain to "Rain",
+            R.string.about_table_wind to "Wind",
+            R.string.about_table_cold to "Cold",
+            R.string.about_table_temp_go to "below 20 °C",
+            R.string.about_table_temp_go_sensitive to "(16 °C)",
+            R.string.about_table_temp_caution to "20 to below 25 °C",
+            R.string.about_table_temp_caution_sensitive to "(16 to below 21 °C)",
+            R.string.about_table_temp_avoid to "25 °C or above",
+            R.string.about_table_temp_avoid_sensitive to "(21 °C or above)",
+            R.string.about_table_rain_go to "below 0.5",
+            R.string.about_table_rain_caution to "0.5 to 4",
+            R.string.about_table_rain_avoid to "above 4",
+            R.string.about_table_wind_go to "below 25",
+            R.string.about_table_wind_caution to "25 to below 39",
+            R.string.about_table_wind_avoid to "39 or above",
+            R.string.about_table_cold_go to "above 0 °C",
+            R.string.about_table_cold_caution to "0 °C or below",
+            R.string.about_table_cold_avoid to "never",
         )
 
     @Test
@@ -136,6 +168,12 @@ class ApprovedCopyTest {
         assertEquals("walk", resources.getQuantityString(R.plurals.history_caption_walks, 1))
         assertEquals("walks", resources.getQuantityString(R.plurals.history_caption_walks, 0))
         assertEquals("walks", resources.getQuantityString(R.plurals.history_caption_walks, 3))
+    }
+
+    @Test
+    fun UX_AC63_the_task_8_counter_reads_exactly_as_approved_when_filled_in() {
+        assertEquals("7 / 30", resources.getString(R.string.profile_counter, 7, 30))
+        assertEquals("8 / 50", resources.getString(R.string.profile_counter, 8, 50))
     }
 
     @Test

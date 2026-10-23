@@ -139,7 +139,7 @@ class FullScreenDestinationsTest {
 
         assertFullScreenAndGoBack()
 
-        awaitText("Save profile")
+        awaitText("Save")
         composeRule.onNodeWithTag(NAV_DOG_TAG).assertIsSelected()
     }
 
