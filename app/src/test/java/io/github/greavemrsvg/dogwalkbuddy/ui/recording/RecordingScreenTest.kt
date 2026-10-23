@@ -310,8 +310,11 @@ class RecordingScreenTest {
         assertEquals("empty panel", RecordingPalette.mapPanel, pixel(sketch, size.width / 2, size.height / 2))
     }
 
-    /** Hosts the real route with the real ViewModel, Room and clock, for a walk that has just started. */
-    private fun showRecordingRoute(): Pair<TestAppContainer, Long> {
+    /**
+     * Hosts the real route with the real ViewModel, Room and clock, for a walk that has just started. The screen opens
+     * [openedAfter] the start, so a test can open it part-way through a second.
+     */
+    private fun showRecordingRoute(openedAfter: Duration = Duration.ZERO): Pair<TestAppContainer, Long> {
         val app = TestAppContainer(temporaryFolder).also { test = it }
         val walk = runBlocking { app.container.walkRepository.startWalk() }
         app.container.recordingStateHolder.begin(walk.id, walk.startUtc)
@@ -328,6 +331,7 @@ class RecordingScreenTest {
                     }
                 },
             )[RecordingViewModel::class]
+        app.clock.advance(openedAfter)
         composeRule.setContent {
             DogWalkBuddyTheme {
                 RecordingRoute(
@@ -403,7 +407,45 @@ class RecordingScreenTest {
         composeRule.onNodeWithTag(TIMER_TAG, useUnmergedTree = true).assertContentDescriptionEquals("1 second")
     }
 
+    private fun timerText(): String =
+        composeRule
+            .onNodeWithTag(TIMER_TAG, useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .config[SemanticsProperties.Text]
+            .single()
+            .text
+
+    /**
+     * Issue #48: the screen waits until the next whole second since the walk started, not a fixed second after it
+     * read the clock. Opened 400 ms into the walk, the next tick is due 600 ms later. A fixed one-second wait would
+     * still show 0:00:00 after 700 ms, and would keep reading the clock about 400 ms after each second boundary.
+     */
+    @Test
+    fun UX_AC34_the_timer_ticks_on_each_whole_second_since_the_start_when_opened_part_way_through_a_second() {
+        val (app, _) = showRecordingRoute(openedAfter = Duration.ofMillis(400))
+        composeRule.mainClock.autoAdvance = false
+        // Let the first clock reading run (start + 400 ms) before the test clock moves.
+        composeRule.mainClock.advanceTimeBy(100)
+        composeRule.waitForIdle()
+        assertEquals("0:00:00", timerText())
+
+        // Just after the first whole second: a tick due 600 ms after the first reading has fired by now.
+        app.clock.advance(Duration.ofMillis(650))
+        composeRule.mainClock.advanceTimeBy(600)
+        composeRule.waitForIdle()
+        assertEquals("the tick lands on the first whole second", "0:00:01", timerText())
+
+        // Each later tick is again just after a whole second, so no second is skipped or shown twice.
+        for (second in 2..TICKS) {
+            app.clock.advance(Duration.ofSeconds(1))
+            composeRule.mainClock.advanceTimeBy(1_000)
+            composeRule.waitForIdle()
+            assertEquals("0:00:0$second", timerText())
+        }
+    }
+
     private companion object {
         const val WAIT_MS = 5_000L
+        const val TICKS = 5
     }
 }
