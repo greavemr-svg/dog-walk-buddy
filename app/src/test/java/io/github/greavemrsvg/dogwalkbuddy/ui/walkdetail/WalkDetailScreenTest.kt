@@ -526,4 +526,98 @@ class WalkDetailScreenTest {
         composeRule.runOnIdle { current.value = loaded(mapAvailable = false) }
         assertEquals("restored once the map is gone", before, composeRule.runOnIdle { lightStatusBars() })
     }
+
+    // Tester additions (task 7).
+
+    @Test
+    fun UX_AC46_with_the_12_hour_device_format_the_time_range_uses_am_and_pm() {
+        current.value = loaded()
+        composeRule.setContent {
+            DogWalkBuddyTheme {
+                WalkDetailContent(
+                    state = current.value,
+                    routeMap = map,
+                    formats = WalkDateFormats(ZoneOffset.UTC, false),
+                    onBack = {},
+                    onMapLoadFailed = {},
+                    clock = Clock.fixed(Instant.parse("2026-10-23T12:00:00Z"), ZoneOffset.UTC),
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("9:15 am – 10:30 am").assertIsDisplayed()
+        composeRule.onNodeWithText("09:15 – 10:30").assertDoesNotExist()
+        composeRule.onNodeWithText("Monday 19 October").assertIsDisplayed()
+    }
+
+    @Test
+    fun UX_AC46_a_walk_in_the_current_year_has_no_year_and_the_year_is_judged_by_the_clock_not_the_walk() {
+        // The clock is late on 31 Dec 2026 UTC: still the walk's year, so no year is shown.
+        showDetail(clock = Clock.fixed(Instant.parse("2026-12-31T23:00:00Z"), ZoneOffset.UTC))
+
+        composeRule.onNodeWithText("Monday 19 October").assertIsDisplayed()
+        composeRule.onNodeWithText("Monday 19 October 2026").assertDoesNotExist()
+    }
+
+    @Test
+    fun UX_AC45_MVP_AC38_at_200_percent_the_attribution_stays_above_the_sheet_and_readable() {
+        showDetail(fontScale = 2f)
+
+        val sheet = composeRule.onNodeWithTag(WALK_DETAIL_SHEET_TAG).getUnclippedBoundsInRoot()
+        val strip = composeRule.onNodeWithTag(WALK_MAP_ATTRIBUTION_TAG).getUnclippedBoundsInRoot()
+        assertTrue("attribution must be above the sheet", strip.bottom <= sheet.top)
+        assertTrue("attribution must have a height", strip.bottom > strip.top)
+        composeRule.onNodeWithText("© OpenStreetMap contributors · © OpenMapTiles").assertIsDisplayed()
+    }
+
+    @Test
+    fun UX_AC47_offline_there_is_no_attribution_and_no_map_but_delete_is_still_offered() {
+        showDetail(loaded(mapAvailable = false))
+
+        composeRule.onNodeWithTag(FAKE_MAP_TAG).assertDoesNotExist()
+        composeRule.onNodeWithText("© OpenMapTiles", substring = true).assertDoesNotExist()
+        composeRule.onNodeWithText("09:15 – 10:30").assertIsDisplayed()
+        composeRule.onNodeWithText("Delete this walk").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun UX_AC48_while_the_sheet_is_closed_no_confirmation_texts_exist() {
+        showDetail()
+
+        composeRule.onNodeWithText("Delete this walk?").assertDoesNotExist()
+        composeRule.onNodeWithText("Delete walk").assertDoesNotExist()
+        assertEquals(0, deleteRequests)
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun UX_AC45_the_status_bar_style_is_restored_when_the_detail_leaves_the_screen() {
+        var hostView: View? = null
+        val shown = mutableStateOf(true)
+        current.value = loaded()
+        composeRule.setContent {
+            hostView = LocalView.current
+            DogWalkBuddyTheme {
+                if (shown.value) {
+                    WalkDetailContent(
+                        state = current.value,
+                        routeMap = map,
+                        formats = formats,
+                        onBack = {},
+                        onMapLoadFailed = {},
+                    )
+                }
+            }
+        }
+
+        fun lightStatusBars(): Boolean {
+            val view = hostView!!
+            val window = (view.context as ComponentActivity).window
+            return WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars
+        }
+        assertTrue("dark icons over the map", composeRule.runOnIdle { lightStatusBars() })
+
+        composeRule.runOnIdle { shown.value = false }
+        assertFalse("night style restored after leaving", composeRule.runOnIdle { lightStatusBars() })
+    }
 }
