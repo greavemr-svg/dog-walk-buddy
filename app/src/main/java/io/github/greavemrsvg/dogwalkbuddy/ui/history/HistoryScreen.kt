@@ -1,5 +1,6 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.history
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -83,6 +84,7 @@ private val SectionGap = 8.dp
 private val SectionHeaderSide = 4.dp
 private val CardRadius = 22.dp
 private val EmptyIconSize = 48.dp
+private val MenuBorderWidth = 1.dp
 private val EmptyPaddingTop = 32.dp
 private val RowTitleSize = 16.sp
 private val TitlePaddingTop = 26.dp
@@ -460,7 +462,14 @@ private fun RowMoreMenu(
                 tint = FieldKit.colors.iconMuted,
             )
         }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+        // The menu sits on row cards of the same surface colour, so a 1 dp control-border edge (iconMuted, at least
+        // 3:1 on the card in both themes) keeps it distinct, mainly in dark mode (owner_answers.t6_dark_menu).
+        DropdownMenu(
+            expanded = open,
+            onDismissRequest = { open = false },
+            containerColor = FieldKit.colors.surface,
+            border = BorderStroke(MenuBorderWidth, FieldKit.colors.controlBorder),
+        ) {
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.history_delete)) },
                 leadingIcon = { Icon(painterResource(R.drawable.ic_delete), contentDescription = null) },
