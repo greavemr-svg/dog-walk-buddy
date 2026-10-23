@@ -180,7 +180,10 @@ class HistoryScreenTest {
         composeRule.onNodeWithText("Mon 12 – Sun 18 Oct").assertIsDisplayed()
         composeRule.onNodeWithText("2 walks · 0:50 · 1.5 mi").assertIsDisplayed()
         composeRule.onNode(hasText("Mon 19 – Sun 25 Oct") and isHeading()).assertIsDisplayed()
-        composeRule.onNodeWithTag(THIS_WEEK_TAG).assertTextEquals("This week", "1 walk, 0:10, 0.3 mi")
+        composeRule
+            .onNodeWithTag(THIS_WEEK_TAG)
+            .assertTextEquals("This week", "Mon 19 – Sun 25 Oct", "1", "walk", "0:10", "h:mm", "0.3", "miles")
+            .assertContentDescriptionEquals("This week: 1 walk, 10 minutes, 0.3 miles")
     }
 
     @Test
@@ -233,7 +236,10 @@ class HistoryScreenTest {
         addWalk("2026-10-19T08:00:00Z", 30, 1609.344)
         val keep = addWalk("2026-10-12T08:00:00Z", 30, 1609.344)
         show()
-        composeRule.onNodeWithTag(THIS_WEEK_TAG).assertTextEquals("This week", "1 walk, 0:30, 1.0 mi")
+        composeRule
+            .onNodeWithTag(THIS_WEEK_TAG)
+            .assertTextEquals("This week", "Mon 19 – Sun 25 Oct", "1", "walk", "0:30", "h:mm", "1.0", "miles")
+            .assertContentDescriptionEquals("This week: 1 walk, 30 minutes, 1.0 miles")
 
         openMoreOf("Mon 19 Oct")
         composeRule.onNodeWithContentDescription("Delete walk on Mon 19 Oct 2026 at 08:00").performClick()
