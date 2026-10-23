@@ -16,7 +16,8 @@
     ],
     "audit": "",
     "security": "docs/runs/20261022-ux-redesign/security.md",
-    "performance": "docs/perf/20261022-ux-redesign/results.md"
+    "performance": "docs/perf/20261022-ux-redesign/results.md",
+    "phone_checks": "docs/runs/20261022-ux-redesign/phone-checks.md"
   },
   "gates": {
     "G1": {
@@ -494,7 +495,8 @@
     "2026-10-23T16:34:34Z performance (opus): T9 delta re-check DONE, no metric affected (analysis, no measurement); no regression; section appended to results.md",
     "2026-10-23T16:35:28Z security (opus): T9 delta review DONE; R-02 resolved; new Low R-08 (owner's phone adb serial committed in state.json); orchestrator redacted it from state.json; BLOCKING 0. Appended to security.md",
     "2026-10-23T16:36:21Z invoking gatekeeper (opus) for G4 re-run on f6d629d",
-    "2026-10-23T16:46:16Z gatekeeper (opus): G4 PASS (re-run) on f6d629d, CI 39988136025. Next: owner phone checks, then release prepare"
+    "2026-10-23T16:46:16Z gatekeeper (opus): G4 PASS (re-run) on f6d629d, CI 39988136025. Next: owner phone checks, then release prepare",
+    "2026-10-23T16:47:14Z orchestrator: built debug APK at 394f5a2 (md5 bbd488d6) for owner phone checks; phone-checks.md checklist P1-P13 created; waiting for owner to connect phone"
   ],
   "bootstrap": false,
   "base": {
