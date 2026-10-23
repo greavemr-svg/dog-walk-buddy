@@ -714,6 +714,82 @@ class HistoryScreenTest {
         composeRule.assertNoTextTruncation()
     }
 
+    /** Tester: the visible texts of every walk row, in screen order (walkLines() reads the spoken label). */
+    private fun visibleRows(): List<List<String>> =
+        composeRule
+            .onAllNodes(hasClickAction())
+            .fetchSemanticsNodes()
+            .mapNotNull { node -> node.config.getOrNull(SemanticsProperties.Text)?.map { it.text } }
+            .filter { texts -> texts.firstOrNull()?.let { Regex("""^\w{3} \d+ \w{3}( \d{4})?$""").matches(it) } == true }
+
+    @Test
+    fun UX_AC39_every_row_shows_date_time_distance_and_duration_in_order_and_one_target_each() {
+        addSpecWalks()
+        show()
+
+        assertEquals(
+            listOf(
+                listOf("Mon 19 Oct", "at 00:10", "0.3 mi", "0:10"),
+                listOf("Sun 18 Oct", "at 23:30", "0.5 mi", "0:20"),
+                listOf("Mon 12 Oct", "at 08:00", "1.0 mi", "0:30"),
+            ),
+            visibleRows(),
+        )
+        assertEquals(
+            listOf(
+                "Mon 19 Oct at 00:10, 0:10, 0.3 mi",
+                "Sun 18 Oct at 23:30, 0:20, 0.5 mi",
+                "Mon 12 Oct at 08:00, 0:30, 1.0 mi",
+            ),
+            walkLines(),
+        )
+        listOf("Mon 19 Oct" to "at 00:10", "Sun 18 Oct" to "at 23:30", "Mon 12 Oct" to "at 08:00").forEach { (date, time) ->
+            row(date, time).assertHeightIsAtLeast(64.dp)
+        }
+    }
+
+    @Test
+    fun UX_AC39_with_the_clock_in_2027_every_row_keeps_the_year_in_text_and_speech() {
+        addSpecWalks()
+        test.clock.advance(Duration.ofDays(365))
+        show()
+
+        assertEquals(
+            listOf(
+                listOf("Mon 19 Oct 2026", "at 00:10", "0.3 mi", "0:10"),
+                listOf("Sun 18 Oct 2026", "at 23:30", "0.5 mi", "0:20"),
+                listOf("Mon 12 Oct 2026", "at 08:00", "1.0 mi", "0:30"),
+            ),
+            visibleRows(),
+        )
+        assertEquals(
+            listOf(
+                "Mon 19 Oct 2026 at 00:10, 0:10, 0.3 mi",
+                "Sun 18 Oct 2026 at 23:30, 0:20, 0.5 mi",
+                "Mon 12 Oct 2026 at 08:00, 0:30, 1.0 mi",
+            ),
+            walkLines(),
+        )
+    }
+
+    @Test
+    fun UX_AC44_confirming_delete_from_the_More_menu_removes_only_that_walk_and_its_row() {
+        val keep = addWalk("2026-10-12T08:00:00Z", 30, 1609.344)
+        addWalk("2026-10-19T08:00:00Z", 30, 1609.344)
+        show()
+
+        openMoreOf("Mon 19 Oct")
+        composeRule.onNodeWithContentDescription("Delete walk on Mon 19 Oct 2026 at 08:00").performClick()
+        composeRule.onNodeWithText("Delete walk").performClick()
+
+        awaitCondition("the deleted row is gone") {
+            composeRule.waitForIdle()
+            walkLines() == listOf("Mon 12 Oct at 08:00, 0:30, 1.0 mi")
+        }
+        composeRule.onNodeWithText("Delete this walk?").assertDoesNotExist()
+        assertEquals(listOf(keep), savedIds())
+    }
+
     @Test
     @Config(qualifiers = "+night")
     fun UX_AC60_at_200_percent_the_empty_state_is_not_truncated_in_dark() {

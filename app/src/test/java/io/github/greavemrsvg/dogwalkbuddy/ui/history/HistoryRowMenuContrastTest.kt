@@ -90,6 +90,11 @@ class HistoryRowMenuContrastTest {
         // The menu's own vertical padding area holds no content, so it shows the menu surface.
         val container = pixels[pixels.width / 2, (4 * density).toInt()]
         val card = colors.surface
+        // Tester guard: both samples must be painted menu pixels. A transparent pixel (popup margin or shadow area)
+        // would turn opaque black in opaque() and could pass the 3:1 edge check vacuously in light theme.
+        assertTrue("menu edge pixel $edge must be opaque", edge.alpha >= 0.99f)
+        assertTrue("menu surface pixel $container must be opaque", container.alpha >= 0.99f)
+        assertTrue("menu surface pixel $container must be the menu surface ${colors.surface}", sameRgb(container, colors.surface))
 
         val edgeRatio = Wcag.contrastRatio(opaque(edge), card)
         assertTrue("menu edge $edge vs row card $card is $edgeRatio:1, needs 3:1", edgeRatio >= 3.0)
@@ -98,6 +103,14 @@ class HistoryRowMenuContrastTest {
     }
 
     private fun opaque(color: Color): Color = color.copy(alpha = 1f)
+
+    private fun sameRgb(
+        a: Color,
+        b: Color,
+    ): Boolean =
+        kotlin.math.abs(a.red - b.red) <= 0.013f &&
+            kotlin.math.abs(a.green - b.green) <= 0.013f &&
+            kotlin.math.abs(a.blue - b.blue) <= 0.013f
 
     private fun openMenu() {
         val viewModel = HistoryViewModel(test.container.walkRepository, test.clock, ZoneOffset.UTC)
