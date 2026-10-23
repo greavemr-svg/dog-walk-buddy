@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Clock
 import java.time.Instant
 
 sealed interface WalkDetailUiState {
@@ -26,7 +27,7 @@ sealed interface WalkDetailUiState {
 
     /**
      * A saved walk. [mapAvailable] is false when the phone was offline as the detail opened or the map failed to
-     * load, and the screen then shows "Map not available offline" in its place (AC39).
+     * load, and the screen then shows "Map not available offline" in its place (AC39, AC47).
      */
     data class Loaded(
         val walk: WalkSummary,
@@ -35,14 +36,31 @@ sealed interface WalkDetailUiState {
     ) : WalkDetailUiState
 }
 
-/** Loads one saved walk and its route for the detail screen (AC38, AC39). */
+/**
+ * The delete flow of the detail (AC48): [confirming] while the sheet is open, [deleted] once the walk is gone (the
+ * screen then returns to Walks), and [failed] when the delete did not happen.
+ */
+data class WalkDeletionState(
+    val confirming: Boolean = false,
+    val deleted: Boolean = false,
+    val failed: Boolean = false,
+)
+
+/**
+ * Loads one saved walk and its route for the detail screen, and deletes it on request (AC38, AC39, AC48).
+ * [clock] is what the screen's date text uses for the current year (D8).
+ */
 class WalkDetailViewModel(
     private val walkId: Long,
     private val repository: WalkRepository,
     private val connectivity: ConnectivityStatus,
+    val clock: Clock = Clock.systemDefaultZone(),
 ) : ViewModel() {
     private val mutableState = MutableStateFlow<WalkDetailUiState>(WalkDetailUiState.Loading)
     val state: StateFlow<WalkDetailUiState> = mutableState.asStateFlow()
+
+    private val mutableDeletion = MutableStateFlow(WalkDeletionState())
+    val deletion: StateFlow<WalkDeletionState> = mutableDeletion.asStateFlow()
 
     init {
         viewModelScope.launch { load() }
@@ -83,6 +101,38 @@ class WalkDetailViewModel(
         mutableState.update { current -> if (current is WalkDetailUiState.Loaded) current.copy(mapAvailable = false) else current }
     }
 
+    /** "Delete this walk" was tapped: ask first, nothing is deleted yet (AC48). */
+    fun requestDelete() {
+        mutableDeletion.value = WalkDeletionState(confirming = true)
+    }
+
+    /** Cancel, system Back or a scrim tap: the sheet closes and nothing changes (AC48). */
+    fun cancelDelete() {
+        mutableDeletion.update { it.copy(confirming = false) }
+    }
+
+    /** "Delete walk" was confirmed: the walk and its route are removed (AC48). */
+    fun confirmDelete() {
+        if (!mutableDeletion.value.confirming) return
+        mutableDeletion.value = WalkDeletionState()
+        viewModelScope.launch {
+            try {
+                repository.deleteWalk(walkId)
+                mutableDeletion.update { it.copy(deleted = true) }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                // Nothing about the walk is logged.
+                mutableDeletion.update { it.copy(failed = true) }
+            }
+        }
+    }
+
+    /** The delete failure message was dismissed. */
+    fun dismissDeleteFailure() {
+        mutableDeletion.update { it.copy(failed = false) }
+    }
+
     companion object {
         private const val MILLIS_PER_SECOND = 1000L
 
@@ -90,7 +140,7 @@ class WalkDetailViewModel(
             container: AppContainer,
             walkId: Long,
         ) = viewModelFactory {
-            initializer { WalkDetailViewModel(walkId, container.walkRepository, container.connectivity) }
+            initializer { WalkDetailViewModel(walkId, container.walkRepository, container.connectivity, container.clock) }
         }
     }
 }

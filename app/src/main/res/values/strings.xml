@@ -172,26 +172,30 @@
 
     <!-- Walk detail and map -->
     <string name="history_open_walk">Open walk details</string>
-    <string name="walk_detail_title">Walk details</string>
     <string name="walk_detail_back">Back</string>
-    <string name="walk_detail_when">%1$s at %2$s</string>
-    <string name="walk_detail_duration">Duration %1$s</string>
-    <string name="walk_detail_distance">Distance %1$s mi</string>
+    <string name="walk_detail_time_range">%1$s – %2$s</string>
+    <string name="walk_detail_duration_caption">Duration</string>
+    <string name="walk_detail_distance_caption">Distance</string>
+    <string name="walk_detail_distance_value">%1$s mi</string>
+    <string name="walk_detail_delete">Delete this walk</string>
     <string name="walk_detail_map_description">Map of the route you walked</string>
     <string name="walk_detail_map_unavailable">Map not available offline</string>
+    <string name="walk_detail_map_unavailable_sub">Your route is saved. It\'ll show here next time you\'re online.</string>
     <string name="walk_detail_no_route">No route was recorded for this walk</string>
     <string name="walk_detail_not_found">This walk can\'t be found. It may have been deleted.</string>
     <string name="walk_detail_load_failed">Couldn\'t load this walk.</string>
     <string name="map_attribution">© OpenStreetMap contributors · © OpenMapTiles</string>
 
     <!-- Privacy -->
-    <string name="privacy_title">Privacy</string>
+    <string name="privacy_title">Privacy &amp; your data</string>
+    <string name="privacy_headline">Your walks stay on your phone</string>
+    <string name="privacy_card_local_heading">Never leaves this phone</string>
+    <string name="privacy_card_sent_heading">Only sent when you use a feature</string>
+    <string name="privacy_entry_met_heading">MET Norway · when the check runs</string>
+    <string name="privacy_entry_map_heading">OpenFreeMap · when you view a walk map</string>
     <string name="privacy_back">Back</string>
-    <string name="privacy_weather_heading">Weather check</string>
     <string name="privacy_weather">When a check runs, your approximate location (rounded to about 1 km) is sent to MET Norway, the weather provider. MET Norway also receives your phone\'s IP address. Nothing is sent to MET Norway at any other time.</string>
-    <string name="privacy_map_heading">Walk maps</string>
     <string name="privacy_map">When you view a walk map, the map provider, OpenFreeMap (served through its CDN provider, Cloudflare), receives requests for the map area shown and your phone\'s IP address.</string>
-    <string name="privacy_local_heading">Your data stays on your phone</string>
     <string name="privacy_local">Your walk routes, your dog\'s profile and your walk history never leave your phone. They are left out of Android cloud backup and device-to-device transfer, so they are not copied to a new phone.</string>
     <string name="privacy_no_tracking">There are no accounts, analytics or tracking.</string>
     <string name="privacy_delete_heading">Delete your data</string>
