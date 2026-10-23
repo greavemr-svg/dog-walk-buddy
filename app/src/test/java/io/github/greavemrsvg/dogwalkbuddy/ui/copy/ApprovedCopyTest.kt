@@ -68,6 +68,14 @@ class ApprovedCopyTest {
             R.string.recording_route_caption to "Route so far · saved on this phone",
             R.string.recording_tip to
                 "Pop your phone in your pocket. Recording carries on with the screen off, and a notification shows while it's on.",
+            // Task 6: D7.
+            R.string.history_week_range_span to "%1\$s – %2\$s",
+            R.string.history_totals_dotted to "%1\$s · %2\$s · %3\$s mi",
+            R.string.history_walk_at to "at %1\$s",
+            R.string.history_row_spoken to "%1\$s at %2\$s, %3\$s, %4\$s mi",
+            R.string.history_summary_spoken to "This week: %1\$s, %2\$s, %3\$s miles",
+            R.string.history_caption_hmm to "h:mm",
+            R.string.history_caption_miles to "miles",
         )
 
     @Test
@@ -95,6 +103,25 @@ class ApprovedCopyTest {
         assertEquals("1 second", resources.getQuantityString(R.plurals.duration_seconds, 1, 1))
         assertEquals("0 seconds", resources.getQuantityString(R.plurals.duration_seconds, 0, 0))
         assertEquals("41 seconds", resources.getQuantityString(R.plurals.duration_seconds, 41, 41))
+    }
+
+    @Test
+    fun UX_AC63_the_task_6_walks_texts_read_exactly_as_approved_when_filled_in() {
+        assertEquals("Mon 19 – Sun 25 Oct", resources.getString(R.string.history_week_range_span, "Mon 19", "Sun 25 Oct"))
+        val count = resources.getQuantityString(R.plurals.history_walk_count, 5, 5)
+        assertEquals("5 walks · 3:10 · 9.6 mi", resources.getString(R.string.history_totals_dotted, count, "3:10", "9.6"))
+        assertEquals("at 07:42", resources.getString(R.string.history_walk_at, "07:42"))
+        assertEquals(
+            "Wed 21 Oct at 07:42, 0:24, 1.2 mi",
+            resources.getString(R.string.history_row_spoken, "Wed 21 Oct", "07:42", "0:24", "1.2"),
+        )
+        assertEquals(
+            "This week: 3 walks, 1 hour 25 minutes, 4.2 miles",
+            resources.getString(R.string.history_summary_spoken, "3 walks", "1 hour 25 minutes", "4.2"),
+        )
+        assertEquals("walk", resources.getQuantityString(R.plurals.history_caption_walks, 1))
+        assertEquals("walks", resources.getQuantityString(R.plurals.history_caption_walks, 0))
+        assertEquals("walks", resources.getQuantityString(R.plurals.history_caption_walks, 3))
     }
 
     @Test

@@ -1,7 +1,10 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.history
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -10,14 +13,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -29,15 +34,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,9 +56,14 @@ import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DistanceFormat
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DurationFormat
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WalkSummary
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WeekGroup
+import io.github.greavemrsvg.dogwalkbuddy.ui.common.ConfirmSheet
 import io.github.greavemrsvg.dogwalkbuddy.ui.common.ErrorSnackbarEffect
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKit
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitShapes
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitSizes
+import io.github.greavemrsvg.dogwalkbuddy.ui.theme.FieldKitSpacing
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.MinTouchTarget
-import java.time.LocalDate
+import java.time.Clock
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -59,10 +74,28 @@ const val THIS_WEEK_TAG = "history_this_week"
 /** Test tag of the list of weeks and walks. */
 const val HISTORY_LIST_TAG = "history_list"
 
-/** Formats the date and the start time of a walk in the device zone. */
+/** Test tag of the decorative icon of the empty state (AC42). */
+const val HISTORY_EMPTY_ICON_TAG = "history_empty_icon"
+
+private val RowTileSize = 44.dp
+private val RowPaddingVertical = 12.dp
+private val RowPaddingHorizontal = 14.dp
+private val SectionGap = 8.dp
+private val SectionHeaderSide = 4.dp
+private val CardRadius = 22.dp
+private val EmptyIconSize = 48.dp
+private val MenuBorderWidth = 1.dp
+private val EmptyPaddingTop = 32.dp
+private val RowTitleSize = 16.sp
+private val TitlePaddingTop = 26.dp
+
+/**
+ * Formats the date and the start time of a walk in the device zone, with the year. The delete labels and messages
+ * keep this format (AC44, K11).
+ */
 class WalkDateFormats(
-    private val zoneId: ZoneId,
-    is24Hour: Boolean,
+    val zoneId: ZoneId,
+    val is24Hour: Boolean,
 ) {
     private val dateFormat = DateTimeFormatter.ofPattern("EEE d MMM yyyy", Locale.UK)
     private val timeFormat = DateTimeFormatter.ofPattern(if (is24Hour) "HH:mm" else "h:mm a", Locale.UK)
@@ -70,8 +103,6 @@ class WalkDateFormats(
     fun date(walk: WalkSummary): String = dateFormat.format(walk.startUtc.atZone(zoneId))
 
     fun time(walk: WalkSummary): String = timeFormat.format(walk.startUtc.atZone(zoneId))
-
-    fun day(day: LocalDate): String = dateFormat.format(day)
 }
 
 /** An action offered only in debug builds, in the History overflow menu. */
@@ -81,8 +112,9 @@ class DebugAction(
 )
 
 /**
- * The history: a "This week" summary, then the walks newest first grouped by week with their totals (AC35, AC36,
- * AC37), each with a Delete that asks for confirmation (AC40). [debugActions] is non-empty only in debug builds.
+ * The Walks tab: a "This week" card, then the walks newest first grouped by week with their totals (AC39-AC41), each
+ * row with a "More" menu whose Delete asks for confirmation in a sheet (AC44, OD2). [debugActions] is non-empty only
+ * in debug builds.
  */
 @Composable
 fun HistoryRoute(
@@ -106,10 +138,12 @@ fun HistoryRoute(
         onDismissDeleteFailure = viewModel::dismissDeleteFailure,
         onOpenWalk = onOpenWalk,
         debugActions = debugActions,
+        clock = viewModel.clock,
         modifier = modifier,
     )
 }
 
+/** The Walks tab content. [clock] decides the current year for the dates (D7). */
 @Composable
 fun HistoryContent(
     state: HistoryUiState,
@@ -121,7 +155,10 @@ fun HistoryContent(
     onDismissDeleteFailure: () -> Unit = {},
     onOpenWalk: (Long) -> Unit = {},
     debugActions: List<DebugAction> = emptyList(),
+    clock: Clock = Clock.systemDefaultZone(),
 ) {
+    val rangeTemplate = stringResource(R.string.history_week_range_span)
+    val dateText = remember(formats, clock, rangeTemplate) { WalkDateText(formats.zoneId, clock, formats.is24Hour, rangeTemplate) }
     val snackbarHost = remember { SnackbarHostState() }
     // A failed delete is shown over the list where the user is, and announced. It stays until the user dismisses it.
     ErrorSnackbarEffect(
@@ -134,169 +171,316 @@ fun HistoryContent(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0),
+        containerColor = FieldKit.colors.background,
         snackbarHost = { SnackbarHost(snackbarHost, modifier = Modifier.safeDrawingPadding()) },
     ) { scaffoldPadding ->
         HistoryBody(
-            state,
-            formats,
-            onRequestDelete,
-            onConfirmDelete,
-            onCancelDelete,
-            debugActions,
-            onOpenWalk,
-            Modifier.padding(scaffoldPadding),
+            state = state,
+            texts = RowTexts(dateText, formats),
+            onRequestDelete = onRequestDelete,
+            debugActions = debugActions,
+            onOpenWalk = onOpenWalk,
+            modifier = Modifier.padding(scaffoldPadding),
+        )
+    }
+    state.pendingDelete?.let { walk ->
+        // The confirmation keeps the MVP title, message (with the year) and buttons (AC44, K11).
+        ConfirmSheet(
+            title = stringResource(R.string.history_delete_title),
+            message = stringResource(R.string.history_delete_message, formats.date(walk), formats.time(walk)),
+            confirmLabel = stringResource(R.string.history_delete_confirm),
+            cancelLabel = stringResource(R.string.history_delete_cancel),
+            onConfirm = onConfirmDelete,
+            onCancel = onCancelDelete,
         )
     }
 }
+
+/** The date texts a row needs: the D7 dates it shows, and the year format of its delete label (AC44). */
+private class RowTexts(
+    val dateText: WalkDateText,
+    val formats: WalkDateFormats,
+)
 
 @Composable
 private fun HistoryBody(
     state: HistoryUiState,
-    formats: WalkDateFormats,
+    texts: RowTexts,
     onRequestDelete: (WalkSummary) -> Unit,
-    onConfirmDelete: () -> Unit,
-    onCancelDelete: () -> Unit,
     debugActions: List<DebugAction>,
     onOpenWalk: (Long) -> Unit,
     modifier: Modifier,
 ) {
-    Surface(modifier = modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(horizontal = 16.dp)) {
-            // Walks is a tab, so it has no back control (AC11); system Back returns to Today.
-            if (debugActions.isNotEmpty()) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) { DebugMenu(debugActions) }
-            }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().testTag(HISTORY_LIST_TAG),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+    Surface(modifier = modifier.fillMaxSize(), color = FieldKit.colors.background) {
+        LazyColumn(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .safeDrawingPadding()
+                    .padding(horizontal = FieldKitSpacing.gutter)
+                    .testTag(HISTORY_LIST_TAG),
+        ) {
+            item { TitleRow(debugActions) }
+            if (state.loadFailed) {
                 item {
                     Text(
-                        text = stringResource(R.string.history_title),
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.semantics { heading() },
+                        text = stringResource(R.string.history_load_failed),
+                        style = FieldKit.typography.bodyLarge,
+                        color = FieldKit.colors.onSurface,
+                        modifier = Modifier.padding(horizontal = SectionHeaderSide),
                     )
                 }
-                if (state.loadFailed) {
-                    item { Text(stringResource(R.string.history_load_failed)) }
-                } else {
-                    item { ThisWeek(state.thisWeek) }
-                }
-                if (state.isLoaded && state.isEmpty && !state.loadFailed) {
-                    item { Text(stringResource(R.string.history_empty), style = MaterialTheme.typography.titleMedium) }
-                }
-                state.weeks.forEach { week ->
-                    item(key = "week-${week.weekStart}") { WeekHeader(week, formats) }
-                    items(week.walks, key = { it.id }) { walk -> WalkRow(walk, formats, onOpenWalk, onRequestDelete) }
-                }
+            } else {
+                item { ThisWeekCard(state.thisWeek, state.thisWeekDays, texts.dateText) }
             }
+            if (state.isLoaded && state.isEmpty && !state.loadFailed) {
+                item { EmptyState() }
+            }
+            state.weeks.forEach { week -> weekSection(week, texts, onOpenWalk, onRequestDelete) }
         }
     }
-    state.pendingDelete?.let { walk ->
-        DeleteDialog(walk, formats, onConfirm = onConfirmDelete, onCancel = onCancelDelete)
+}
+
+@Composable
+private fun TitleRow(debugActions: List<DebugAction>) {
+    // Walks is a tab, so it has no back control (AC11, AC39); system Back returns to Today.
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = TitlePaddingTop, bottom = FieldKitSpacing.rowGap),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(R.string.history_title),
+            style = FieldKit.typography.screenTitle,
+            color = FieldKit.colors.onSurface,
+            modifier = Modifier.weight(1f).padding(horizontal = SectionHeaderSide).semantics { heading() },
+        )
+        if (debugActions.isNotEmpty()) DebugMenu(debugActions)
     }
 }
 
 @Composable
-private fun ThisWeek(week: WeekGroup) {
-    Column(modifier = Modifier.fillMaxWidth().testTag(THIS_WEEK_TAG).semantics(mergeDescendants = true) {}) {
-        Text(stringResource(R.string.history_this_week), style = MaterialTheme.typography.titleLarge)
-        Text(totalsText(week), style = MaterialTheme.typography.titleMedium)
+private fun EmptyState() {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(top = EmptyPaddingTop),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(FieldKitSpacing.stackGap),
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_nav_walks),
+            contentDescription = null,
+            tint = FieldKit.colors.iconMuted,
+            modifier = Modifier.size(EmptyIconSize).testTag(HISTORY_EMPTY_ICON_TAG),
+        )
+        Text(
+            text = stringResource(R.string.history_empty),
+            style = FieldKit.typography.factorValue,
+            color = FieldKit.colors.onSurface,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
-@Composable
-private fun totalsText(week: WeekGroup): String =
-    stringResource(
-        R.string.history_totals,
-        pluralStringResource(R.plurals.history_walk_count, week.count, week.count),
-        DurationFormat.hoursMinutes(week.totalSeconds),
-        DistanceFormat.miles(week.totalM),
-    )
+private fun LazyListScope.weekSection(
+    week: WeekGroup,
+    texts: RowTexts,
+    onOpenWalk: (Long) -> Unit,
+    onRequestDelete: (WalkSummary) -> Unit,
+) {
+    item(key = "week-${week.weekStart}") { WeekHeader(week, texts.dateText) }
+    itemsIndexed(week.walks, key = { _, walk -> walk.id }) { index, walk ->
+        WalkRow(
+            walk = walk,
+            texts = texts,
+            position = RowPosition.of(index, week.walks.size),
+            onOpenWalk = onOpenWalk,
+            onRequestDelete = onRequestDelete,
+        )
+    }
+}
 
 @Composable
 private fun WeekHeader(
     week: WeekGroup,
-    formats: WalkDateFormats,
+    dateText: WalkDateText,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+    val colors = FieldKit.colors
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = FieldKitSpacing.sectionGap, bottom = SectionGap)
+                .padding(horizontal = SectionHeaderSide),
+        horizontalArrangement = Arrangement.spacedBy(SectionGap),
+        verticalAlignment = Alignment.Bottom,
+    ) {
         Text(
-            text = stringResource(R.string.history_week_range, formats.day(week.weekStart), formats.day(week.weekEnd)),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.semantics { heading() },
+            text = dateText.weekRange(week.weekStart, week.weekEnd),
+            style = FieldKit.typography.label.copy(fontWeight = FontWeight.Bold),
+            color = colors.onSurfaceVariant,
+            modifier = Modifier.weight(1f).semantics { heading() },
         )
-        Text(totalsText(week), style = MaterialTheme.typography.bodyLarge)
-        HorizontalDivider()
+        Text(
+            text =
+                stringResource(
+                    R.string.history_totals_dotted,
+                    pluralStringResource(R.plurals.history_walk_count, week.count, week.count),
+                    DurationFormat.hoursMinutes(week.totalSeconds),
+                    DistanceFormat.miles(week.totalM),
+                ),
+            style = FieldKit.typography.label,
+            color = colors.onSurfaceVariant,
+            textAlign = TextAlign.End,
+            modifier = Modifier.weight(1f, fill = false),
+        )
+    }
+}
+
+/** Where a row sits in its week's card, so the card's corners can be drawn row by row in the lazy list. */
+private enum class RowPosition(
+    val top: Boolean,
+    val bottom: Boolean,
+) {
+    ONLY(true, true),
+    FIRST(true, false),
+    MIDDLE(false, false),
+    LAST(false, true),
+    ;
+
+    fun shape() =
+        RoundedCornerShape(
+            topStart = if (top) CardRadius else 0.dp,
+            topEnd = if (top) CardRadius else 0.dp,
+            bottomStart = if (bottom) CardRadius else 0.dp,
+            bottomEnd = if (bottom) CardRadius else 0.dp,
+        )
+
+    companion object {
+        fun of(
+            index: Int,
+            count: Int,
+        ): RowPosition =
+            when {
+                count == 1 -> ONLY
+                index == 0 -> FIRST
+                index == count - 1 -> LAST
+                else -> MIDDLE
+            }
     }
 }
 
 @Composable
 private fun WalkRow(
     walk: WalkSummary,
-    formats: WalkDateFormats,
+    texts: RowTexts,
+    position: RowPosition,
     onOpenWalk: (Long) -> Unit,
     onRequestDelete: (WalkSummary) -> Unit,
 ) {
-    val description = stringResource(R.string.history_delete_description, formats.date(walk), formats.time(walk))
+    val colors = FieldKit.colors
+    val date = texts.dateText.rowDate(walk.startUtc)
+    val time = texts.dateText.time(walk.startUtc)
+    val duration = DurationFormat.hoursMinutes(walk.durationSeconds)
+    val miles = DistanceFormat.miles(walk.distanceM)
+    val spoken = stringResource(R.string.history_row_spoken, date, time, duration, miles)
     val openLabel = stringResource(R.string.history_open_walk)
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        // The date, time, duration and distance are spoken as one label. Opening the walk is the row's action, and
-        // Delete stays a separate control beside it.
-        Column(
+    val shape = position.shape()
+    Column(modifier = Modifier.fillMaxWidth().background(colors.surface, shape)) {
+        // The row is one control spoken as "<date> at <time>, <h:mm>, <x.x> mi" that opens the walk (AC39). "More"
+        // stays a separate control inside it (AC44).
+        Row(
             modifier =
                 Modifier
-                    .weight(1f)
-                    .heightIn(min = MinTouchTarget)
+                    .fillMaxWidth()
+                    .heightIn(min = FieldKitSizes.listRowMinHeight)
                     .clickable(onClickLabel = openLabel, role = Role.Button) { onOpenWalk(walk.id) }
-                    .semantics(mergeDescendants = true) {},
+                    .semantics(mergeDescendants = true) { contentDescription = spoken }
+                    .padding(start = RowPaddingHorizontal, top = RowPaddingVertical, bottom = RowPaddingVertical),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(RowPaddingHorizontal),
         ) {
-            Text(
-                stringResource(R.string.history_walk_when, formats.date(walk), formats.time(walk)),
-                style = MaterialTheme.typography.bodyLarge,
+            Box(
+                modifier = Modifier.size(RowTileSize).background(colors.primaryContainer, FieldKitShapes.iconTile),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_nav_walks),
+                    contentDescription = null,
+                    tint = colors.primary,
+                    modifier = Modifier.size(FieldKitSizes.iconNav),
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(date, style = FieldKit.typography.bodyLarge.copy(fontSize = RowTitleSize, fontWeight = FontWeight.Bold))
+                Text(
+                    stringResource(R.string.history_walk_at, time),
+                    style = FieldKit.typography.label.copy(fontWeight = FontWeight.Medium),
+                    color = colors.onSurfaceVariant,
+                )
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    stringResource(R.string.recording_distance_miles, miles),
+                    style =
+                        FieldKit.typography.bodyLarge.copy(
+                            fontSize = RowTitleSize,
+                            fontWeight = FontWeight.Bold,
+                            fontFeatureSettings = "tnum",
+                        ),
+                )
+                Text(
+                    duration,
+                    style = FieldKit.typography.label.copy(fontWeight = FontWeight.Medium, fontFeatureSettings = "tnum"),
+                    color = colors.onSurfaceVariant,
+                )
+            }
+            Icon(
+                painter = painterResource(R.drawable.ic_chevron_right),
+                contentDescription = null,
+                tint = colors.iconMuted,
+                modifier = Modifier.size(FieldKitSizes.iconInline),
             )
-            Text(
-                stringResource(
-                    R.string.history_walk_stats,
-                    DurationFormat.hoursMinutes(walk.durationSeconds),
-                    DistanceFormat.miles(walk.distanceM),
-                ),
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            RowMoreMenu(walk, texts.formats, onRequestDelete)
         }
-        OutlinedButton(
-            onClick = { onRequestDelete(walk) },
-            modifier = Modifier.heightIn(min = MinTouchTarget).semantics { contentDescription = description },
-        ) {
-            Text(stringResource(R.string.history_delete))
-        }
+        if (!position.bottom) HorizontalDivider(color = colors.divider, modifier = Modifier.padding(horizontal = RowPaddingHorizontal))
     }
 }
 
 @Composable
-private fun DeleteDialog(
+private fun RowMoreMenu(
     walk: WalkSummary,
     formats: WalkDateFormats,
-    onConfirm: () -> Unit,
-    onCancel: () -> Unit,
+    onRequestDelete: (WalkSummary) -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = onCancel,
-        title = { Text(stringResource(R.string.history_delete_title)) },
-        text = { Text(stringResource(R.string.history_delete_message, formats.date(walk), formats.time(walk))) },
-        confirmButton = {
-            TextButton(onClick = onConfirm, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                Text(stringResource(R.string.history_delete_confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onCancel, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                Text(stringResource(R.string.history_delete_cancel))
-            }
-        },
-    )
+    var open by remember { mutableStateOf(false) }
+    // The delete label keeps the year format (AC44): "Delete walk on Mon 19 Oct 2026 at 08:00".
+    val description = stringResource(R.string.history_delete_description, formats.date(walk), formats.time(walk))
+    Box {
+        IconButton(onClick = { open = true }, modifier = Modifier.size(FieldKitSizes.iconButton)) {
+            Icon(
+                painter = painterResource(R.drawable.ic_more),
+                contentDescription = stringResource(R.string.history_more),
+                tint = FieldKit.colors.iconMuted,
+            )
+        }
+        // The menu sits on row cards of the same surface colour, so a 1 dp control-border edge (iconMuted, at least
+        // 3:1 on the card in both themes) keeps it distinct, mainly in dark mode (owner_answers.t6_dark_menu).
+        DropdownMenu(
+            expanded = open,
+            onDismissRequest = { open = false },
+            containerColor = FieldKit.colors.surface,
+            border = BorderStroke(MenuBorderWidth, FieldKit.colors.controlBorder),
+        ) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.history_delete)) },
+                leadingIcon = { Icon(painterResource(R.drawable.ic_delete), contentDescription = null) },
+                onClick = {
+                    open = false
+                    onRequestDelete(walk)
+                },
+                modifier = Modifier.semantics { contentDescription = description },
+            )
+        }
+    }
 }
 
 @Composable

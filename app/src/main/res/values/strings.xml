@@ -18,10 +18,17 @@
         <item quantity="one">%d walk</item>
         <item quantity="other">%d walks</item>
     </plurals>
-    <string name="history_totals">%1$s, %2$s, %3$s mi</string>
-    <string name="history_week_range">%1$s to %2$s</string>
-    <string name="history_walk_when">%1$s at %2$s</string>
-    <string name="history_walk_stats">%1$s, %2$s mi</string>
+    <string name="history_totals_dotted">%1$s · %2$s · %3$s mi</string>
+    <string name="history_week_range_span">%1$s – %2$s</string>
+    <string name="history_walk_at">at %1$s</string>
+    <string name="history_row_spoken">%1$s at %2$s, %3$s, %4$s mi</string>
+    <string name="history_summary_spoken">This week: %1$s, %2$s, %3$s miles</string>
+    <plurals name="history_caption_walks">
+        <item quantity="one">walk</item>
+        <item quantity="other">walks</item>
+    </plurals>
+    <string name="history_caption_hmm">h:mm</string>
+    <string name="history_caption_miles">miles</string>
     <string name="history_delete">Delete</string>
     <string name="history_delete_description">Delete walk on %1$s at %2$s</string>
     <string name="history_delete_title">Delete this walk?</string>

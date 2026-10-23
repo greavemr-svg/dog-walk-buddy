@@ -23,6 +23,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LatLon
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LocationFix
@@ -39,11 +43,12 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertTouchTargetIsAtLeast
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.RecordingPalette
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExternalResource
+import org.junit.rules.RuleChain
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -57,20 +62,34 @@ import java.time.ZoneOffset
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w411dp-h891dp-xxhdpi")
 class RecordingScreenTest {
-    @get:Rule
     val composeRule = createComposeRule()
 
-    @get:Rule
     val temporaryFolder = TemporaryFolder()
+
+    /** Owns the route's ViewModel, so its Room collector can be stopped before the database closes. */
+    private val viewModelStore = ViewModelStore()
+
+    /**
+     * Test harness: the screen and its ViewModel are torn down before the database closes. Closing the database in
+     * an @After (inside the compose rule) let the ViewModel's live `observePoints` query run on a closed connection
+     * pool under full-suite load ("connection pool has been closed").
+     */
+    @get:Rule
+    val rules: RuleChain =
+        RuleChain
+            .outerRule(temporaryFolder)
+            .around(
+                object : ExternalResource() {
+                    override fun after() {
+                        viewModelStore.clear()
+                        test?.close()
+                    }
+                },
+            ).around(composeRule)
 
     private var test: TestAppContainer? = null
 
     private var stops = 0
-
-    @After
-    fun tearDown() {
-        test?.close()
-    }
 
     private val start = Instant.parse("2026-10-19T19:05:00Z")
 
@@ -297,11 +316,18 @@ class RecordingScreenTest {
         val walk = runBlocking { app.container.walkRepository.startWalk() }
         app.container.recordingStateHolder.begin(walk.id, walk.startUtc)
         val viewModel =
-            RecordingViewModel(
-                app.container.walkRecordingController,
-                app.container.recordingStateHolder,
-                app.container.walkRepository,
-            )
+            ViewModelProvider.create(
+                viewModelStore,
+                viewModelFactory {
+                    initializer {
+                        RecordingViewModel(
+                            app.container.walkRecordingController,
+                            app.container.recordingStateHolder,
+                            app.container.walkRepository,
+                        )
+                    }
+                },
+            )[RecordingViewModel::class]
         composeRule.setContent {
             DogWalkBuddyTheme {
                 RecordingRoute(
