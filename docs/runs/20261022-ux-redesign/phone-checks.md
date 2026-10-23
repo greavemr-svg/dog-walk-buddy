@@ -19,3 +19,4 @@ The owner does the checks (owner preference: manual checks on the phone are done
 | P11 | Real gallery photo | MVP deferred | Dog tab > Choose photo from your gallery: shows correctly; Remove photo works | | |
 | P12 | Delete all my data | MVP | Privacy > Delete all my data: Walks and the dog profile are empty afterwards | | |
 | P13 | Network hosts | AC65 / MVP AC49 | Optional, needs a proxy. Otherwise record "not run" and it carries forward as before | | |
+| P14 | No cloud backup of app data | MVP AC48 | Optional (needs a Google backup and a reinstall with restore). With walks and a dog profile present: Settings > Google > Backup > Back up now; uninstall the app; reinstall the same build; open it: no walks, profile or photo come back. Otherwise record "not run" | | |

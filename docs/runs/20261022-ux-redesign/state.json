@@ -17,7 +17,8 @@
     "audit": "",
     "security": "docs/runs/20261022-ux-redesign/security.md",
     "performance": "docs/perf/20261022-ux-redesign/results.md",
-    "phone_checks": "docs/runs/20261022-ux-redesign/phone-checks.md"
+    "phone_checks": "docs/runs/20261022-ux-redesign/phone-checks.md",
+    "release_pr": 50
   },
   "gates": {
     "G1": {
@@ -497,7 +498,8 @@
     "2026-10-23T16:36:21Z invoking gatekeeper (opus) for G4 re-run on f6d629d",
     "2026-10-23T16:46:16Z gatekeeper (opus): G4 PASS (re-run) on f6d629d, CI 39988136025. Next: owner phone checks, then release prepare",
     "2026-10-23T16:47:14Z orchestrator: built debug APK at 394f5a2 (md5 bbd488d6) for owner phone checks; phone-checks.md checklist P1-P13 created; waiting for owner to connect phone",
-    "2026-10-23T16:49:24Z orchestrator: final debug build (394f5a2, md5 bbd488d6) installed on owner's Flip3 (SM-F711B), data kept; battery 100%; owner phone checks P1-P13 in progress. Invoking release (opus) prepare in parallel"
+    "2026-10-23T16:49:24Z orchestrator: final debug build (394f5a2, md5 bbd488d6) installed on owner's Flip3 (SM-F711B), data kept; battery 100%; owner phone checks P1-P13 in progress. Invoking release (opus) prepare in parallel",
+    "2026-10-23T16:54:48Z release (opus) prepare: DONE; release PR #50 (v0.1.0, MVP + redesign, supersedes #28) head 23987ac; unticked: CI, audit, manual checks. Notes: ship merge style vs R-08 is owner's call; #7/#28 closure to handle with owner. Auditor waits for phone checks"
   ],
   "bootstrap": false,
   "base": {
