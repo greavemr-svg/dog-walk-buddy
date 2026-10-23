@@ -181,10 +181,17 @@
       "depends_on": [
         6
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "branch": "task/20261022-ux-redesign-7-walk-detail-and-privacy",
-      "pr": null
+      "pr": 46,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-23T09:43:34Z",
+        "head": "f38b5a3",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T7.md"
+      },
+      "merge_commit": "5f80492"
     },
     {
       "n": 8,
@@ -196,8 +203,8 @@
         2,
         7
       ],
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "branch": "task/20261022-ux-redesign-8-dog-profile-and-about",
       "pr": null
     }
@@ -209,7 +216,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 72,
+    "agent_invocations": 82,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -376,7 +383,29 @@
     "2026-10-23T08:01:33Z gatekeeper G3 T6 re-run (opus): PASS on 4a6b332. Record gates/G3-T6.md; posting on PR #45",
     "2026-10-23T08:01:33Z orchestrator: T6 invoking release integrate (opus). Budget 71/200 incl. this call",
     "2026-10-23T08:06:13Z release integrate T6 (opus): PR #45 squash-merged as e237da1 (match-head 4a6b332); issue #37 closed (comment 6360359005); branches deleted; feature CI 39921832856 in progress. T6 done",
-    "2026-10-23T08:06:13Z orchestrator: T7 attempt 1: invoking developer (opus). Budget 72/200 incl. this call"
+    "2026-10-23T08:06:13Z orchestrator: T7 attempt 1: invoking developer (opus). Budget 72/200 incl. this call",
+    "2026-10-23T08:09:20Z developer T7 attempt 1 (opus): BLOCKED before code (good early stop); 2 unlisted lines FullScreenDestinationsTest:125, LocationNeededTest:109",
+    "2026-10-23T08:09:20Z owner: t7_test_edits -> \"Approve both\"",
+    "2026-10-23T08:09:20Z orchestrator: T7 continue attempt 1: developer implements task with approved edits. Budget 73/200 incl. this call",
+    "2026-10-23T08:21:20Z developer T7 (opus): BLOCKED mid-way (uncommitted work: icons, RouteStyle+test, MapLibre casing/start marker, DestructiveOutlinedButton, WalkDetailViewModel deletion, strings, ApprovedCopyTest additions); WalkDetailScreenTest L216 approved change impossible in Loading state; needs fixed clock in show()",
+    "2026-10-23T08:21:20Z owner: t7_loading_test_and_clock \"A + fixed clock\"; t7_map_attribution \"Yes, keep visible\"",
+    "2026-10-23T08:21:20Z orchestrator: T7 continue attempt 1 (owner unblock). Budget 74/200 incl. this call",
+    "2026-10-23T08:54:25Z developer T7 (continue, opus): stopped at 80-turn limit without report; PR #46 open at b042c3e (CI pass); uncommitted: screenshot-driven fixes (dark status-bar icons over light map tiles, privacy heading styles) + WalkDetailScreenTest additions + 11 screenshots; emulator still running",
+    "2026-10-23T08:54:25Z orchestrator: T7 invoking developer to finish (commit fixes, ci, screenshots, PR body) (opus). Budget 75/200 incl. this call",
+    "2026-10-23T09:17:51Z developer T7 finish (opus): DONE; PR #46 head d164f0b; status-bar helper rebuilt on RecordingSystemBars pattern (9738222) + test; privacy heading styles; 1002 tests, 99.0%, changed 99%; 12 screenshots retaken (3 earlier showed wrong screen); CI pass; risk: theme-switch path untested in Robolectric",
+    "2026-10-23T09:17:51Z orchestrator: viewed walk-detail dark, offline light, privacy light, delete-all dark: OK. T7 invoking tester (opus). Budget 76/200 incl. this call",
+    "2026-10-23T09:30:47Z tester T7 (opus): PASSED on f38b5a3 (+8 tests incl. WalkDetailDeleteFlowTest end to end); 1010/0/0 x3; 99.0%, changed 99%; audit clean. Gaps noted: This-week totals after delete indirect; sheet close via Back/scrim not tested in T7. Comment 6361839004",
+    "2026-10-23T09:30:47Z orchestrator: T7 developer PR-body refresh to f38b5a3 before review. Budget 77/200 incl. this call",
+    "2026-10-23T09:32:24Z developer T7 body refresh (opus): DONE; body at f38b5a3 (1010 tests, 99.0%); tester tests mapped; build-test 39932227557 pending",
+    "2026-10-23T09:32:24Z orchestrator: T7 invoking reviewer (opus). Budget 78/200 incl. this call",
+    "2026-10-23T09:39:22Z reviewer T7 (opus): APPROVE (head f38b5a3), review 5626492807; CI green; 3 Minor (status-bar reset owner; map label under status bar; PR body total coverage 99.0% vs CI 98.9%) + 1 Nit",
+    "2026-10-23T09:39:22Z orchestrator: T7 developer body-only fix of coverage figure before G3 (avoid G3.2 accuracy fail). Budget 79/200 incl. this call",
+    "2026-10-23T09:40:25Z developer T7 body fix (opus): coverage line now CI 98.9% (4566/4616) on f38b5a3, local 99.0% labelled; checks pass",
+    "2026-10-23T09:40:25Z orchestrator: T7 invoking gatekeeper G3 (opus, focused brief). Budget 80/200 incl. this call",
+    "2026-10-23T09:43:34Z gatekeeper G3 T7 (opus): PASS on f38b5a3. Record gates/G3-T7.md; posting on PR #46. State (owner answers) committed to feature after merge",
+    "2026-10-23T09:43:34Z orchestrator: T7 invoking release integrate (opus). Budget 81/200 incl. this call",
+    "2026-10-23T09:48:22Z release integrate T7 (opus): PR #46 squash-merged as 5f80492 (match-head f38b5a3); issue #38 closed (comment 6362084354); branches deleted; feature CI 39934009763 in progress. T7 done",
+    "2026-10-23T09:48:22Z orchestrator: T8 attempt 1: invoking developer (opus). Budget 82/200 incl. this call"
   ],
   "bootstrap": false,
   "base": {
@@ -501,6 +530,21 @@
       "at": "2026-10-23T06:38:23Z",
       "question": "In dark mode, the open \"More\" menu (with Delete) is almost the same colour as the walk rows behind it and has no visible shadow, so its edge blends into the list (see the dark screenshot). The design doesn't specify a menu colour. Should task 6 fix it?",
       "answer": "Fix it in task 6"
+    },
+    "t7_test_edits": {
+      "at": "2026-10-23T08:09:20Z",
+      "question": "Task 7 needs two test lines that aren't on the approved list, both because of wording you already approved. (1) FullScreenDestinationsTest L125 waits for the \"Walk details\" title, which the redesign removes. It would wait for the new date heading \"Monday 19 October\" instead. (2) LocationNeededTest L109 waits for the \"Privacy\" title, which becomes \"Privacy & your data\". It would wait for that instead. Both stay exact checks. Approve both?",
+      "answer": "Approve both"
+    },
+    "t7_loading_test_and_clock": {
+      "at": "2026-10-23T08:21:20Z",
+      "question": "Task 7: one approved test change can't work as written. The Walk detail \"loading\" test was meant to check for the new date heading, but while loading there's no walk yet, so no date. Options: A) the loading test instead checks the old \"Walk details\" title is gone (the date heading is already checked in the loaded tests); B) turn the loading test into a loaded test (loses loading coverage). Also: the Walk detail test needs a fixed test clock so the \"no year in the current year\" rule doesn't break the tests on 1 Jan 2027 (setup only, no check changes). Which?",
+      "answer": "A + fixed clock"
+    },
+    "t7_map_attribution": {
+      "at": "2026-10-23T08:21:20Z",
+      "question": "On Walk detail, the details sheet overlaps the bottom of the map by 28 dp, which would cover the map's logo and info (\"i\") button. Map attribution must stay visible (an existing MVP check protects it). The developer plans to shrink the map's drawn area by 28 dp at the bottom so the logo and attribution sit above the sheet, and list it as a difference from your mock-up. OK?",
+      "answer": "Yes, keep visible"
     }
   },
   "carry_forward": [
@@ -593,6 +637,16 @@
       "from": "G3 T6",
       "to": "release device session",
       "item": "AC66 Walks load-failure state not screenshotted (needs DB failure); cover or note at release AC66 session"
+    },
+    {
+      "from": "T7 review 5626492807 (Minor)",
+      "to": "backlog",
+      "item": "Status-bar style reset on dispose (DarkStatusBarIconsOverMap, RecordingSystemBars): give bar style one owner if a styled screen ever follows"
+    },
+    {
+      "from": "T7 review 5626492807 (Minor)",
+      "to": "backlog",
+      "item": "Map label under status bar on walk detail; optional top scrim"
     }
   ]
 }
