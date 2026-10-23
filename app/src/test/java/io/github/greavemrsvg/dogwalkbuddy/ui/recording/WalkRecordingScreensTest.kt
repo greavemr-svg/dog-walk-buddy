@@ -37,12 +37,13 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.nav.NAV_TODAY_TAG
 import io.github.greavemrsvg.dogwalkbuddy.ui.nav.NAV_WALKS_TAG
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExternalResource
+import org.junit.rules.RuleChain
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
@@ -58,11 +59,26 @@ import java.time.Duration
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w411dp-h891dp-xxhdpi")
 class WalkRecordingScreensTest {
-    @get:Rule
     val composeRule = createComposeRule()
 
-    @get:Rule
     val temporaryFolder = TemporaryFolder()
+
+    /**
+     * Test harness: the database closes only after the compose rule has torn down the screen and destroyed its
+     * activity (which clears the Recording ViewModel). Closing it in an @After (inside the compose rule) let the
+     * ViewModel's live `observePoints` query run on a closed connection pool under full-suite load.
+     */
+    @get:Rule
+    val rules: RuleChain =
+        RuleChain
+            .outerRule(temporaryFolder)
+            .around(
+                object : ExternalResource() {
+                    override fun after() {
+                        test.close()
+                    }
+                },
+            ).around(composeRule)
 
     private lateinit var test: TestAppContainer
     private lateinit var registry: FakePermissionRegistry
@@ -74,11 +90,6 @@ class WalkRecordingScreensTest {
         // By default every permission request is granted, and the notification permission is already granted.
         grantNotifications()
         registry = grantingRegistry()
-    }
-
-    @After
-    fun tearDown() {
-        test.close()
     }
 
     private fun grantNotifications() =
