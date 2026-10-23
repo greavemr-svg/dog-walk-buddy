@@ -1,6 +1,9 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.walkdetail
 
+import android.view.View
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
@@ -12,6 +15,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.domain.location.LatLon
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.WalkSummary
@@ -25,6 +29,7 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertTouchTargetIsAtLeast
 import io.github.greavemrsvg.dogwalkbuddy.ui.history.WalkDateFormats
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -487,5 +492,38 @@ class WalkDetailScreenTest {
         composeRule.assertNoTextTruncation()
         composeRule.onNodeWithText("Your route is saved. It'll show here next time you're online.").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithText("Delete this walk").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "+night")
+    fun UX_AC45_over_the_light_map_the_status_bar_icons_are_dark_and_restored_afterwards() {
+        var hostView: View? = null
+        current.value = WalkDetailUiState.Loading
+        composeRule.setContent {
+            hostView = LocalView.current
+            DogWalkBuddyTheme {
+                WalkDetailContent(
+                    state = current.value,
+                    routeMap = map,
+                    formats = formats,
+                    onBack = {},
+                    onMapLoadFailed = {},
+                )
+            }
+        }
+
+        fun lightStatusBars(): Boolean {
+            val view = hostView!!
+            val window = (view.context as ComponentActivity).window
+            return WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars
+        }
+        val before = composeRule.runOnIdle { lightStatusBars() }
+        assertFalse("night starts with light icons", before)
+
+        composeRule.runOnIdle { current.value = loaded() }
+        assertTrue("dark icons over the map", composeRule.runOnIdle { lightStatusBars() })
+
+        composeRule.runOnIdle { current.value = loaded(mapAvailable = false) }
+        assertEquals("restored once the map is gone", before, composeRule.runOnIdle { lightStatusBars() })
     }
 }

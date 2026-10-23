@@ -1,5 +1,8 @@
 package io.github.greavemrsvg.dogwalkbuddy.ui.walkdetail
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,11 +28,13 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.greavemrsvg.dogwalkbuddy.R
 import io.github.greavemrsvg.dogwalkbuddy.domain.walk.DistanceFormat
@@ -81,6 +87,7 @@ private val BackInset = 12.dp
 private val MapOffIconSize = 40.dp
 private val HeadingSize = 28.sp
 private val AttributionSize = 11.sp
+private val MapOffTitleSize = 16.sp
 private const val ATTRIBUTION_MAX_WIDTH_FRACTION = 0.6f
 private const val ATTRIBUTION_BACKGROUND_ALPHA = 0.9f
 
@@ -315,6 +322,7 @@ private fun MapArea(
             }
         !state.mapAvailable -> MapUnavailable(modifier)
         else -> {
+            DarkStatusBarIconsOverMap()
             val description = stringResource(R.string.walk_detail_map_description)
             Box(modifier = modifier.testTag(WALK_MAP_AREA_TAG)) {
                 routeMap.Draw(
@@ -349,6 +357,22 @@ private fun MapArea(
     }
 }
 
+/**
+ * The map tiles are light in both themes (ADR 0007), so while the map is drawn under the status bar its icons are
+ * dark, also in dark mode. `MainActivity` calls `enableEdgeToEdge` again on a light/dark switch, so the style is set
+ * again whenever the night mode changes. When the map leaves the screen `enableEdgeToEdge` restores the style that
+ * follows the system theme, as `RecordingSystemBars` does.
+ */
+@Composable
+private fun DarkStatusBarIconsOverMap() {
+    val activity = LocalActivity.current as? ComponentActivity ?: return
+    val uiMode = LocalConfiguration.current.uiMode
+    DisposableEffect(activity, uiMode) {
+        WindowCompat.getInsetsController(activity.window, activity.window.decorView).isAppearanceLightStatusBars = true
+        onDispose { activity.enableEdgeToEdge() }
+    }
+}
+
 /** Offline or after a map failure: the map area says so, with the C17 sub-line (AC47). */
 @Composable
 private fun MapUnavailable(modifier: Modifier) {
@@ -371,7 +395,7 @@ private fun MapUnavailable(modifier: Modifier) {
         )
         Text(
             text = stringResource(R.string.walk_detail_map_unavailable),
-            style = FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+            style = FieldKit.typography.button.copy(fontSize = MapOffTitleSize),
             color = colors.onSurface,
             textAlign = TextAlign.Center,
         )

@@ -109,7 +109,7 @@ fun PrivacyContent(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(TopBarGap)) {
                 BackButton(onClick = onBack, contentDescription = stringResource(R.string.privacy_back))
-                Heading(R.string.privacy_title, style = FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
+                Heading(R.string.privacy_title, style = FieldKit.typography.button)
             }
             Heading(R.string.privacy_headline, style = FieldKit.typography.screenTitle.copy(fontSize = HeadlineSize))
             PrivacyCard(icon = R.drawable.ic_phone, heading = R.string.privacy_card_local_heading) {
@@ -164,7 +164,7 @@ private fun PrivacyCard(
                 tint = colors.primary,
                 modifier = Modifier.size(CardIconSize),
             )
-            Heading(heading, style = FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold))
+            Heading(heading, style = FieldKit.typography.factorValue)
         }
         content()
     }
@@ -191,7 +191,7 @@ private fun Status(
 ) {
     Text(
         text = stringResource(resId),
-        style = FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+        style = FieldKit.typography.button,
         color = FieldKit.colors.onSurface,
         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
     )
@@ -201,7 +201,7 @@ private fun Status(
 private fun Heading(
     @StringRes resId: Int,
     modifier: Modifier = Modifier,
-    style: TextStyle = FieldKit.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold, fontSize = SectionHeadingSize),
+    style: TextStyle = FieldKit.typography.button.copy(fontSize = SectionHeadingSize),
 ) {
     Text(text = stringResource(resId), style = style, color = FieldKit.colors.onSurface, modifier = modifier.semantics { heading() })
 }
