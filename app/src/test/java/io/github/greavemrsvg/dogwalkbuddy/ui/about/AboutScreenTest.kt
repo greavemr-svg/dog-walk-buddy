@@ -502,4 +502,28 @@ class AboutScreenTest {
             }
         }
     }
+
+    @Test
+    fun UX_AC56_OP4_the_six_threshold_sentences_show_word_for_word_as_literal_text() {
+        show()
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        mapOf(
+            R.string.about_overall to
+                "The overall rating for an hour is the worst of these factors. Sensitivity changes only the heat and pavement limits.",
+            R.string.about_heat to
+                "Heat (air temperature). Normal: Go below 20 °C, Caution from 20 °C to below 25 °C, Avoid from 25 °C. " +
+                "Sensitive: Go below 16 °C, Caution from 16 °C to below 21 °C, Avoid from 21 °C.",
+            R.string.about_pavement to
+                "Hot pavement: rated only in daylight (between local sunrise and sunset) when the forecast cloud cover is below " +
+                "50 percent. It uses the same temperature bands as heat.",
+            R.string.about_rain to "Rain (precipitation rate): Go below 0.5 mm/h, Caution from 0.5 mm/h to 4 mm/h, Avoid above 4 mm/h.",
+            R.string.about_wind to
+                "Wind (mean speed): Go below 25 mph, Caution from 25 mph to below 39 mph, Avoid from 39 mph. Gusts are not rated.",
+            R.string.about_cold to "Cold (air temperature): Caution at 0 °C or below. Cold never gives Avoid.",
+        ).forEach { (resId, sentence) ->
+            assertEquals(sentence, context.getString(resId))
+            composeRule.onNodeWithText(sentence).assertExists()
+        }
+    }
 }

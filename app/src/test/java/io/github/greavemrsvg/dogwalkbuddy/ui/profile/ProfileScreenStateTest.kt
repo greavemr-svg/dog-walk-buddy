@@ -19,6 +19,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasAnyAncestor
@@ -353,6 +354,41 @@ class ProfileScreenStateTest {
                 .config
                 .getOrNull(SemanticsProperties.Role),
         )
+    }
+
+    @Test
+    fun UX_AC50_K4_change_photo_and_remove_photo_are_drawn_at_least_48dp_high_not_only_touchable() {
+        show(ProfileUiState(isLoaded = true, photo = photo))
+
+        // K4: the pack draws Remove photo 44 px high. The drawn control (its layout bounds, not the expanded touch
+        // bounds) must be at least 48 dp.
+        composeRule.onNodeWithText("Remove photo").assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+        composeRule.onNodeWithText("Change photo").assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun UX_AC50_K4_choose_photo_is_drawn_at_least_48dp_high_with_no_photo() {
+        show(ProfileUiState(isLoaded = true))
+
+        composeRule.onNodeWithText("Choose photo").assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
+    }
+
+    @Test
+    fun UX_AC51_a_31_character_name_shows_the_exact_too_long_text_under_the_name_field_only() {
+        show(ProfileUiState(isLoaded = true, name = "a".repeat(31), nameError = ProfileError.NAME_TOO_LONG))
+
+        val text = "Name is too long. Use 30 characters or fewer."
+        composeRule.onAllNodes(hasSetTextAction())[0].assert(hasText(text))
+        composeRule.onAllNodes(hasSetTextAction())[1].assert(!hasText(text)).assert(hasText("0 / 50"))
+    }
+
+    @Test
+    fun UX_AC51_a_51_character_breed_error_is_under_the_breed_field_and_not_the_name_field() {
+        show(ProfileUiState(isLoaded = true, name = "Biscuit", breed = "b".repeat(51), breedError = ProfileError.BREED_TOO_LONG))
+
+        val text = "Breed is too long. Use 50 characters or fewer."
+        composeRule.onAllNodes(hasSetTextAction())[1].assert(hasText(text))
+        composeRule.onAllNodes(hasSetTextAction())[0].assert(!hasText(text)).assert(hasText("7 / 30"))
     }
 
     private companion object {
