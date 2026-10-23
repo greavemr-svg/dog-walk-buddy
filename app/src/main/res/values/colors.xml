@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#1B5E20</color>
+    <!-- Window backgrounds: tokens.json color.light.background and color.dark.background (ADR 0007). -->
+    <color name="field_kit_background_light">#F2F5F9</color>
+    <color name="field_kit_background_dark">#0B1622</color>
+</resources>

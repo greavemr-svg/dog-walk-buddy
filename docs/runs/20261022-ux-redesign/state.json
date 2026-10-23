@@ -1,0 +1,850 @@
+{
+  "run_id": "20261022-ux-redesign",
+  "idea": "Restyle Dog Walk Buddy to the owner's UX design pack at C:/Users/greav/projects/dog-walk-buddy-ux (README.md, ux-spec.md, tokens.json, screens/*.dc.html). Owner: \"I would like to cahgne the UX to follow the designs in C:/Users/greav/projects/dog-walk-buddy-ux\". Pack rules: MVP spec/ACs win; existing strings win unless owner approves copy changes in spec; a11y floors unchanged (AC51-AC53); dark mode required.",
+  "status": "in_progress",
+  "stage": "release_preparation",
+  "created_at": "2026-10-22T09:36:24Z",
+  "epic_issue": 31,
+  "feature_branch": "feature/20261022-ux-redesign",
+  "artifacts": {
+    "spec": "docs/specs/20261022-ux-redesign.md",
+    "design": "docs/design/20261022-ux-redesign.md",
+    "adrs": [
+      "docs/adr/0006-bundled-fonts-bricolage-grotesque-and-figtree.md",
+      "docs/adr/0007-field-kit-theme-tokens-and-dark-mode.md",
+      "docs/adr/0008-icons-as-bundled-material-symbols-vector-drawables.md"
+    ],
+    "audit": "",
+    "security": "docs/runs/20261022-ux-redesign/security.md",
+    "performance": "docs/perf/20261022-ux-redesign/results.md",
+    "phone_checks": "docs/runs/20261022-ux-redesign/phone-checks.md",
+    "release_pr": 50
+  },
+  "gates": {
+    "G1": {
+      "result": "PASS",
+      "at": "2026-10-22T10:22:58Z",
+      "record": "docs/runs/20261022-ux-redesign/gates/G1.md",
+      "previous": "docs/runs/20261022-ux-redesign/gates/G1-attempt1.md (FAIL)"
+    },
+    "spec_approval": {
+      "result": "APPROVED",
+      "at": "2026-10-22T10:25:25Z",
+      "by": "owner (greavemr-svg)",
+      "question": "Gate A: do you approve the UX redesign spec (docs/specs/20261022-ux-redesign.md, committed f9b5497)? It restyles every screen to your design pack in light and dark mode, with 67 acceptance criteria. All 53 MVP criteria stay in force. All your wording and product decisions are quoted word for word. Estimate: 8 tasks, which is the run limit.",
+      "answer": "Approve spec",
+      "spec_commit": "f9b5497"
+    },
+    "G2": {
+      "result": "PASS",
+      "at": "2026-10-22T11:34:07Z",
+      "head": "2848303",
+      "record": "docs/runs/20261022-ux-redesign/gates/G2.md",
+      "previous": [
+        "docs/runs/20261022-ux-redesign/gates/G2-attempt1.md (FAIL)",
+        "docs/runs/20261022-ux-redesign/gates/G2-attempt2.md (FAIL)"
+      ]
+    },
+    "G4": {
+      "result": "PASS",
+      "head": "f6d629d",
+      "record": "docs/runs/20261022-ux-redesign/gates/G4.md",
+      "previous": "gates/G4-1bcfa43.md",
+      "at": "2026-10-23T16:46:16Z"
+    },
+    "G5": null,
+    "release_approval": null
+  },
+  "tasks": [
+    {
+      "n": 1,
+      "slug": "theme-foundations",
+      "title": "Field Kit theme, fonts, rating icons, dark mode and contrast",
+      "issue": 32,
+      "acs": "AC1, AC2, AC3, AC4 (palette), AC5, AC6, AC7, AC8, AC40 (contrast pairs), AC62, AC63 (test scaffold), AC64, AC65 (fonts), AC67 (contrast pairs)",
+      "depends_on": [],
+      "status": "done",
+      "attempts": 1,
+      "branch": "task/20261022-ux-redesign-1-theme-foundations",
+      "pr": 40,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-22T12:59:28Z",
+        "head": "95eae40",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T1.md"
+      },
+      "merge_commit": "927e6a5"
+    },
+    {
+      "n": 2,
+      "slug": "bottom-nav-shell",
+      "title": "Bottom navigation, tabs, back controls and the dog-name label",
+      "issue": 33,
+      "acs": "AC9, AC10, AC11, AC12, AC13, AC14, AC15, AC16, AC53 (tiles), AC58 (helper extensions), AC60 (b, c), AC63 (C7, C16, D9 tiles), AC64",
+      "depends_on": [
+        1
+      ],
+      "status": "done",
+      "attempts": 2,
+      "branch": "task/20261022-ux-redesign-2-bottom-nav-shell",
+      "pr": 41,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-22T14:17:25Z",
+        "head": "43dfcc9",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T2.md"
+      },
+      "merge_commit": "9e9c259"
+    },
+    {
+      "n": 3,
+      "slug": "today-hero-and-footnote",
+      "title": "Today: header, banner, hero card with factor grid, footnote, pinned Start, loading",
+      "issue": 34,
+      "acs": "AC17, AC18, AC19, AC20, AC21, AC24, AC25, AC26, AC27, AC28, AC58, AC63 (C1, C12, D1-D3), AC64, AC66",
+      "depends_on": [
+        2
+      ],
+      "status": "done",
+      "attempts": 3,
+      "branch": "task/20261022-ux-redesign-3-today-hero-and-footnote",
+      "pr": 42,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-22T16:44:41Z",
+        "head": "70fe8b5",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T3.md",
+        "previous": "gates/G3-T3-attempt1.md (FAIL)"
+      },
+      "merge_commit": "81c13a0"
+    },
+    {
+      "n": 4,
+      "slug": "today-window-and-states",
+      "title": "Today: best-window card and 12-hour strip; Can't check, location and precise-location states",
+      "issue": 35,
+      "acs": "AC22, AC23, AC29, AC30, AC31, AC32, AC58, AC61 (strip), AC63 (C2, C4, C13, D4, D5), AC64, AC66",
+      "depends_on": [
+        3
+      ],
+      "status": "done",
+      "attempts": 1,
+      "branch": "task/20261022-ux-redesign-4-today-window-and-states",
+      "pr": 43,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-22T18:00:17Z",
+        "head": "37fe5f7",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T4.md"
+      },
+      "merge_commit": "e1b221f"
+    },
+    {
+      "n": 5,
+      "slug": "recording-restyle-route-line",
+      "title": "Recording: always-dark restyle, h:mm:ss timer, stat cards and live route line",
+      "issue": 36,
+      "acs": "AC4 (integration), AC33, AC34, AC35, AC36, AC37, AC38, AC58, AC63 (C5, C6, C15, C18, D6), AC64, AC65 (route line), AC66",
+      "depends_on": [
+        2
+      ],
+      "status": "done",
+      "attempts": 1,
+      "branch": "task/20261022-ux-redesign-5-recording-restyle-route-line",
+      "pr": 44,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-22T19:46:21Z",
+        "head": "74d395a",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T5.md"
+      },
+      "merge_commit": "2029884"
+    },
+    {
+      "n": 6,
+      "slug": "walks-tab",
+      "title": "Walks: this-week card with day dots, week sections, rows with More menu, empty and error states, delete sheet",
+      "issue": 37,
+      "acs": "AC39, AC40, AC41, AC42, AC43, AC44, AC58, AC60 (a: Walks), AC63 (D7), AC64, AC66",
+      "depends_on": [
+        4,
+        5
+      ],
+      "status": "done",
+      "attempts": 1,
+      "branch": "task/20261022-ux-redesign-6-walks-tab",
+      "pr": 45,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-23T08:01:33Z",
+        "head": "4a6b332",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T6.md"
+      },
+      "merge_commit": "e237da1"
+    },
+    {
+      "n": 7,
+      "slug": "walk-detail-and-privacy",
+      "title": "Walk detail (edge-to-edge map, sheet, delete) and Privacy (cards, delete-all sheet)",
+      "issue": 38,
+      "acs": "AC45, AC46, AC47, AC48, AC49, AC54, AC55, AC58, AC60 (a: Walk detail, Privacy), AC63 (C14, C17, D8, D10), AC64, AC66",
+      "depends_on": [
+        6
+      ],
+      "status": "done",
+      "attempts": 1,
+      "branch": "task/20261022-ux-redesign-7-walk-detail-and-privacy",
+      "pr": 46,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-23T09:43:34Z",
+        "head": "f38b5a3",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T7.md"
+      },
+      "merge_commit": "5f80492"
+    },
+    {
+      "n": 8,
+      "slug": "dog-profile-and-about",
+      "title": "Dog profile (photo row, counters, radio cards, Save, tiles) and About (thresholds table)",
+      "issue": 39,
+      "acs": "AC50, AC51, AC52, AC53, AC56, AC57, AC58, AC59 (checklist), AC60 (a: Dog, About), AC61 (About headers), AC63 (C8-C11, D9, D11), AC64, AC66, AC67",
+      "depends_on": [
+        2,
+        7
+      ],
+      "status": "done",
+      "attempts": 1,
+      "branch": "task/20261022-ux-redesign-8-dog-profile-and-about",
+      "pr": 47,
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-23T11:25:24Z",
+        "head": "cdc9e7c",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T8.md"
+      },
+      "merge_commit": "d6d0c96"
+    },
+    {
+      "n": 9,
+      "slug": "timer-drift-and-network-guard",
+      "title": "Fix recording timer drift and guard network callback registration",
+      "issue": 48,
+      "acs": "AC34 (timer), security R-02, AC64",
+      "depends_on": [
+        5,
+        3
+      ],
+      "status": "done",
+      "attempts": 1,
+      "branch": "task/20261022-ux-redesign-9-timer-drift-and-network-guard",
+      "pr": 49,
+      "fix_task": true,
+      "dev_head": "16bc297",
+      "tester_head": "7e0e3de",
+      "review": {
+        "verdict": "APPROVE",
+        "head": "7e0e3de",
+        "id": 5631383571
+      },
+      "g3": {
+        "result": "PASS",
+        "at": "2026-10-23T16:32:26Z",
+        "head": "7e0e3de",
+        "record": "docs/runs/20261022-ux-redesign/gates/G3-T9.md"
+      },
+      "merge_commit": "d9a9e13"
+    }
+  ],
+  "release": {
+    "version": "",
+    "pr": null,
+    "tag": "",
+    "url": ""
+  },
+  "counters": {
+    "agent_invocations": 109,
+    "invocation_limit": 200,
+    "plan_attempts": 2,
+    "g1_fail_attempts": 1,
+    "design_attempts": 3
+  },
+  "log": [
+    "2026-10-22T09:36:24Z orchestrator: run created (not bootstrap). Epic #31. Branch feature/20261022-ux-redesign from origin/feature/20261019-dog-walk-buddy-mvp a8b4506 (owner decision; deviation recorded). Run 20261019 on hold. Invocation limit 200 (owner)",
+    "2026-10-22T09:36:24Z orchestrator: invoking planner (plan, attempt 1) with model=opus. Budget 1/200 incl. this call",
+    "2026-10-22T09:48:10Z planner attempt 1 (opus): BLOCKED with draft spec docs/specs/20261022-ux-redesign.md (UX1-UX66; MVP ACs kept, none weakened; 11 pack-vs-MVP conflicts K1-K11 resolved for MVP; copy C1-C18 + D1-D11 default keep; fonts need ADR + bundling; est. 8 tasks). Questions OP1 copy, OP2 disclaimer placement, OP3 factor grid rule, OP4 About table wording, OP5 Later cuts (GPS indicator, auto-open Recording, dark map). Escalating to owner",
+    "2026-10-22T09:48:57Z owner answered OP1-OP5: copy \"Approve all but C3\" (conditions in C12, D6, D7, D8, D11 apply); disclaimer \"Yes, move it up\"; factor grid \"Accept the rule\"; About exact boundaries + GPS indicator/auto-open Recording/dark map to Later \"Yes to both\"",
+    "2026-10-22T09:48:57Z orchestrator: invoking planner (plan, attempt 2, with owner answers) model=opus. Budget 2/200 incl. this call",
+    "2026-10-22T09:54:34Z planner attempt 2 (opus): DONE, spec finalised: 66 UX ACs (UX1-UX66), all MVP AC1-AC53 kept in force; approved copy written in; 'Test assertions that change' section; A9 (factor values 1 dp, half up - planner choice) + A10 new; risks: UXn vs ACn numbering for G1, rounding display at thresholds, unitless About cells, test churn, two dash styles; est. 8 tasks",
+    "2026-10-22T09:54:34Z orchestrator: invoking gatekeeper G1 (opus). Budget 3/200 incl. this call",
+    "2026-10-22T10:01:59Z gatekeeper G1 (opus): FAIL; failing G1.3 (UX1-UX66 not AC1..ACn) and G1.7 (A9 1-dp rounding unconfirmed, contradicts artboards). Record gates/G1-attempt1.md",
+    "2026-10-22T10:01:59Z owner: factor rounding -> \"Whole numbers\" (round half up, matches artboards)",
+    "2026-10-22T10:01:59Z orchestrator: invoking planner (G1 fix attempt 1) model=opus: renumber to AC1-AC66 + 'MVP ACn', A9 whole numbers verbatim, add threshold-rounding risk, address non-blocking notes. Budget 4/200 incl. this call",
+    "2026-10-22T10:07:10Z planner G1-fix attempt 1 (opus): DONE, AC1-AC67 (UX<digit> grep 0), MVP refs as 'MVP ACn', A9 whole numbers verbatim + accepted threshold risk, AC40 caption contrast floor, new AC67 photo errors, new A11 negative rounding (needed owner confirmation)",
+    "2026-10-22T10:07:10Z owner: negative rounding -> \"Away from zero\" (owner_answers.negative_rounding)",
+    "2026-10-22T10:07:10Z orchestrator: invoking planner (small edit: record A11 as owner decision verbatim) model=opus. Budget 5/200 incl. this call",
+    "2026-10-22T10:11:34Z planner (A11 edit, opus): DONE, A11 now owner decision verbatim, AC17 negative cases; listed unconfirmed product choices A3 (Back), A4 (hour labels), A8 (long name)",
+    "2026-10-22T10:11:34Z owner plan_round2: A3 \"Yes, standard\"; A4 \"Follow phone setting\" (changes planner's reading); A8 \"Yes, shorten with …\"",
+    "2026-10-22T10:11:34Z orchestrator: invoking planner (record A3/A4/A8 verbatim, update AC11/AC23/AC60) model=opus. Budget 6/200 incl. this call",
+    "2026-10-22T10:16:31Z planner (round-2 edit, opus): DONE, A3/A4/A8/A9 now owner decisions verbatim; AC11 3 cases, AC23 24h/12h modes, AC60 ellipsis; remaining choice: 12h label text",
+    "2026-10-22T10:16:31Z owner: 12h strip label -> \"2pm\" (lowercase, no space) - differs from planner's \"2 pm\"",
+    "2026-10-22T10:16:31Z orchestrator: invoking planner (record 12h label decision, update AC23) model=opus. Budget 7/200 incl. this call",
+    "2026-10-22T10:20:18Z planner (12h label edit, opus): DONE; AC23 12h labels \"2pm\"...\"1am\" (noon \"12pm\" derived); consistency risk added; no unconfirmed product choices remain",
+    "2026-10-22T10:20:18Z orchestrator: invoking gatekeeper G1 re-check (opus). Budget 8/200 incl. this call",
+    "2026-10-22T10:22:58Z gatekeeper G1 re-check (opus): PASS (failing none). Record gates/G1.md. Notes: commit spec, K4 cosmetic 'MVP AC50', 8 tasks = limit, fonts ADR Accepted at G2, AC23 grammar",
+    "2026-10-22T10:22:58Z orchestrator: spec committed to feature branch for Gate A review (G1 note 1); Gate A question to owner",
+    "2026-10-22T10:25:25Z owner Gate A: \"Approve spec\" (spec f9b5497)",
+    "2026-10-22T10:25:25Z orchestrator: invoking architect (design, attempt 1) model=opus. Budget 9/200 incl. this call",
+    "2026-10-22T10:51:25Z architect attempt 1 (opus): stopped at its 50-turn limit with no report; left uncommitted docs/design/20261022-ux-redesign.md (825 lines) and ADRs 0006 (fonts), 0007 (theme tokens/dark mode), 0008 (icons as vector drawables)",
+    "2026-10-22T10:51:25Z orchestrator: invoking architect (continue attempt 1: verify/complete files and report) model=opus. Budget 10/200 incl. this call",
+    "2026-10-22T10:59:00Z architect (continue attempt 1, opus): DONE; design 857 lines; ADR 0006 fonts, 0007 theme, 0008 icons all Accepted; 8 tasks (theme-foundations, bottom-nav-shell, today-hero-and-footnote, today-window-and-states, recording-restyle-route-line, walks-tab, walk-detail-and-privacy, dog-profile-and-about); AC1-AC67 mapped; no new deps; min contrast text 6.10, 7:1 pairs 7.51; 2 owner questions",
+    "2026-10-22T10:59:00Z owner design_round1: E1-E8 \"Approve E1–E8\"; row delete \"Use a More menu\"",
+    "2026-10-22T10:59:00Z orchestrator: invoking architect (record owner answers verbatim in design) model=opus. Budget 11/200 incl. this call",
+    "2026-10-22T11:03:59Z architect (record answers, opus): DONE; design 'Owner decisions (design)' OD1/OD2 verbatim; no pending/TBD/owner question left",
+    "2026-10-22T11:03:59Z orchestrator: invoking gatekeeper G2 (opus). Budget 12/200 incl. this call",
+    "2026-10-22T11:09:22Z gatekeeper G2 (opus): FAIL; G2.2 (AC66 in no task row; AC64 missing from task 1 row) and unlisted test change CheckScreenIntegrationTest L245. Record gates/G2-attempt1.md",
+    "2026-10-22T11:09:22Z orchestrator: committing design + ADRs draft (G2 note 5); invoking architect (design attempt 2: G2 fixes + non-blocking notes) model=opus. Budget 13/200 incl. this call",
+    "2026-10-22T11:18:50Z architect design attempt 2 (opus): DONE; AC66 tasks 3-8, AC64 task 1, plus AC40/AC53/AC67/AC59 row fixes; task sets match for AC1-AC67; home-link row lists all affected lines (incl. CheckScreenIntegrationTest L245, AppFlowIntegrationTest back() L152/L180/L285) under spec AC64 allowance; nav test tags; ADR 0008 Apache 4(b) header; task 1 trimmed (icons move to first-using task, bottom sheet to T4, a11y helpers to T2), still 8 tasks",
+    "2026-10-22T11:18:50Z orchestrator: committed design attempt 2; invoking gatekeeper G2 re-check (opus). Budget 14/200 incl. this call",
+    "2026-10-22T11:23:36Z gatekeeper G2 re-check (opus) on 7b99867: FAIL; only item: HistoryScreenTest L271-275 replacement unspecified (no nav/BackHandler in screen-only host). Record gates/G2-attempt2.md",
+    "2026-10-22T11:23:36Z orchestrator: invoking architect (design attempt 3 of 3) model=opus. Budget 15/200 incl. this call",
+    "2026-10-22T11:30:47Z architect design attempt 3 (opus): DONE; E3 placement: HistoryScreenTest L270-276 moved to NavigationTest AC35 (system Back -> NAV_TODAY_TAG selected, Walks not selected, title shown, not finishing); argument-only onBack edits listed (HistoryScreenTest L99/L321/L416, HistoryRowOpenTest L83, ProfileScreenTest L77, ProfileScreenStateTest L39); judged within OD1",
+    "2026-10-22T11:30:47Z owner: history test move -> \"Approve the move\" (owner_answers.history_back_test_move)",
+    "2026-10-22T11:30:47Z orchestrator: committed design attempt 3; invoking gatekeeper G2 re-check (opus). Budget 16/200 incl. this call",
+    "2026-10-22T11:34:07Z gatekeeper G2 re-check (opus) on 2848303: PASS. Record gates/G2.md. Notes: cite history_back_test_move in design (cosmetic), production onBack sites are T2 build changes, overlap harmless",
+    "2026-10-22T11:34:07Z orchestrator: created task issues T1 #32, T2 #33, T3 #34, T4 #35, T5 #36, T6 #37, T7 #38, T8 #39",
+    "2026-10-22T11:34:07Z orchestrator: T1 attempt 1: invoking developer (opus). Budget 17/200 incl. this call",
+    "2026-10-22T12:08:54Z developer T1 attempt 1 (opus): DONE; PR #40 head 3707267; CI build-test+governance pass; ci.sh exit 0, 721 tests, total 98.4%, changed-lines 100%; fonts google/fonts@45e3d52 OFL 1.1, icons material-design-icons@49d4db3 Apache 2.0; APK +310,476 B (+0.59%). Deviation: icons need ?attr/colorControlNormal -> added res/values/attrs.xml + theme items (ADR 0008 allows only header+rename); MainActivity onConfigurationChanged re-calls enableEdgeToEdge (outside listed files)",
+    "2026-10-22T12:08:54Z orchestrator: routing ADR 0008 deviation to architect (decide + amend ADR) before tester/reviewer. Budget 18/200 incl. this call",
+    "2026-10-22T12:18:02Z architect (opus): ADR 0008 Amendment 1: per-file tint edit ?attr/ -> ?android:attr/colorControlNormal (theme-declared attr fails in createComposeRule host/previews); remove attrs.xml + theme items; add MaterialSymbolsIconFilesTest; ThemeSwitchTest asserts status-bar appearance flip; MainActivity onConfigurationChanged accepted as T1 scope. Docs committed to task branch. Flag for T5: Recording status-bar icons in system light mode",
+    "2026-10-22T12:18:02Z orchestrator: T1 developer rework per ADR 0008 Amendment 1 (architecture-driven, not a failed attempt; attempts stays 1). Budget 19/200 incl. this call",
+    "2026-10-22T12:34:33Z developer T1 rework (opus): DONE; PR #40 head acd3898; icons tint ?android:attr, attrs.xml + theme items removed, MaterialSymbolsIconFilesTest (checks below header), AC7 status-bar assertion verified to fail without re-call; ci.sh exit 0, 724 tests, 98.4%, changed-lines 100%; CI build-test+governance pass",
+    "2026-10-22T12:34:33Z orchestrator: T1 invoking tester (opus). Budget 20/200 incl. this call",
+    "2026-10-22T12:46:33Z tester T1 (opus): PASSED on 95eae40 (+14 tests: ContrastTest +2, MaterialSymbolsIconFilesTest +2, BundledFontFilesTest 5, WindowThemeResourcesTest 5); 738/0/0, reruns OK; total 98.4%, changed-lines 100%; MVP tests untouched (@Test 676->738, 0 deleted lines). Comment issuecomment-6341086342",
+    "2026-10-22T12:46:33Z orchestrator: T1 invoking reviewer (opus). Budget 21/200 incl. this call",
+    "2026-10-22T12:51:00Z reviewer T1 (opus): stopped at 40-turn limit, no report and no review posted on PR #40",
+    "2026-10-22T12:51:00Z orchestrator: T1 re-invoking reviewer with focused, turn-economical brief (opus). Budget 22/200 incl. this call",
+    "2026-10-22T12:53:54Z reviewer T1 (opus): VERDICT APPROVE (head 95eae40), review 5614449498 (posted as a COMMENT review via the gh CLI review subcommand; gh api POST was hook-blocked). Minor: PR body stale (724 tests, missing tester tests); Minor: windowBackground after theme switch -> T2; Nit: RecordingTheme error roles",
+    "2026-10-22T12:53:54Z orchestrator: T1 developer PR-body-only refresh (no commit) before G3, to avoid G3.2 fail on stale body. Budget 23/200 incl. this call",
+    "2026-10-22T12:55:42Z developer T1 PR body refresh (opus): DONE; body shows 738 tests + tester tests; head unchanged 95eae40; governance re-ran pass (39782311122), build-test pass (39780936492)",
+    "2026-10-22T12:55:42Z orchestrator: T1 invoking gatekeeper G3 (opus). Budget 24/200 incl. this call",
+    "2026-10-22T12:59:28Z gatekeeper G3 T1 (opus): PASS on 95eae40 (all G3.1-G3.6 + provenance met). Posted GATE G3: PASS comment on PR #40. Record gates/G3-T1.md",
+    "2026-10-22T12:59:28Z orchestrator: T1 invoking release mode integrate (squash-merge PR #40) (opus). Budget 25/200 incl. this call",
+    "2026-10-22T13:01:08Z release integrate T1 (opus): PR #40 squash-merged as 927e6a5 (match-head 95eae40); issue #32 closed (comment 6341372027); task branch deleted; feature CI run 39783024946 in progress. T1 done",
+    "2026-10-22T13:01:08Z orchestrator: T2 attempt 1: invoking developer (opus), incl. carry-forward windowBackground fix. Budget 26/200 incl. this call",
+    "2026-10-22T13:22:48Z developer T2 attempt 1 (opus): stopped at 80-turn limit, no report; uncommitted work on local task/20261022-ux-redesign-2-bottom-nav-shell (HomeScreen deleted, AppScaffold/FieldKitNavBar/AppChromeViewModel/TodayScreen/BackButton, 6 icons, BottomNavTest/FullScreenDestinationsTest, many test edits); no commit, no PR",
+    "2026-10-22T13:22:48Z orchestrator: T2 re-invoking developer to continue attempt 1 from working tree (opus). Budget 27/200 incl. this call",
+    "2026-10-22T13:44:37Z developer T2 (continue attempt 1, opus): DONE; PR #41 head a881024; CI governance+build-test pass; ci.sh exit 0, 767 tests, 98.5%, changed-lines 100%; windowBackground fix in MainActivity.onConfigurationChanged + ThemeSwitchTest UX_AC7 window background test (fails without fix); 6 icons @49d4db3 with SHA-256; ProfileViewModel change outside listed files (clear form after delete-all, AC15/MVP AC47)",
+    "2026-10-22T13:44:37Z orchestrator: T2 invoking tester (opus). Budget 28/200 incl. this call",
+    "2026-10-22T14:02:27Z tester T2 (opus): PASSED; +7 tests BottomNavEdgeCasesTest (43dfcc9, new head); 774/0/0; reruns 3x37 pass; 98.5%, changed-lines 100%; audit 35 changed sites all listed, none weakened; only removal = approved HistoryScreenTest move. Comment 6342660954. Process: tester wrote temp comment-body file under app/src/test (untracked, deleted, never committed) because hook blocked scratchpad writes",
+    "2026-10-22T14:02:27Z orchestrator: T2 invoking reviewer (opus). Budget 29/200 incl. this call",
+    "2026-10-22T14:06:38Z reviewer T2 (opus): CHANGES_REQUESTED (head 43dfcc9), review 5615502014; 2 Major = stale PR body (767 tests, missing BottomNavEdgeCasesTest); Minor+Nit optional; code otherwise correct. attempts -> 2",
+    "2026-10-22T14:06:38Z orchestrator: T2 attempt 2: developer PR-body-only fix (no commit, optional findings deferred). Budget 30/200 incl. this call",
+    "2026-10-22T14:12:41Z developer T2 attempt 2 (opus): PR #41 body-only fix DONE (774 tests, 98.5%, changed 100%; BottomNavEdgeCasesTest mapped AC11/AC53/AC60; Minor+Nit deferred in Risk); head unchanged 43dfcc9; checks pass",
+    "2026-10-22T14:12:41Z orchestrator: T2 invoking reviewer re-review (opus). Budget 31/200 incl. this call",
+    "2026-10-22T14:13:32Z reviewer T2 re-review (opus): APPROVE (head 43dfcc9), review 5615608023; both Majors fixed; process note: review posted before full body read (body truncated on first view), verified immediately after",
+    "2026-10-22T14:13:32Z orchestrator: T2 invoking gatekeeper G3 (opus). Budget 32/200 incl. this call",
+    "2026-10-22T14:17:25Z gatekeeper G3 T2 (opus): PASS on 43dfcc9. Record gates/G3-T2.md; posting GATE G3: PASS on PR #41",
+    "2026-10-22T14:17:25Z orchestrator: T2 invoking release integrate (squash-merge PR #41) (opus). Budget 33/200 incl. this call",
+    "2026-10-22T14:22:51Z release integrate T2 (opus): PR #41 squash-merged as 9e9c259 (match-head 43dfcc9); issue #33 closed (comment 6343015344); task branch deleted; feature CI run 39794472517 queued. T2 done",
+    "2026-10-22T14:22:51Z orchestrator: T3 attempt 1: invoking developer (opus). Budget 34/200 incl. this call",
+    "2026-10-22T14:54:49Z developer T3 attempt 1 (opus): BLOCKED; branch pushed at 12bdf4b, no PR; 809 tests, 15 fail all from performScrollTo on pinned Start (4 unlisted test lines); draft PR body in scratchpad pr_body.md",
+    "2026-10-22T14:54:49Z owner: t3_start_scroll_tests -> \"Approve the change\" (performScrollTo -> assertIsDisplayed at 4 lines)",
+    "2026-10-22T14:54:49Z orchestrator: T3 continue attempt 1 (owner unblocked, not a failure): developer applies 4 edits, ci, opens PR. Budget 35/200 incl. this call",
+    "2026-10-22T15:08:01Z developer T3 (continue attempt 1, opus): DONE; PR #42 head e365516; 4 approved test edits; ci.sh exit 0, 809 tests, 98.6%, changed-lines 99% (3 missing FactorGrid L73/79/82); CI governance+build-test pass",
+    "2026-10-22T15:08:01Z orchestrator: T3 invoking tester (opus). Budget 36/200 incl. this call",
+    "2026-10-22T15:20:09Z tester T3 (opus): PASSED on 4c397bc (+7 tests RatingHeroCardTest/CheckViewModelTest); 816/0/0; reruns 3x112 pass; 98.6%, changed 99% (3 unreachable when-default lines); audit clean. Comment 6344342547 (posted inline; scratchpad write and the merge-base git subcommand were hook-blocked)",
+    "2026-10-22T15:20:09Z orchestrator: T3 developer PR-body refresh before review (lesson from T2: stale body caused CHANGES_REQUESTED). Budget 37/200 incl. this call",
+    "2026-10-22T15:21:31Z developer T3 body refresh (opus): DONE; body reflects 4c397bc (816 tests, 98.6%, changed 99%; tester tests mapped AC17/AC19/AC21); head unchanged; build-test run 39803171335 pending",
+    "2026-10-22T15:21:31Z orchestrator: T3 invoking reviewer (opus). Budget 38/200 incl. this call",
+    "2026-10-22T15:24:36Z reviewer T3 (opus): APPROVE (head 4c397bc), review 5616618928; 2 Minor + 2 Nit non-blocking, carried to T4",
+    "2026-10-22T15:24:36Z orchestrator: T3 invoking gatekeeper G3 (opus). Budget 39/200 incl. this call",
+    "2026-10-22T15:27:20Z gatekeeper G3 T3 (opus): FAIL on 4c397bc; only G3.4: AC66 emulator screenshots (light+dark) required per design L625/L773/L900 not attached. Record gates/G3-T3-attempt1.md; posted GATE G3: FAIL on PR #42. attempts -> 2",
+    "2026-10-22T15:27:20Z orchestrator: asking owner how to handle per-task AC66 screenshots (affects T3-T8)",
+    "2026-10-22T15:39:19Z owner: ac66_screenshots -> \"Use the emulator\" (developer takes light+dark emulator screenshots per screen task, T3-T8)",
+    "2026-10-22T15:39:19Z orchestrator: T3 attempt 2: invoking developer for AC66 emulator screenshots on PR #42 (opus). Budget 41/200 incl. this call (40 = G3 T3)",
+    "2026-10-22T15:55:54Z developer T3 attempt 2 (opus): DONE; 12 emulator screenshots (6 Today states x light/dark) committed a6c90ad under docs/ux-evidence/20261022-ux-redesign/task-3/; PR #42 body AC66 table; CI pass. DEFECT found: no-profile sensitivity line clips first glyph ('Jsing', 'hange') in both themes; other diffs: 'Not rated' wraps, 'Checked 0 min ago', title wraps",
+    "2026-10-22T15:55:54Z orchestrator: showed screenshots to owner; asking how to handle clipping defect",
+    "2026-10-22T15:57:51Z owner: t3_clipping \"Fix in task 3 now\"; t3_minor_diffs \"Accept as they are\"",
+    "2026-10-22T15:57:51Z orchestrator: T3 attempt 3 (last): invoking developer to fix clipping + regression test + new screenshots (opus). Budget 42/200 incl. this call",
+    "2026-10-22T16:16:42Z developer T3 attempt 3 (opus): DONE; root cause TextButton default pill shape clipping wrapped link (0 dp padding); fix TodayFootnote.kt:91 shape=RectangleShape (6bfb94a); regression TodayFootnoteClippingTest (pixel compare; failed before 381 vs 509); 817 tests, 98.6%, changed 99%; screenshots re-taken 5af107e (glyphs full, orchestrator viewed); CI pass",
+    "2026-10-22T16:16:42Z orchestrator: T3 invoking tester re-test on 5af107e (opus). Budget 43/200 incl. this call",
+    "2026-10-22T16:23:41Z tester T3 re-test (opus): PASSED on 70fe8b5 (+TodayFootnoteClippingControlTest pill vs rectangle); 819/0/0; reruns 3x pass; 98.6%, changed 99%; no existing assertion changed since 4c397bc. Comment 6345718135",
+    "2026-10-22T16:23:41Z orchestrator: T3 developer PR-body refresh to 70fe8b5 before review (attempt 3 is last). Budget 44/200 incl. this call",
+    "2026-10-22T16:24:53Z developer T3 body refresh (opus): DONE; body matches 70fe8b5 (819 tests, control tests in AC24); head unchanged",
+    "2026-10-22T16:24:53Z orchestrator: T3 invoking reviewer on 70fe8b5 (opus). Budget 45/200 incl. this call",
+    "2026-10-22T16:41:35Z reviewer T3 attempt 3 (opus): APPROVE (head 70fe8b5), review 5617681681; build-test run 39813554738 pass; 1 Minor + 2 Nit carried",
+    "2026-10-22T16:41:35Z orchestrator: T3 invoking gatekeeper G3 re-run (opus). Budget 46/200 incl. this call",
+    "2026-10-22T16:44:41Z gatekeeper G3 T3 re-run (opus): PASS on 70fe8b5. Record gates/G3-T3.md; posted on PR #42. Note: commit state.json so owner answers are durable (will commit on feature after merge)",
+    "2026-10-22T16:44:41Z orchestrator: T3 invoking release integrate (opus). Budget 47/200 incl. this call",
+    "2026-10-22T16:49:58Z release integrate T3 (opus): PR #42 squash-merged as 81c13a0 (match-head 70fe8b5); issue #34 closed (comment 6346140503); remote task branch deleted, local deleted by orchestrator; feature CI 39816594556 in progress. T3 done",
+    "2026-10-22T16:49:58Z orchestrator: T4 attempt 1: invoking developer (opus) with carry-forwards + AC66 emulator screenshots. Budget 48/200 incl. this call",
+    "2026-10-22T17:26:21Z developer T4 attempt 1 (opus): hit 80-turn limit without report; PR #43 open at 46dec68 (impl + carry-forwards ConnectivityStatus flow, FactorRounding fractional compare); 13 screenshots taken but uncommitted in docs/ux-evidence/.../task-4/; emulator still running; build-test pending",
+    "2026-10-22T17:26:21Z orchestrator: viewed screenshots; possible defect: precise-location sheet shows only heading + button (no body text / dismiss visible). Invoking developer to continue attempt 1 (finish evidence, check sheet, PR body). Budget 49/200 incl. this call",
+    "2026-10-22T17:35:34Z developer T4 attempt 1 (first session, opus) resumed after background work and reported DONE: PR #43 head 2ea2542 (screenshots commit); 852 tests, 98.2%, changed 94%; carry-forwards fixed with tests; nits deliberately not done; CI pass; it saw no defects. Note: continuation developer session already launched in parallel (overlap) - awaiting it for the precise-sheet check",
+    "2026-10-22T17:36:04Z developer T4 continuation (opus): DONE; precise-location sheet correct as designed (AC32 asks heading + control only; no approved body copy; dismiss by scrim/Back/drag, tested; no mock-up); deleted unpaired screenshot; 12 screenshots at 2ea2542; PR body complete; CI pass",
+    "2026-10-22T17:36:04Z orchestrator: T4 invoking tester on 2ea2542 (opus). Budget 50/200 incl. this call",
+    "2026-10-22T17:50:37Z tester T4 (opus): PASSED on 37fe5f7 (+25 tests: HourLabelFormatEdgeTest, TodayWindowAndStatesTesterTest, PreciseLocationSheetTesterTest, FactorRoundingEdgeTest); 877/0/0; reruns 3x107 pass; 98.7%, changed 100%; audit: only the 10 design-listed lines changed. Comment 6347430745",
+    "2026-10-22T17:50:37Z orchestrator: T4 developer PR-body refresh to 37fe5f7 before review. Budget 51/200 incl. this call",
+    "2026-10-22T17:52:23Z developer T4 body refresh (opus): DONE; body at 37fe5f7 (877 tests, 98.7%, changed 100%; tester tests mapped); build-test 39825862565 pending",
+    "2026-10-22T17:52:23Z orchestrator: T4 invoking reviewer (opus). Budget 52/200 incl. this call",
+    "2026-10-22T17:56:09Z reviewer T4 (opus): APPROVE (head 37fe5f7), review 5618579128; agrees precise sheet is as designed; CI green; 1 Minor + 2 Nit non-blocking",
+    "2026-10-22T17:56:09Z orchestrator: T4 invoking gatekeeper G3 (opus). Budget 53/200 incl. this call",
+    "2026-10-22T18:00:17Z gatekeeper G3 T4 (opus): PASS on 37fe5f7. Record gates/G3-T4.md; posting on PR #43",
+    "2026-10-22T18:00:17Z orchestrator: T4 invoking release integrate (opus). Budget 54/200 incl. this call",
+    "2026-10-22T18:05:52Z release integrate T4 (opus): PR #43 squash-merged as e1b221f (match-head 37fe5f7); issue #35 closed (comment 6347657508); branches deleted; feature CI 39827664513 in progress. T4 done",
+    "2026-10-22T18:05:52Z orchestrator: T5 attempt 1: invoking developer (opus) incl. carry-forwards (Recording status bar in light mode; RecordingTheme error roles). Budget 55/200 incl. this call",
+    "2026-10-22T18:36:41Z developer T5 attempt 1 (opus): BLOCKED; branch pushed at 31b8748 (test sources do not compile without fake override); no PR; 916 tests pass locally with the line; carry-forwards done; route line on Compose Canvas (no MapLibre/tiles)",
+    "2026-10-22T18:36:41Z owner: t5_test_edits -> \"Approve both\" (HistoryViewModelTest FailingDao observePoints override; WalkFormatsTest L29 h:mm:ss)",
+    "2026-10-22T18:36:41Z orchestrator: T5 continue attempt 1 (owner unblock): developer adds line, ci, PR, emulator screenshots. Budget 56/200 incl. this call",
+    "2026-10-22T18:53:02Z developer T5 (continue attempt 1, opus): DONE; PR #44 head aee748f (fake line 7110db6, screenshots aee748f); 916 tests, 98.4%, changed 94%; 4 screenshots (empty + route line, system light/dark), status bar light in both; CI pass",
+    "2026-10-22T18:53:02Z orchestrator: viewed screenshots (route line + empty panel OK). T5 invoking tester (opus). Budget 57/200 incl. this call",
+    "2026-10-22T19:38:13Z tester T5 (opus): PASSED on 74d395a (+15 tests 962bad1; flaky RecordingSystemBarsTest harness fixed 74d395a with in-memory TestAppContainer, assertions unchanged); 931/0/0; 98.8%, changed 100%; audit clean. Comment 6349607588. Process note for auditor: tester's Write to scratchpad was hook-blocked so it wrote the comment body there via bash",
+    "2026-10-22T19:38:13Z orchestrator: T5 developer PR-body refresh to 74d395a before review. Budget 58/200 incl. this call",
+    "2026-10-22T19:40:01Z developer T5 body refresh (opus): DONE; body at 74d395a (931 tests, 98.8%, changed 100%; tester tests mapped; harness change noted); CI pass",
+    "2026-10-22T19:40:01Z orchestrator: T5 invoking reviewer (opus). Budget 59/200 incl. this call",
+    "2026-10-22T19:43:05Z reviewer T5 (opus): APPROVE (head 74d395a), review 5619897466; 2 Minor (timer drift skips a second every few minutes; 12/24h setting read once) + 1 Nit, non-blocking",
+    "2026-10-22T19:43:05Z orchestrator: T5 invoking gatekeeper G3 (opus). Budget 60/200 incl. this call",
+    "2026-10-22T19:46:21Z gatekeeper G3 T5 (opus): PASS on 74d395a. Record gates/G3-T5.md; posting on PR #44",
+    "2026-10-22T19:46:21Z orchestrator: T5 invoking release integrate (opus). Budget 61/200 incl. this call",
+    "2026-10-22T19:52:21Z release integrate T5 (opus): PR #44 squash-merged as 2029884 (match-head 74d395a); issue #36 closed (comment 6349789851); branches deleted; feature CI 39843066266 in progress. T5 done",
+    "2026-10-22T19:52:21Z orchestrator: T6 attempt 1: invoking developer (opus). Budget 62/200 incl. this call",
+    "2026-10-23T05:55:44Z developer T6 attempt 1 (opus): BLOCKED; branch pushed dd77ebb; 3 unlisted test lines (HistoryScreenTest L163/L212 at c5d69b5, FullScreenDestinationsTest L123-124); ci.sh 962 tests 5 fail (3 blocked, RecordingScreenTest timer test flaky under load, 1 unidentified); departures: card/row mergeDescendants semantics instead of clearAndSetSemantics",
+    "2026-10-23T05:55:44Z owner: t6_test_edits -> \"Approve all three\"",
+    "2026-10-23T05:55:44Z orchestrator: T6 continue attempt 1 (owner unblock): developer applies 3 edits, investigates the 2 other failures, ci, PR, screenshots. Budget 63/200 incl. this call",
+    "2026-10-23T06:38:23Z developer T6 (continue attempt 1, opus): DONE; PR #45 head 01af57a (edits 62f6ba5, screenshots); 962 tests, 98.5%, changed 95%; 10 screenshots (error state not producible); defect reported: dark More menu blends into rows; 2 task-5 tests flaky under load (not T6)",
+    "2026-10-23T06:38:23Z owner: t6_dark_menu -> \"Fix it in task 6\"",
+    "2026-10-23T06:38:23Z orchestrator: T6 developer fixes dark menu (same attempt, owner-directed). Budget 64/200 incl. this call",
+    "2026-10-23T06:57:45Z developer T6 dark-menu fix (opus): DONE; 1 dp controlBorder edge on menu (fd4e072), HistoryRowMenuContrastTest light/dark failed before fix; edge 6.28:1 dark / 5.82:1 light; 964 tests, 98.9%, changed 99%; screenshots retaken a3026af; CI pass",
+    "2026-10-23T06:57:45Z orchestrator: T6 invoking tester on a3026af (opus), incl. flaky task-5 tests. Budget 65/200 incl. this call",
+    "2026-10-23T07:37:38Z tester T6 (opus): stopped at 60-turn limit without report or PR comment; pushed 4fadfe4 (history tests + ThisWeekCardRenderTest) and 4a6b332 (flaky-test harness fix: RuleChain closes DB after compose rule in RecordingScreenTest/WalkRecordingScreensTest, no assertion change)",
+    "2026-10-23T07:37:38Z orchestrator: T6 invoking tester to finish (verify, ci, audit, post comment) on 4a6b332 (opus). Budget 66/200 incl. this call",
+    "2026-10-23T07:47:43Z tester T6 finish (opus): PASSED on 4a6b332; 971/0/0 x4 full suite; 98.9%, changed 100%; audit clean (note: AppFlowIntegrationTest two row opens in task 7 rows changed one task early, same strictness); flaky recording tests fixed (RuleChain DB close), green x4. Comments 6360106670 + correction 6360112252",
+    "2026-10-23T07:47:43Z orchestrator: T6 developer PR-body refresh to 4a6b332 before review. Budget 67/200 incl. this call",
+    "2026-10-23T07:49:43Z developer T6 body refresh (opus): DONE; body at 4a6b332 (971 tests, 98.9%, changed 100%; tester tests mapped; harness and AppFlow notes); CI pass",
+    "2026-10-23T07:49:43Z orchestrator: T6 invoking reviewer (opus). Budget 68/200 incl. this call",
+    "2026-10-23T07:52:41Z reviewer T6 (opus): APPROVE (head 4a6b332), review 5625420830; header 'More' = existing debug-only menu (design L339); 3 Minor non-blocking",
+    "2026-10-23T07:52:41Z orchestrator: T6 invoking gatekeeper G3 (opus). Budget 69/200 incl. this call",
+    "2026-10-23T07:57:35Z gatekeeper G3 T6 (opus): stopped at 30-turn limit with no verdict",
+    "2026-10-23T07:57:35Z orchestrator: re-invoking gatekeeper G3 T6 with a focused, turn-economical brief (opus). Budget 70/200 incl. this call",
+    "2026-10-23T08:01:33Z gatekeeper G3 T6 re-run (opus): PASS on 4a6b332. Record gates/G3-T6.md; posting on PR #45",
+    "2026-10-23T08:01:33Z orchestrator: T6 invoking release integrate (opus). Budget 71/200 incl. this call",
+    "2026-10-23T08:06:13Z release integrate T6 (opus): PR #45 squash-merged as e237da1 (match-head 4a6b332); issue #37 closed (comment 6360359005); branches deleted; feature CI 39921832856 in progress. T6 done",
+    "2026-10-23T08:06:13Z orchestrator: T7 attempt 1: invoking developer (opus). Budget 72/200 incl. this call",
+    "2026-10-23T08:09:20Z developer T7 attempt 1 (opus): BLOCKED before code (good early stop); 2 unlisted lines FullScreenDestinationsTest:125, LocationNeededTest:109",
+    "2026-10-23T08:09:20Z owner: t7_test_edits -> \"Approve both\"",
+    "2026-10-23T08:09:20Z orchestrator: T7 continue attempt 1: developer implements task with approved edits. Budget 73/200 incl. this call",
+    "2026-10-23T08:21:20Z developer T7 (opus): BLOCKED mid-way (uncommitted work: icons, RouteStyle+test, MapLibre casing/start marker, DestructiveOutlinedButton, WalkDetailViewModel deletion, strings, ApprovedCopyTest additions); WalkDetailScreenTest L216 approved change impossible in Loading state; needs fixed clock in show()",
+    "2026-10-23T08:21:20Z owner: t7_loading_test_and_clock \"A + fixed clock\"; t7_map_attribution \"Yes, keep visible\"",
+    "2026-10-23T08:21:20Z orchestrator: T7 continue attempt 1 (owner unblock). Budget 74/200 incl. this call",
+    "2026-10-23T08:54:25Z developer T7 (continue, opus): stopped at 80-turn limit without report; PR #46 open at b042c3e (CI pass); uncommitted: screenshot-driven fixes (dark status-bar icons over light map tiles, privacy heading styles) + WalkDetailScreenTest additions + 11 screenshots; emulator still running",
+    "2026-10-23T08:54:25Z orchestrator: T7 invoking developer to finish (commit fixes, ci, screenshots, PR body) (opus). Budget 75/200 incl. this call",
+    "2026-10-23T09:17:51Z developer T7 finish (opus): DONE; PR #46 head d164f0b; status-bar helper rebuilt on RecordingSystemBars pattern (9738222) + test; privacy heading styles; 1002 tests, 99.0%, changed 99%; 12 screenshots retaken (3 earlier showed wrong screen); CI pass; risk: theme-switch path untested in Robolectric",
+    "2026-10-23T09:17:51Z orchestrator: viewed walk-detail dark, offline light, privacy light, delete-all dark: OK. T7 invoking tester (opus). Budget 76/200 incl. this call",
+    "2026-10-23T09:30:47Z tester T7 (opus): PASSED on f38b5a3 (+8 tests incl. WalkDetailDeleteFlowTest end to end); 1010/0/0 x3; 99.0%, changed 99%; audit clean. Gaps noted: This-week totals after delete indirect; sheet close via Back/scrim not tested in T7. Comment 6361839004",
+    "2026-10-23T09:30:47Z orchestrator: T7 developer PR-body refresh to f38b5a3 before review. Budget 77/200 incl. this call",
+    "2026-10-23T09:32:24Z developer T7 body refresh (opus): DONE; body at f38b5a3 (1010 tests, 99.0%); tester tests mapped; build-test 39932227557 pending",
+    "2026-10-23T09:32:24Z orchestrator: T7 invoking reviewer (opus). Budget 78/200 incl. this call",
+    "2026-10-23T09:39:22Z reviewer T7 (opus): APPROVE (head f38b5a3), review 5626492807; CI green; 3 Minor (status-bar reset owner; map label under status bar; PR body total coverage 99.0% vs CI 98.9%) + 1 Nit",
+    "2026-10-23T09:39:22Z orchestrator: T7 developer body-only fix of coverage figure before G3 (avoid G3.2 accuracy fail). Budget 79/200 incl. this call",
+    "2026-10-23T09:40:25Z developer T7 body fix (opus): coverage line now CI 98.9% (4566/4616) on f38b5a3, local 99.0% labelled; checks pass",
+    "2026-10-23T09:40:25Z orchestrator: T7 invoking gatekeeper G3 (opus, focused brief). Budget 80/200 incl. this call",
+    "2026-10-23T09:43:34Z gatekeeper G3 T7 (opus): PASS on f38b5a3. Record gates/G3-T7.md; posting on PR #46. State (owner answers) committed to feature after merge",
+    "2026-10-23T09:43:34Z orchestrator: T7 invoking release integrate (opus). Budget 81/200 incl. this call",
+    "2026-10-23T09:48:22Z release integrate T7 (opus): PR #46 squash-merged as 5f80492 (match-head f38b5a3); issue #38 closed (comment 6362084354); branches deleted; feature CI 39934009763 in progress. T7 done",
+    "2026-10-23T09:48:22Z orchestrator: T8 attempt 1: invoking developer (opus). Budget 82/200 incl. this call",
+    "2026-10-23T09:52:16Z developer T8 attempt 1 (opus): BLOCKED at step 0 (no code); 13 unlisted test lines from T2-era tests (C8/C9)",
+    "2026-10-23T09:52:16Z owner: t8_test_edits -> \"Approve all 13\"",
+    "2026-10-23T09:52:16Z orchestrator: T8 continue attempt 1 (owner unblock). Budget 83/200 incl. this call",
+    "2026-10-23T10:37:58Z developer T8 (continue attempt 1, opus): DONE after turn limit; PR #47 head 41a8460 (code f2eb30c); 1031 tests, CI coverage 99.0% (4870/4919), changed 100%; 10 screenshots + AC59 checklist under docs/ux-evidence/task-8; PrimaryButton added (T3 never created it); defect: °C wrap in About table",
+    "2026-10-23T10:37:58Z owner: t8_degree_wrap -> \"Keep them together\" (non-breaking space; visible text unchanged)",
+    "2026-10-23T10:37:58Z orchestrator: T8 developer applies NBSP fix + test + retake About shots (same attempt, owner-directed). Budget 85/200 incl. this call (84 = T8 continue)",
+    "2026-10-23T10:57:24Z developer T8 degree-wrap fix (opus): DONE; NBSP in 8 about_table_* cells (3422002), 2 new AC56 tests failed before fix; PR-own tests updated exactly; 1033 tests, CI 99.0%; screenshots retaken; head 66db9de; CI pass",
+    "2026-10-23T10:57:24Z orchestrator: T8 invoking tester (opus). Budget 86/200 incl. this call",
+    "2026-10-23T11:11:26Z tester T8 (opus): PASSED on cdc9e7c (+8 tests incl. drawn 48dp K4, end-to-end sensitivity save and photo errors, literal threshold sentences); 1041/0/0 x3; 99.0%, changed 99%; audit: 22 assertion lines allowed, 10 helper lines. Comment 6363544829",
+    "2026-10-23T11:11:26Z orchestrator: T8 developer PR-body refresh to cdc9e7c before review. Budget 87/200 incl. this call",
+    "2026-10-23T11:19:28Z developer T8 body refresh (opus): DONE; body at cdc9e7c (1041 tests; local 99.0% 4871, CI 99.0% 4869 labelled); CI pass (run 39944174547)",
+    "2026-10-23T11:19:28Z orchestrator: T8 invoking reviewer (opus). Budget 88/200 incl. this call",
+    "2026-10-23T11:22:23Z reviewer T8 (opus): APPROVE (head cdc9e7c), review 5627525325; 3 Minor + 1 Nit non-blocking; CI green",
+    "2026-10-23T11:22:23Z orchestrator: T8 invoking gatekeeper G3 (opus, focused). Budget 89/200 incl. this call",
+    "2026-10-23T11:25:24Z gatekeeper G3 T8 (opus): PASS on cdc9e7c. Record gates/G3-T8.md; posting on PR #47",
+    "2026-10-23T11:25:24Z orchestrator: T8 invoking release integrate (opus). Budget 90/200 incl. this call",
+    "2026-10-23T11:29:58Z release integrate T8 (opus): PR #47 squash-merged as d6d0c96 (match-head cdc9e7c); issue #39 closed (comment 6363799607); feature CI 39946023968 in progress. T8 done; all 8 tasks done",
+    "2026-10-23T11:29:58Z orchestrator: auto-mode classifier flagged the T8 integrate report as 'Merge Without Review' (GitHub review state COMMENTED not APPROVED, bot cannot approve own PR; same as T1-T7; reviewer VERDICT APPROVE + G3 PASS; merge into feature branch only, guard allowed). Surfacing to owner before Stage 4",
+    "2026-10-23T11:30:48Z owner: merge_review_flag -> \"Accepted, continue\"",
+    "2026-10-23T11:30:48Z orchestrator: Stage 4: invoking security and performance in parallel on feature/20261022-ux-redesign (opus). Budget 93/200 incl. these 2 calls",
+    "2026-10-23T11:39:48Z security (opus): DONE on da65ae2; critical 0 high 0 medium 0 low 2 info 5; fonts and 30 icons byte-identical to upstream; no new deps/hosts/permissions. Saved security.md",
+    "2026-10-23T12:17:35Z owner: test_device -> Samsung Galaxy Z Flip3 is the device to use for on-device checks; connect when ready",
+    "2026-10-23T12:22:30Z owner connected phone SM-F711B ([owner's Flip3, serial redacted per R-08]); owner chose to unplug until the emulator performance check and G4 finish",
+    "2026-10-23T14:17:15Z performance (opus): first run ended with no report (turn limit); raw timings in scratchpad res_base.json/res_redesign*.json; re-invoking with continuation brief",
+    "2026-10-23T15:23:25Z performance (opus): DONE; emulator, same-day base vs redesign; cold start median +10.6% (interleaved +7.4%) over +10% limit; history p95 one outlier 1625 ms in n=8 (median -12.7%); start walk, check, PSS ok. REGRESSION_BEYOND_THRESHOLD yes (marginal). results in docs/perf/20261022-ux-redesign/",
+    "2026-10-23T15:23:50Z owner: perf_breach -> Confirm on phone first; G4 waits for phone perf comparison",
+    "2026-10-23T15:28:26Z performance pass 1 (opus, same invocation 93, had not ended earlier): DONE, wrote nothing to repo; paired emulator set: cold start +6.6%, start walk +3.5%, history -46.6%, check -7.2%, PSS within +15%; release APK +590,568 B (+1.13%). Draft saved verbatim as docs/perf/20261022-ux-redesign/results-pass1.md. Owner decision perf_breach (confirm on phone) stands",
+    "2026-10-23T15:30:05Z phone [owner's Flip3, serial redacted per R-08] authorised (Android 14, app not installed, battery 100%, USB); invoking performance (opus) for phone cold start + history comparison base a8b4506 vs redesign",
+    "2026-10-23T15:33:36Z performance (opus): BLOCKED - phone screen timeout 30 s locks keyguard; no measurements. Asks owner: (a) allow adb 'svc power stayon usb' temporarily, or (b) owner sets screen timeout 10 min. APKs cached in scratchpad base.apk/red.apk",
+    "2026-10-23T15:34:06Z owner: phone_stay_awake -> agent may set stay-awake-while-charging temporarily; phone unlocked; re-invoking performance (opus)",
+    "2026-10-23T15:52:41Z performance (opus): DONE on phone SM-F711B; cold start +7.1% median/+7.6% p95, history -15.2% (max 577 ms), PSS +3.2%; no regression beyond threshold on phone -> no fix task per perf_breach; stay-on restored 0 (orchestrator verified)",
+    "2026-10-23T15:53:00Z invoking gatekeeper (opus) for G4 on feature head 1bcfa43",
+    "2026-10-23T16:02:08Z gatekeeper (opus): G4 PASS on 1bcfa43 (CI 39982037824); perf via owner perf_breach phone confirmation. Manual phone checks owed before G5",
+    "2026-10-23T16:03:43Z owner: fix timer drift + R-02 in task 9 (cap exceeded with approval); R-01 owner later. Issue #48 created. Invoking developer (opus) for T9",
+    "2026-10-23T16:13:44Z developer (opus): T9 DONE, PR #49 head 16bc297; ci.sh pass, changed-line coverage 100%; no existing test changed. Invoking tester (opus)",
+    "2026-10-23T16:23:56Z tester (opus): T9 DONE head 7e0e3de; 1056/1056 tests, changed lines 100%, 7 tests added (AC table PR comment 6369562419). PR body has no stale head refs. Invoking reviewer (opus)",
+    "2026-10-23T16:30:59Z reviewer (opus): T9 APPROVE head 7e0e3de (review 5631383571), 3 Minor carried forward. Invoking gatekeeper (opus) G3-T9",
+    "2026-10-23T16:32:26Z gatekeeper (opus): G3-T9 PASS head 7e0e3de; posted on PR #49. Invoking release (opus) integrate",
+    "2026-10-23T16:33:19Z release (opus) integrate: PR #49 squash-merged d9a9e13; issue #48 closed. Stage 4 re-run: security delta check, then G4",
+    "2026-10-23T16:33:46Z invoked security (opus) delta review and performance (opus) delta check after T9, head b3dbd78",
+    "2026-10-23T16:34:34Z performance (opus): T9 delta re-check DONE, no metric affected (analysis, no measurement); no regression; section appended to results.md",
+    "2026-10-23T16:35:28Z security (opus): T9 delta review DONE; R-02 resolved; new Low R-08 (owner's phone adb serial committed in state.json); orchestrator redacted it from state.json; BLOCKING 0. Appended to security.md",
+    "2026-10-23T16:36:21Z invoking gatekeeper (opus) for G4 re-run on f6d629d",
+    "2026-10-23T16:46:16Z gatekeeper (opus): G4 PASS (re-run) on f6d629d, CI 39988136025. Next: owner phone checks, then release prepare",
+    "2026-10-23T16:47:14Z orchestrator: built debug APK at 394f5a2 (md5 bbd488d6) for owner phone checks; phone-checks.md checklist P1-P13 created; waiting for owner to connect phone",
+    "2026-10-23T16:49:24Z orchestrator: final debug build (394f5a2, md5 bbd488d6) installed on owner's Flip3 (SM-F711B), data kept; battery 100%; owner phone checks P1-P13 in progress. Invoking release (opus) prepare in parallel",
+    "2026-10-23T16:54:48Z release (opus) prepare: DONE; release PR #50 (v0.1.0, MVP + redesign, supersedes #28) head 23987ac; unticked: CI, audit, manual checks. Notes: ship merge style vs R-08 is owner's call; #7/#28 closure to handle with owner. Auditor waits for phone checks",
+    "2026-10-23T17:35:54Z owner asked to install on a second phone (Galaxy Z Flip7, SM-F766B, Android 16); old MVP build uninstalled per owner, final build installed (user 0)"
+  ],
+  "bootstrap": false,
+  "base": {
+    "branch": "feature/20261019-dog-walk-buddy-mvp",
+    "sha": "a8b4506",
+    "reason": "owner_answers.ux_run_base (run 20261019): Branch from MVP feature - deviation from pipeline (branch from main): main has no app code because v0.1.0 (PR #28) is on hold"
+  },
+  "related_runs": {
+    "20261019-dog-walk-buddy-mvp": "on_hold at Stage 5 (G5 FAIL open; PR #28 open); hold record in local unpushed commit d26eab4 on that branch"
+  },
+  "owner_answers": {
+    "budget_200": {
+      "at": "2026-10-22T09:36:24Z",
+      "instruction": "we can increase agents from 160 to 200 to accomodate the ux design changes",
+      "applied": "invocation limit 200 for this run"
+    },
+    "agent_model": {
+      "inherited_from": "20261019-dog-walk-buddy-mvp",
+      "instruction": "cahgne model for all agents to opus 5.5",
+      "applied": "model=opus passed on every invocation"
+    },
+    "state_script_edits": {
+      "inherited_from": "20261019-dog-walk-buddy-mvp",
+      "answer": "Allow script edits"
+    },
+    "plan_round1": {
+      "at": "2026-10-22T09:48:57Z",
+      "OP1_copy": "Approve all but C3",
+      "OP2_disclaimer": "Yes, move it up",
+      "OP3_factor_grid": "Accept the rule",
+      "OP4_OP5_about_and_scope": "Yes to both"
+    },
+    "factor_rounding": {
+      "at": "2026-10-22T10:01:59Z",
+      "question": "Gate G1 needs your choice on how the Today card's factor values are rounded. Your mock-ups show whole numbers (\"14°C\", \"0 mm/h\", \"9 mph\"), but the planner chose 1 decimal place (\"15.0°C\", \"26.3 mph\") on its own. Which should the app show?",
+      "answer": "Whole numbers"
+    },
+    "negative_rounding": {
+      "at": "2026-10-22T10:07:10Z",
+      "question": "One small follow-up on whole-number rounding: how should negative temperatures that end in .5 round? The planner proposes rounding away from zero, so -2.5°C shows \"-3°C\", and a value that rounds to zero shows \"0°C\" with no minus sign.",
+      "answer": "Away from zero"
+    },
+    "plan_round2": {
+      "at": "2026-10-22T10:11:34Z",
+      "back_button": {
+        "question": "Back button: on the Walks or Dog tab, should pressing the phone's Back button go to Today, and on Today leave the app? This is the usual Android bottom-navigation behaviour.",
+        "answer": "Yes, standard"
+      },
+      "hour_labels": {
+        "question": "Hour labels on the 12-hour forecast strip: your mock-ups show 2-digit 24-hour labels (\"09\", \"14\"). Should they stay 24-hour even when the phone is set to 12-hour time?",
+        "answer": "Follow phone setting"
+      },
+      "long_names": {
+        "question": "A long dog name in the bottom navigation bar (the Dog tab label): may it wrap to two lines or be shortened with \"…\" on screen, as long as TalkBack always reads the full name?",
+        "answer": "Yes, shorten with …"
+      }
+    },
+    "hour_label_12h": {
+      "at": "2026-10-22T10:16:31Z",
+      "question": "Last one before G1: when the phone uses 12-hour time, how should the forecast strip's hour labels look? The planner proposes \"2 pm\", \"12 am\" (lowercase, space, no :00), matching the app's best-time text \"3:00 pm\".",
+      "answer": "\"2pm\""
+    },
+    "design_round1": {
+      "at": "2026-10-22T10:59:00Z",
+      "test_changes_E1_E8": {
+        "question": "The design needs eight test changes that weren't on the spec's list of test changes (E1–E8). Most follow controls that moved: Home is replaced by the bottom bar, there's no Back button on the main tabs, and Delete is now inside a \"More\" menu. One follows wording you approved (D10). Only E1 changes what TalkBack reads: the hero card announcement adds the four factor values, as the spec's AC19 requires. Each new check is exact and at least as strict as the old one. Approve these test changes?",
+        "answer": "Approve E1–E8"
+      },
+      "row_delete": {
+        "question": "The spec says the walk row's \"More\" menu \"stays\", but in the MVP each row actually has a Delete button directly on it. Criterion AC44 and the mock-ups need a \"More\" menu. Should Delete move into a \"More\" menu on each row?",
+        "answer": "Use a More menu"
+      }
+    },
+    "history_back_test_move": {
+      "at": "2026-10-22T11:30:47Z",
+      "question": "The Walks tab will have no Back button, so the Walks-screen test \"Back returns to the previous screen\" can't stay as it is. Its check moves into the main navigation test, where the phone's Back button on Walks must return to Today (Today highlighted, app not closed). The new check is stricter, but the old test is removed from the Walks test file. Do you approve moving it?",
+      "answer": "Approve the move",
+      "context": "Explicit owner approval for removing HistoryScreenTest back_returns_to_the_previous_screen (L270-276) and moving its check to NavigationTest AC35 (design attempt 3, E3); architect judged it within OD1, orchestrator asked anyway because a test is removed (CLAUDE.md)"
+    },
+    "t3_start_scroll_tests": {
+      "at": "2026-10-22T14:54:49Z",
+      "question": "Task 3 pins the Start walk button outside the scrolling area, as the spec requires (it must always be on screen). Four existing test lines first scroll to the button before tapping it, and scrolling now fails because there's nothing to scroll. These lines weren't in the approved list of test changes. The fix replaces \"scroll to Start, then tap\" with \"check Start is visible without scrolling, then tap\". That is stricter, because it also proves Start is on screen. Approve this change to the 4 lines?",
+      "answer": "Approve the change",
+      "lines": [
+        "WalkRecordingScreensTest.kt:101 (tapStart helper)",
+        "WalkRecordingScreensTest.kt:256",
+        "AppFlowIntegrationTest.kt:173",
+        "FullScreenDestinationsTest.kt:99"
+      ]
+    },
+    "ac66_screenshots": {
+      "at": "2026-10-22T15:39:19Z",
+      "question": "Gate G3 failed task 3 on one point only. The design says every screen task's PR (tasks 3-8) must include emulator screenshots in light and dark mode for the side-by-side comparison with your mock-ups (AC66), and none were taken. An Android emulator (Medium_Phone_API_37.0) is installed on this PC. How should we handle this?",
+      "answer": "Use the emulator"
+    },
+    "t3_clipping": {
+      "at": "2026-10-22T15:57:51Z",
+      "question": "With no profile set up, the sensitivity line loses its first letter (\"Jsing\", \"hange\"). How should we fix it? Task 3 is on attempt 2 of 3, so fixing it here uses its last attempt.",
+      "answer": "Fix in task 3 now"
+    },
+    "t3_minor_diffs": {
+      "at": "2026-10-22T15:57:51Z",
+      "question": "Do the smaller differences need changing?",
+      "answer": "Accept as they are",
+      "items": [
+        "'Not rated' wraps to two lines",
+        "named title wraps to two lines",
+        "'Checked 0 min ago' under a minute"
+      ]
+    },
+    "t5_test_edits": {
+      "at": "2026-10-22T18:36:41Z",
+      "question": "Task 5 needs your OK for two small test edits that aren't word-for-word on the approved list. (1) Adding a new route query means one fake test helper (HistoryViewModelTest ~L238) needs one extra line so it compiles. No check changes. (2) A walk-formats test (WalkFormatsTest L29) checks the Recording timer, which now shows seconds: \"1:02\" becomes \"1:02:03\". It's covered by the spec's approved timer change, but the design didn't name that file. It stays an exact check. Approve both?",
+      "answer": "Approve both"
+    },
+    "t6_test_edits": {
+      "at": "2026-10-23T05:55:44Z",
+      "question": "Task 6 (Walks tab) needs three more test lines changed that weren't on the approved list. Two \"This week\" card checks in HistoryScreenTest (L163, L212) need the new card layout. They're the same change as the two approved lines next to them, just with non-zero values. One walk-detail navigation check in FullScreenDestinationsTest (L123-124) needs the new date format without the year. That's the same change as the approved AppFlowIntegrationTest row. Each new check is exact. Approve these three?",
+      "answer": "Approve all three"
+    },
+    "t6_dark_menu": {
+      "at": "2026-10-23T06:38:23Z",
+      "question": "In dark mode, the open \"More\" menu (with Delete) is almost the same colour as the walk rows behind it and has no visible shadow, so its edge blends into the list (see the dark screenshot). The design doesn't specify a menu colour. Should task 6 fix it?",
+      "answer": "Fix it in task 6"
+    },
+    "t7_test_edits": {
+      "at": "2026-10-23T08:09:20Z",
+      "question": "Task 7 needs two test lines that aren't on the approved list, both because of wording you already approved. (1) FullScreenDestinationsTest L125 waits for the \"Walk details\" title, which the redesign removes. It would wait for the new date heading \"Monday 19 October\" instead. (2) LocationNeededTest L109 waits for the \"Privacy\" title, which becomes \"Privacy & your data\". It would wait for that instead. Both stay exact checks. Approve both?",
+      "answer": "Approve both"
+    },
+    "t7_loading_test_and_clock": {
+      "at": "2026-10-23T08:21:20Z",
+      "question": "Task 7: one approved test change can't work as written. The Walk detail \"loading\" test was meant to check for the new date heading, but while loading there's no walk yet, so no date. Options: A) the loading test instead checks the old \"Walk details\" title is gone (the date heading is already checked in the loaded tests); B) turn the loading test into a loaded test (loses loading coverage). Also: the Walk detail test needs a fixed test clock so the \"no year in the current year\" rule doesn't break the tests on 1 Jan 2027 (setup only, no check changes). Which?",
+      "answer": "A + fixed clock"
+    },
+    "t7_map_attribution": {
+      "at": "2026-10-23T08:21:20Z",
+      "question": "On Walk detail, the details sheet overlaps the bottom of the map by 28 dp, which would cover the map's logo and info (\"i\") button. Map attribution must stay visible (an existing MVP check protects it). The developer plans to shrink the map's drawn area by 28 dp at the bottom so the logo and attribution sit above the sheet, and list it as a difference from your mock-up. OK?",
+      "answer": "Yes, keep visible"
+    },
+    "t8_test_edits": {
+      "at": "2026-10-23T09:52:16Z",
+      "question": "Task 8 needs 13 test lines that aren't on the approved list. They were all added during task 2 (bottom-nav tests), so the design's lists couldn't include them. 12 wait for or tap the \"Save profile\" button, which becomes \"Save\" (your approved C9). One checks the \"Dog profile\" heading, which becomes \"Your dog\" (your approved C8). Each swaps in the new text exactly; \"Save\" is the only button with exactly that text on the Dog tab. Approve all 13?",
+      "answer": "Approve all 13",
+      "lines": [
+        "BottomNavEdgeCasesTest.kt:113,133,150,164,167",
+        "BottomNavTest.kt:157,197,225,243,255,361,363",
+        "FullScreenDestinationsTest.kt:142"
+      ]
+    },
+    "t8_degree_wrap": {
+      "at": "2026-10-23T10:37:58Z",
+      "question": "In the About thresholds table (see the dark screenshot), \"20 to below 25 °C\" wraps so \"°C\" starts a new line on its own, and \"25 °C or above\" splits similarly. Should task 8 keep numbers and \"°C\" together?",
+      "answer": "Keep them together"
+    },
+    "merge_review_flag": {
+      "at": "2026-10-23T11:30:48Z",
+      "question": "All 8 tasks are merged into the redesign branch. A safety check flagged the last merge (task 8) as \"merge without review\". The reason: the reviewer agent posts its verdict as a GitHub comment (\"VERDICT: APPROVE\"), not a formal GitHub approval, because the bot account can't approve its own PRs. All 8 task merges worked this way. Each also had a tester pass, a reviewer verdict and a gate G3 pass, and went only into the redesign branch, never main. Main still needs your own approval on GitHub at Gate B. How do you want to proceed?",
+      "answer": "Accepted, continue"
+    },
+    "test_device": {
+      "at": "2026-10-23T12:17:35Z",
+      "instruction": "when ready i ahve a real test device i can conenct, it is a samsung galaxy flip 3, but i am happy that this is the device used",
+      "applied": "Samsung Galaxy Z Flip3 is the reference device for this run's on-device checks (battery, AC66/AC59/AC65 manual checks, owed MVP device checks); replaces the Flip7 (SM-F766B) used in the MVP session. Owner connects it when the device session starts.",
+      "serial": "[owner's Flip3, serial redacted per R-08] (SM-F711B, Galaxy Z Flip3)"
+    },
+    "phone_timing": {
+      "at": "2026-10-23T12:22:30Z",
+      "answer": "Unplug until perf done"
+    },
+    "perf_breach": {
+      "answer": "Confirm on phone first (Recommended)",
+      "at": "2026-10-23T15:23:50Z",
+      "meaning": "measure cold start and history open, base vs redesign, on Galaxy Z Flip3; fix task only if breach reproduces on phone"
+    },
+    "phone_stay_awake": {
+      "answer": "Let the agent keep it awake (Recommended)",
+      "at": "2026-10-23T15:34:06Z",
+      "meaning": "agent may run svc power stayon usb for the session and must restore svc power stayon false (original mStayOnWhilePluggedInSetting=0) at end; no other settings"
+    },
+    "open_issues_fix": {
+      "answer": "Fix both in one task (Recommended)",
+      "at": "2026-10-23T16:03:43Z"
+    },
+    "dependabot_r01": {
+      "answer": "I'll do it later",
+      "at": "2026-10-23T16:03:43Z",
+      "meaning": "owner action, recorded in audit; not blocking"
+    },
+    "task_limit_t9": {
+      "answer": "Allow task 9 (Recommended)",
+      "at": "2026-10-23T16:03:43Z"
+    },
+    "second_phone_reinstall": {
+      "answer": "Uninstall and install new",
+      "at": "2026-10-23T17:35:54Z",
+      "meaning": "owner's second phone (Galaxy Z Flip7 SM-F766B, Android 16) had the MVP build with a different signing key; uninstalled (its app data deleted) and installed final debug build 394f5a2"
+    }
+  },
+  "carry_forward": [
+    {
+      "from": "T1 review 5614449498",
+      "to": "T2",
+      "item": "windowBackground keeps start-up theme colour after in-place theme switch; make AppScaffold root a full-size Surface on FieldKit.colors.background (or reset in onConfigurationChanged); add to manual AC7 check"
+    },
+    {
+      "from": "architect ADR 0008 Amendment 1",
+      "to": "T5",
+      "item": "Recording is always dark; check status-bar icon style in system light mode"
+    },
+    {
+      "from": "T1 review 5614449498 (Nit)",
+      "to": "T5 or later",
+      "item": "RecordingTheme error roles use Material defaults; map to Field Kit error tokens if an error shows on Recording"
+    },
+    {
+      "from": "T2 review 5615502014 (Minor/Nit, optional)",
+      "to": "later nav-touching task or backlog",
+      "item": "AppChromeViewModel.kt:35 catch ends flow (label stays 'Dog' after read error); FieldKitNavBar singleLine uses dogName != null (prefer !isNullOrBlank)"
+    },
+    {
+      "from": "T3 review 5616618928 (Minor)",
+      "to": "T4",
+      "item": "CheckViewModel.kt:214 connectivity read only on state update; offline lead can go stale while Today is open. Make connectivity a flow in combine, or re-read in LifecycleStartEffect"
+    },
+    {
+      "from": "T3 review 5616618928 (Minor)",
+      "to": "T4",
+      "item": "FactorRounding.kt:18 floor(abs(x)+0.5) mis-rounds 0.49999999999999994; use BigDecimal HALF_UP or fractional compare + boundary test"
+    },
+    {
+      "from": "T3 review 5616618928 (Nits)",
+      "to": "T4 optional",
+      "item": "FactorGrid.kt:73 PAVEMENT shares mph arm (split or error()); CheckViewModel dogName param/property name clash (rename dogNameFlow)"
+    },
+    {
+      "from": "T3 review 5617681681 (Minor)",
+      "to": "T4",
+      "item": "FootnoteButton shared: 'About this advice' now has rectangular ripple; if a rounded press state is wanted use small corner radius + start padding"
+    },
+    {
+      "from": "T3 review 5617681681 (Nits)",
+      "to": "later",
+      "item": "shared pixel-count test helper for TodayFootnoteClipping tests; control test copies FootnoteButton params"
+    },
+    {
+      "from": "T4 review 5618579128 (Minor)",
+      "to": "later / backlog",
+      "item": "CheckViewModel.kt:89 network callback registered for whole ViewModel life incl. background; collect only while Today started or WhileSubscribed"
+    },
+    {
+      "from": "T4 review 5618579128 (Nit)",
+      "to": "later",
+      "item": "HourLabelFormat.kt:19 Locale.UK hard-coded; add comment (English-only app)"
+    },
+    {
+      "from": "T5 tester",
+      "to": "later / G4 watch",
+      "item": "ThemeSwitchTest (T1) starts MainActivity with the real on-disk DB like RecordingSystemBarsTest did (flaked 2/21); not observed flaky in 16 runs; consider TestAppContainer"
+    },
+    {
+      "from": "T5 review 5619897466 (Minor)",
+      "to": "fix task or backlog (user-visible)",
+      "item": "RecordingScreen rememberNow: delay(1000) after clock read drifts, timer skips a second every few minutes; align to next whole second since session.startUtc"
+    },
+    {
+      "from": "T5 review 5619897466 (Minor)",
+      "to": "backlog",
+      "item": "DogWalkBuddyNavHost.kt:112 StartedTimeFormat reads is24HourFormat once per container; key on configuration"
+    },
+    {
+      "from": "T6 developer",
+      "to": "tester (T6) / G4",
+      "item": "Two task 5 tests flaky under full-suite load: RecordingScreenTest.UX_AC34_the_timer_updates_every_second, WalkRecordingScreensTest.with_notification_permission_the_recording_screen_shows_no_hint (pass alone 5/5)"
+    },
+    {
+      "from": "T6 review 5625420830 (Minor)",
+      "to": "backlog / owner copy decision",
+      "item": "Row More buttons all spoken as 'More' (identical controls for TalkBack); consider per-walk label with owner copy approval"
+    },
+    {
+      "from": "T6 review 5625420830 (Minor)",
+      "to": "T6 PR body (G3 watch)",
+      "item": "PR body says Delete text contrast read from popup pixels; test uses token values"
+    },
+    {
+      "from": "G3 T6",
+      "to": "release device session",
+      "item": "AC66 Walks load-failure state not screenshotted (needs DB failure); cover or note at release AC66 session"
+    },
+    {
+      "from": "T7 review 5626492807 (Minor)",
+      "to": "backlog",
+      "item": "Status-bar style reset on dispose (DarkStatusBarIconsOverMap, RecordingSystemBars): give bar style one owner if a styled screen ever follows"
+    },
+    {
+      "from": "T7 review 5626492807 (Minor)",
+      "to": "backlog",
+      "item": "Map label under status bar on walk detail; optional top scrim"
+    },
+    {
+      "from": "T8 developer",
+      "to": "backlog / owner copy decision",
+      "item": "About Heat threshold sentence (MVP fixed text, kept word for word) still wraps 'Avoid from 25 / °C' at 540 px; changing it needs an owner decision on a fixed MVP text"
+    },
+    {
+      "from": "T8 review 5627525325 (Minor)",
+      "to": "backlog",
+      "item": "ProfileScreen mutedOptionalLabel splits at first '('; pass suffix explicitly"
+    },
+    {
+      "from": "T8 review 5627525325 (Minor)",
+      "to": "backlog",
+      "item": "ProfileTextField always composes empty error Text into merged semantics"
+    },
+    {
+      "from": "T8 review 5627525325 (Minor)",
+      "to": "backlog / AC59 phone check",
+      "item": "ThresholdsTable: all 9 header cells marked heading(), floods TalkBack heading nav"
+    },
+    {
+      "from": "security R-01 (Low)",
+      "to": "owner (governance PR)",
+      "item": "Dependabot alerts disabled; dependabot.yml covers only github-actions (MVP S-03)"
+    },
+    {
+      "from": "security R-02 (Low)",
+      "to": "developer / backlog",
+      "item": "ConnectivityStatus registerDefaultNetworkCallback can throw; collected with bare viewModelScope.launch; add runCatching/.catch"
+    },
+    {
+      "from": "T9 review 5631383571 (Minor)",
+      "to": "backlog",
+      "item": "CheckViewModel.kt:93 .catch catches Throwable; rethrow non-Exception"
+    },
+    {
+      "from": "T9 review 5631383571 (Minor)",
+      "to": "backlog",
+      "item": "RecordingScreen.kt:145 remember(clock) vs LaunchedEffect(clock,start) keys; use remember(clock,start)"
+    },
+    {
+      "from": "T9 review 5631383571 (Minor)",
+      "to": "backlog",
+      "item": "ConnectivityCallbackLimitTest static counters not parallel-safe"
+    }
+  ]
+}

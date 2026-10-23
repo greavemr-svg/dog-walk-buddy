@@ -5,3 +5,18 @@
 .env.*
 *.keystore
 *.jks
+
+# Android / Gradle
+build/
+.gradle/
+local.properties
+.idea/
+*.iml
+.cxx/
+captures/
+*.apk
+*.aab
+*.hprof
+
+# Local tool environment for diff-cover (scripts/coverage.sh)
+.venv-ci/

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dog Walk Buddy</string>
+    <string name="home_about">About this advice</string>
+    <string name="home_start_walk">Start walk</string>
+    <string name="home_walk_in_progress">Walk in progress</string>
+
+    <!-- Bottom navigation (C7, C16). The third item shows the saved dog name, or nav_dog with no profile. -->
+    <string name="nav_today">Today</string>
+    <string name="nav_walks">Walks</string>
+    <string name="nav_dog">Dog</string>
+
+    <!-- Walk history -->
+    <string name="history_title">Walks</string>
+    <string name="history_this_week">This week</string>
+    <string name="history_empty">No walks yet</string>
+    <plurals name="history_walk_count">
+        <item quantity="one">%d walk</item>
+        <item quantity="other">%d walks</item>
+    </plurals>
+    <string name="history_totals_dotted">%1$s · %2$s · %3$s mi</string>
+    <string name="history_week_range_span">%1$s – %2$s</string>
+    <string name="history_walk_at">at %1$s</string>
+    <string name="history_row_spoken">%1$s at %2$s, %3$s, %4$s mi</string>
+    <string name="history_summary_spoken">This week: %1$s, %2$s, %3$s miles</string>
+    <plurals name="history_caption_walks">
+        <item quantity="one">walk</item>
+        <item quantity="other">walks</item>
+    </plurals>
+    <string name="history_caption_hmm">h:mm</string>
+    <string name="history_caption_miles">miles</string>
+    <string name="history_delete">Delete</string>
+    <string name="history_delete_description">Delete walk on %1$s at %2$s</string>
+    <string name="history_delete_title">Delete this walk?</string>
+    <string name="history_delete_message">The walk on %1$s at %2$s and its route will be removed from this phone. This can\'t be undone.</string>
+    <string name="history_delete_confirm">Delete walk</string>
+    <string name="history_delete_cancel">Cancel</string>
+    <string name="history_delete_failed">Couldn\'t delete the walk. Try again.</string>
+    <string name="history_delete_failed_dismiss">OK</string>
+    <string name="history_load_failed">Couldn\'t load your walks.</string>
+    <string name="history_more">More</string>
+
+    <!-- Walk recording -->
+    <string name="walk_needs_precise_location">Recording a walk needs precise location.</string>
+    <string name="walk_grant_precise_location">Allow precise location</string>
+    <string name="walk_open_settings">Open settings</string>
+    <string name="recording_title">Recording walk</string>
+    <string name="recording_back">Back</string>
+    <string name="recording_elapsed_label">Elapsed time</string>
+    <string name="recording_distance_label">Distance</string>
+    <string name="recording_distance_miles">%1$s mi</string>
+    <string name="recording_stop">Stop and save walk</string>
+    <string name="recording_stopping">Saving your walk</string>
+    <string name="recording_started_label">Started</string>
+    <string name="recording_route_label">Route so far</string>
+    <string name="recording_route_caption">Route so far · saved on this phone</string>
+    <string name="recording_tip">Pop your phone in your pocket. Recording carries on with the screen off, and a notification shows while it\'s on.</string>
+    <plurals name="duration_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="duration_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <string name="recording_notifications_off">Notifications are off. Your walk is still being recorded.</string>
+    <string name="recording_notification_channel">Walk recording</string>
+    <string name="recording_notification_title">Recording your walk</string>
+    <string name="recording_notification_text">Dog Walk Buddy is recording your walk.</string>
+
+    <!-- Dog profile -->
+    <string name="profile_title">Your dog</string>
+    <!-- Dog tab tiles (D9) -->
+    <string name="profile_privacy_tile">Privacy &amp; data</string>
+    <string name="profile_about_tile">About the advice</string>
+    <string name="profile_name_label">Name</string>
+    <string name="profile_breed_label">Breed (optional)</string>
+    <string name="profile_photo_description">Photo of your dog</string>
+    <string name="profile_no_photo">No photo</string>
+    <string name="profile_choose_photo">Choose photo</string>
+    <string name="profile_replace_photo">Change photo</string>
+    <string name="profile_remove_photo">Remove photo</string>
+    <string name="profile_sensitivity_label">Heat sensitivity</string>
+    <string name="profile_sensitivity_normal">Normal</string>
+    <string name="profile_sensitivity_sensitive">Sensitive</string>
+    <string name="profile_sensitivity_hint">Sensitive makes the heat and hot-pavement warnings start 4°C sooner. Rain, wind and cold stay the same.</string>
+    <string name="profile_band_normal">Caution from 20°C / Avoid from 25°C</string>
+    <string name="profile_band_sensitive">Caution from 16°C / Avoid from 21°C</string>
+    <!-- The live character counter under a profile field, for example "7 / 30". -->
+    <string name="profile_counter">%1$d / %2$d</string>
+    <string name="profile_save">Save</string>
+    <string name="profile_saved">Profile saved</string>
+    <string name="profile_load_failed">Couldn\'t load your dog\'s profile.</string>
+    <string name="profile_save_failed">Couldn\'t save the profile. Try again.</string>
+    <string name="profile_error_name_required">Name is required. Enter 1 to %1$s characters.</string>
+    <string name="profile_error_name_too_long">Name is too long. Use %1$s characters or fewer.</string>
+    <string name="profile_error_name_characters">Name can\'t contain control characters or line breaks.</string>
+    <string name="profile_error_breed_too_long">Breed is too long. Use %1$s characters or fewer.</string>
+    <string name="profile_error_breed_characters">Breed can\'t contain control characters or line breaks.</string>
+    <string name="profile_photo_too_large">That photo is too large. Choose one under %1$s MB and %2$s pixels on each side.</string>
+    <string name="profile_photo_not_an_image">That file isn\'t a photo the app can use. Choose a different one.</string>
+    <string name="profile_photo_unreadable">Couldn\'t read that photo. Try another one.</string>
+
+    <!-- Rating reasons (exact spec texts) -->
+    <string name="reason_good">Good conditions for a walk</string>
+    <string name="reason_warm">Warm: keep it short and bring water</string>
+    <string name="reason_too_hot">Too hot to walk safely</string>
+    <string name="reason_pavement_warm">Pavement may be hot: test it with the back of your hand</string>
+    <string name="reason_pavement_too_hot">Pavement likely too hot for paws</string>
+    <string name="reason_rain">Rain expected</string>
+    <string name="reason_heavy_rain">Heavy rain</string>
+    <string name="reason_windy">Windy</string>
+    <string name="reason_dangerous_winds">Dangerous winds</string>
+    <string name="reason_freezing">Freezing: watch for ice and grit</string>
+    <string name="reason_data_missing">Some weather data isn\'t available</string>
+
+    <!-- Best window -->
+    <string name="best_window_now_until">Now until %1$s</string>
+    <string name="best_window_range">%1$s-%2$s</string>
+    <string name="best_window_best_available_caution">Best available: Caution</string>
+    <string name="best_window_none">No good time in the next 12 hours</string>
+
+    <!-- Check card -->
+    <string name="check_title">Good time to walk?</string>
+    <string name="rating_go">Go</string>
+    <string name="rating_caution">Caution</string>
+    <string name="rating_avoid">Avoid</string>
+    <!-- Spoken as one phrase: the rating, then the reason (AC50). Example: "Caution. Windy." -->
+    <string name="check_rating_announcement">%1$s. %2$s.</string>
+    <string name="check_loading">Checking the weather</string>
+    <string name="check_cant_check">Can\'t check right now</string>
+    <string name="check_retry">Try again</string>
+    <string name="check_refresh">Refresh</string>
+    <string name="check_needs_location">The check needs your approximate location</string>
+    <string name="check_grant_location">Allow approximate location</string>
+    <string name="check_open_settings">Open settings</string>
+    <string name="check_age_minutes">Checked %1$d min ago</string>
+    <string name="check_age_hours_minutes">Checked %1$d h %2$d min ago</string>
+    <string name="check_window_heading">Best window, next 12 hours</string>
+    <string name="check_pollen_not_included">Pollen isn\'t included in this check</string>
+    <string name="check_default_sensitivity">Using normal heat sensitivity. Set up your dog\'s profile to change this.</string>
+    <string name="check_disclaimer">Guidance only, not veterinary advice. If you\'re worried about your dog, contact a vet.</string>
+    <string name="check_attribution">Weather data: MET Norway (CC BY 4.0)</string>
+    <!-- Today, task 3 of the UX redesign: C1, C12, D1, D2 and D3. -->
+    <string name="check_title_named">Good time to walk %1$s?</string>
+    <string name="check_meta_just_now">Your area · checked just now</string>
+    <string name="check_banner_offline_lead">You\'re offline.</string>
+    <string name="check_banner_cached">Showing your last check. It\'s kept for up to 3 hours.</string>
+    <string name="check_sensitive_thresholds">Heat-sensitive thresholds (%1$s)</string>
+    <string name="check_factor_air">Air</string>
+    <string name="check_factor_rain">Rain</string>
+    <string name="check_factor_wind">Wind</string>
+    <string name="check_factor_pavement">Pavement</string>
+    <string name="check_factor_temperature_value">%1$d°C</string>
+    <string name="check_factor_rain_value">%1$d mm/h</string>
+    <string name="check_factor_wind_value">%1$d mph</string>
+    <string name="check_factor_not_rated">Not rated</string>
+    <string name="check_factor_no_data">No data</string>
+    <string name="check_pavement_cool">Cool</string>
+    <string name="check_pavement_warm">Warm</string>
+    <string name="check_pavement_hot">Hot</string>
+    <string name="check_factor_spoken">%1$s %2$s</string>
+    <!-- Task 4 approved copy: C13, D4 and D5. -->
+    <string name="check_cant_check_explanation">We couldn\'t get the weather, and there\'s no recent check to fall back on. Check your connection and try again.</string>
+    <string name="check_can_still_record_lead">You can still record a walk.</string>
+    <string name="check_can_still_record">Recording works without a connection and saves to your phone.</string>
+    <string name="check_location_body">So we can get the weather where you are. Your approximate location is enough for this.</string>
+    <string name="check_location_bullet_rounded">Rounded to about 1 km before it leaves your phone</string>
+    <string name="check_location_bullet_when">Only sent when you open the check or tap refresh</string>
+    <string name="check_location_bullet_where">Sent only to the weather service, MET Norway</string>
+    <string name="check_how_data_used">How your data is used</string>
+
+    <!-- Walk detail and map -->
+    <string name="history_open_walk">Open walk details</string>
+    <string name="walk_detail_back">Back</string>
+    <string name="walk_detail_time_range">%1$s – %2$s</string>
+    <string name="walk_detail_duration_caption">Duration</string>
+    <string name="walk_detail_distance_caption">Distance</string>
+    <string name="walk_detail_distance_value">%1$s mi</string>
+    <string name="walk_detail_delete">Delete this walk</string>
+    <string name="walk_detail_map_description">Map of the route you walked</string>
+    <string name="walk_detail_map_unavailable">Map not available offline</string>
+    <string name="walk_detail_map_unavailable_sub">Your route is saved. It\'ll show here next time you\'re online.</string>
+    <string name="walk_detail_no_route">No route was recorded for this walk</string>
+    <string name="walk_detail_not_found">This walk can\'t be found. It may have been deleted.</string>
+    <string name="walk_detail_load_failed">Couldn\'t load this walk.</string>
+    <string name="map_attribution">© OpenStreetMap contributors · © OpenMapTiles</string>
+
+    <!-- Privacy -->
+    <string name="privacy_title">Privacy &amp; your data</string>
+    <string name="privacy_headline">Your walks stay on your phone</string>
+    <string name="privacy_card_local_heading">Never leaves this phone</string>
+    <string name="privacy_card_sent_heading">Only sent when you use a feature</string>
+    <string name="privacy_entry_met_heading">MET Norway · when the check runs</string>
+    <string name="privacy_entry_map_heading">OpenFreeMap · when you view a walk map</string>
+    <string name="privacy_back">Back</string>
+    <string name="privacy_weather">When a check runs, your approximate location (rounded to about 1 km) is sent to MET Norway, the weather provider. MET Norway also receives your phone\'s IP address. Nothing is sent to MET Norway at any other time.</string>
+    <string name="privacy_map">When you view a walk map, the map provider, OpenFreeMap (served through its CDN provider, Cloudflare), receives requests for the map area shown and your phone\'s IP address.</string>
+    <string name="privacy_local">Your walk routes, your dog\'s profile and your walk history never leave your phone. They are left out of Android cloud backup and device-to-device transfer, so they are not copied to a new phone.</string>
+    <string name="privacy_no_tracking">There are no accounts, analytics or tracking.</string>
+    <string name="privacy_delete_heading">Delete your data</string>
+    <string name="privacy_delete_explanation">This removes all your walks and routes, your dog\'s profile and photo, and the saved weather check from this phone.</string>
+    <string name="privacy_delete_all">Delete all my data</string>
+    <string name="privacy_delete_title">Delete all your data?</string>
+    <string name="privacy_delete_message">All your walks and routes, your dog\'s profile and photo, and the saved weather check will be removed from this phone. A walk being recorded will be stopped and removed. This can\'t be undone.</string>
+    <string name="privacy_delete_confirm">Delete everything</string>
+    <string name="privacy_delete_cancel">Cancel</string>
+    <string name="privacy_deleting">Deleting your data</string>
+    <string name="privacy_deleted">All your data has been deleted from this phone.</string>
+    <string name="privacy_delete_failed">Couldn\'t delete all your data. Try again.</string>
+    <string name="privacy_delete_failed_dismiss">OK</string>
+
+    <!-- About this advice -->
+    <string name="about_title">About this advice</string>
+    <string name="about_back">Back</string>
+    <string name="about_headline">How we rate the weather</string>
+    <string name="about_intro">The overall rating is the worst of these. Heat-sensitive dogs use the values in brackets.</string>
+    <string name="about_thresholds_heading">Rating thresholds</string>
+    <string name="about_table_factor">Factor</string>
+    <string name="about_table_heat">Heat</string>
+    <string name="about_table_pavement">Pavement</string>
+    <string name="about_table_rain">Rain</string>
+    <string name="about_table_wind">Wind</string>
+    <string name="about_table_cold">Cold</string>
+    <string name="about_table_temp_go">below 20\u00A0°C</string>
+    <string name="about_table_temp_go_sensitive">(16\u00A0°C)</string>
+    <string name="about_table_temp_caution">20 to below 25\u00A0°C</string>
+    <string name="about_table_temp_caution_sensitive">(16 to below 21\u00A0°C)</string>
+    <string name="about_table_temp_avoid">25\u00A0°C or above</string>
+    <string name="about_table_temp_avoid_sensitive">(21\u00A0°C or above)</string>
+    <string name="about_table_rain_go">below 0.5</string>
+    <string name="about_table_rain_caution">0.5 to 4</string>
+    <string name="about_table_rain_avoid">above 4</string>
+    <string name="about_table_wind_go">below 25</string>
+    <string name="about_table_wind_caution">25 to below 39</string>
+    <string name="about_table_wind_avoid">39 or above</string>
+    <string name="about_table_cold_go">above 0\u00A0°C</string>
+    <string name="about_table_cold_caution">0\u00A0°C or below</string>
+    <string name="about_table_cold_avoid">never</string>
+    <!-- A table cell's spoken text: row header, column header, then the cell, for example "Heat, Go, below 20 °C (16 °C)". -->
+    <string name="about_table_cell_spoken">%1$s, %2$s, %3$s</string>
+    <string name="about_overall">The overall rating for an hour is the worst of these factors. Sensitivity changes only the heat and pavement limits.</string>
+    <string name="about_heat">Heat (air temperature). Normal: Go below 20 °C, Caution from 20 °C to below 25 °C, Avoid from 25 °C. Sensitive: Go below 16 °C, Caution from 16 °C to below 21 °C, Avoid from 21 °C.</string>
+    <string name="about_pavement">Hot pavement: rated only in daylight (between local sunrise and sunset) when the forecast cloud cover is below 50 percent. It uses the same temperature bands as heat.</string>
+    <string name="about_rain">Rain (precipitation rate): Go below 0.5 mm/h, Caution from 0.5 mm/h to 4 mm/h, Avoid above 4 mm/h.</string>
+    <string name="about_wind">Wind (mean speed): Go below 25 mph, Caution from 25 mph to below 39 mph, Avoid from 39 mph. Gusts are not rated.</string>
+    <string name="about_cold">Cold (air temperature): Caution at 0 °C or below. Cold never gives Avoid.</string>
+    <string name="about_sources_heading">Where this comes from</string>
+    <string name="about_sources_intro">The thresholds are based on this guidance. It is general guidance, and forecasts can be wrong.</string>
+    <string name="about_source_vets_now">Vets Now: heat-related illness can start above about 20 °C.</string>
+    <string name="about_source_four_paws">FOUR PAWS UK: asphalt reaches about 52 °C when the air is 25 °C.</string>
+    <string name="about_source_beaufort">The wind thresholds follow the Beaufort scale\'s mean wind speeds, as published by the Royal Meteorological Society.</string>
+    <string name="about_data_heading">Data</string>
+    <string name="about_licences_heading">Open-source licences</string>
+    <string name="about_licences">Dog Walk Buddy uses open-source software. The licence notices that these libraries require are shown in full below.</string>
+    <string name="about_licence_maplibre_heading">MapLibre Native Android 13.6.1 (BSD 2-Clause License)</string>
+    <string name="about_licence_native_third_party_heading">Third-party code in the MapLibre Native library</string>
+    <string name="about_licence_native_third_party_intro">The MapLibre Native library contains the following third-party code. Its licence file is shown in full.</string>
+    <string name="about_public_suffix_heading">Public Suffix List</string>
+    <string name="about_public_suffix_intro">OkHttp includes the Public Suffix List from https://publicsuffix.org, which is licensed under the Mozilla Public License 2.0, shown in full below. The list source is at https://github.com/publicsuffix/list.</string>
+    <string name="about_licence_gestures_heading">MapLibre Android Gestures 0.0.4 (BSD 2-Clause License)</string>
+    <string name="about_apache_libraries_heading">Libraries under the Apache License 2.0</string>
+    <string name="about_apache_libraries_intro">These libraries are included in the app and are licensed under the Apache License 2.0, shown in full after this list.</string>
+    <string name="about_apache_lib_androidx">AndroidX: Activity 1.11.0, Core 1.17.0, Lifecycle 2.9.4, Navigation 2.9.7, Room 2.8.4, SQLite 2.6.2, SavedState 1.3.2, Fragment 1.8.9, Collection 1.5.0, Annotation 1.9.1, Arch Core 2.2.0, Startup 1.2.0, Window 1.5.0, Emoji2 1.4.0, Profile Installer 1.4.0, Tracing 1.2.0, Concurrent Futures 1.1.0, Graphics Path 1.0.1, Autofill, Custom View, Interpolator, Loader, ViewPager and Versioned Parcelable.</string>
+    <string name="about_apache_lib_compose">Jetpack Compose (Compose BOM 2026.08.00): UI, Foundation 1.12.0, Animation, Runtime, Material 3 1.4.0 and Material Ripple.</string>
+    <string name="about_apache_lib_kotlin">Kotlin Standard Library 2.3.20, JetBrains Annotations 23.0.0, kotlinx.coroutines 1.10.2 and kotlinx.serialization 1.10.0.</string>
+    <string name="about_apache_lib_okhttp">OkHttp 5.1.0 and Okio 3.15.0.</string>
+    <string name="about_apache_lib_maplibre">MapLibre Native GeoJSON 6.0.1 and Turf 6.0.1.</string>
+    <string name="about_apache_lib_other">Gson 2.10.1, Timber 5.0.1, JSpecify 1.0.0 and Guava ListenableFuture 1.0.</string>
+    <string name="about_apache_text_heading">Apache License, Version 2.0</string>
+    <!-- Bundled fonts (ADR 0006, AC8). The headings are the font names only. -->
+    <string name="about_font_bricolage_heading">Bricolage Grotesque</string>
+    <string name="about_font_figtree_heading">Figtree</string>
+</resources>
