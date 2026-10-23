@@ -2,11 +2,14 @@ package io.github.greavemrsvg.dogwalkbuddy.ui.about
 
 import android.content.Context
 import androidx.annotation.RawRes
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -15,6 +18,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -28,6 +32,7 @@ import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertNoTextTruncation
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertTouchTargetIsAtLeast
 import io.github.greavemrsvg.dogwalkbuddy.ui.theme.DogWalkBuddyTheme
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -314,11 +319,21 @@ class AboutScreenTest {
         }
         val expected =
             listOf(
-                "Heat" to listOf("below 20 °C (16 °C)", "20 to below 25 °C (16 to below 21 °C)", "25 °C or above (21 °C or above)"),
-                "Pavement" to listOf("below 20 °C (16 °C)", "20 to below 25 °C (16 to below 21 °C)", "25 °C or above (21 °C or above)"),
+                "Heat" to
+                    listOf(
+                        "below 20\u00A0°C (16\u00A0°C)",
+                        "20 to below 25\u00A0°C (16 to below 21\u00A0°C)",
+                        "25\u00A0°C or above (21\u00A0°C or above)",
+                    ),
+                "Pavement" to
+                    listOf(
+                        "below 20\u00A0°C (16\u00A0°C)",
+                        "20 to below 25\u00A0°C (16 to below 21\u00A0°C)",
+                        "25\u00A0°C or above (21\u00A0°C or above)",
+                    ),
                 "Rain" to listOf("below 0.5", "0.5 to 4", "above 4"),
                 "Wind" to listOf("below 25", "25 to below 39", "39 or above"),
-                "Cold" to listOf("above 0 °C", "0 °C or below", "never"),
+                "Cold" to listOf("above 0\u00A0°C", "0\u00A0°C or below", "never"),
             )
         val columns = listOf("Go", "Caution", "Avoid")
         expected.forEachIndexed { index, (row, cells) ->
@@ -415,7 +430,7 @@ class AboutScreenTest {
         show(fontScale = 2.0f)
 
         composeRule.assertNoTextTruncation()
-        composeRule.onNodeWithContentDescription("Heat, Caution, 20 to below 25 °C (16 to below 21 °C)").assertExists()
+        composeRule.onNodeWithContentDescription("Heat, Caution, 20 to below 25\u00A0°C (16 to below 21\u00A0°C)").assertExists()
     }
 
     @Test
@@ -429,5 +444,62 @@ class AboutScreenTest {
 
     private companion object {
         const val PREVIEW_LENGTH = 60
+    }
+
+    @Test
+    fun UX_AC56_no_table_cell_line_starts_with_a_degree_sign_at_the_default_font_size() {
+        show()
+
+        assertEveryNumberKeepsItsDegreeSign()
+    }
+
+    @Test
+    fun UX_AC56_no_table_cell_line_starts_with_a_degree_sign_at_200_percent() {
+        show(fontScale = 2.0f)
+
+        assertEveryNumberKeepsItsDegreeSign()
+    }
+
+    /**
+     * Owner decision t8_degree_wrap: each number and its "°C" stay on one line. Every table cell string joins them with
+     * a non-breaking space, and no laid-out line of any table cell starts with "°C".
+     */
+    private fun assertEveryNumberKeepsItsDegreeSign() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val degreeCells =
+            listOf(
+                R.string.about_table_temp_go,
+                R.string.about_table_temp_go_sensitive,
+                R.string.about_table_temp_caution,
+                R.string.about_table_temp_caution_sensitive,
+                R.string.about_table_temp_avoid,
+                R.string.about_table_temp_avoid_sensitive,
+                R.string.about_table_cold_go,
+                R.string.about_table_cold_caution,
+            ).map { context.getString(it) }
+        degreeCells.forEach { cell ->
+            assertTrue(cell, cell.contains("°C"))
+            assertFalse("\"$cell\" has a breakable space before °C", Regex("[0-9][ \t\n]°C").containsMatchIn(cell))
+            assertTrue("\"$cell\" joins the number and °C", Regex("[0-9]\u00A0°C").containsMatchIn(cell))
+        }
+
+        val layouts = mutableListOf<TextLayoutResult>()
+        composeRule
+            .onAllNodes(hasAnyAncestor(hasTestTag(THRESHOLDS_TABLE_TAG)) and hasText("°C", substring = true), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .forEach { node ->
+                node.config
+                    .getOrNull(SemanticsActions.GetTextLayoutResult)
+                    ?.action
+                    ?.invoke(layouts)
+            }
+        assertEquals("one layout per heat, pavement and cold degree cell", 8, layouts.size)
+        layouts.forEach { layout ->
+            val text = layout.layoutInput.text.text
+            (0 until layout.lineCount).forEach { line ->
+                val shown = text.substring(layout.getLineStart(line), layout.getLineEnd(line)).trimStart()
+                assertFalse("line $line of \"$text\" starts with °C", shown.startsWith("°C"))
+            }
+        }
     }
 }
