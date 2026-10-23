@@ -14,7 +14,9 @@
       "docs/adr/0007-field-kit-theme-tokens-and-dark-mode.md",
       "docs/adr/0008-icons-as-bundled-material-symbols-vector-drawables.md"
     ],
-    "audit": ""
+    "audit": "",
+    "security": "docs/runs/20261022-ux-redesign/security.md",
+    "performance": "docs/perf/20261022-ux-redesign/results.md"
   },
   "gates": {
     "G1": {
@@ -223,7 +225,7 @@
     "url": ""
   },
   "counters": {
-    "agent_invocations": 93,
+    "agent_invocations": 94,
     "invocation_limit": 200,
     "plan_attempts": 2,
     "g1_fail_attempts": 1,
@@ -432,7 +434,12 @@
     "2026-10-23T11:29:58Z release integrate T8 (opus): PR #47 squash-merged as d6d0c96 (match-head cdc9e7c); issue #39 closed (comment 6363799607); feature CI 39946023968 in progress. T8 done; all 8 tasks done",
     "2026-10-23T11:29:58Z orchestrator: auto-mode classifier flagged the T8 integrate report as 'Merge Without Review' (GitHub review state COMMENTED not APPROVED, bot cannot approve own PR; same as T1-T7; reviewer VERDICT APPROVE + G3 PASS; merge into feature branch only, guard allowed). Surfacing to owner before Stage 4",
     "2026-10-23T11:30:48Z owner: merge_review_flag -> \"Accepted, continue\"",
-    "2026-10-23T11:30:48Z orchestrator: Stage 4: invoking security and performance in parallel on feature/20261022-ux-redesign (opus). Budget 93/200 incl. these 2 calls"
+    "2026-10-23T11:30:48Z orchestrator: Stage 4: invoking security and performance in parallel on feature/20261022-ux-redesign (opus). Budget 93/200 incl. these 2 calls",
+    "2026-10-23T11:39:48Z security (opus): DONE on da65ae2; critical 0 high 0 medium 0 low 2 info 5; fonts and 30 icons byte-identical to upstream; no new deps/hosts/permissions. Saved security.md",
+    "2026-10-23T12:17:35Z owner: test_device -> Samsung Galaxy Z Flip3 is the device to use for on-device checks; connect when ready",
+    "2026-10-23T12:22:30Z owner connected phone SM-F711B (R5CR71NEQ8M); owner chose to unplug until the emulator performance check and G4 finish",
+    "2026-10-23T14:17:15Z performance (opus): first run ended with no report (turn limit); raw timings in scratchpad res_base.json/res_redesign*.json; re-invoking with continuation brief",
+    "2026-10-23T15:23:25Z performance (opus): DONE; emulator, same-day base vs redesign; cold start median +10.6% (interleaved +7.4%) over +10% limit; history p95 one outlier 1625 ms in n=8 (median -12.7%); start walk, check, PSS ok. REGRESSION_BEYOND_THRESHOLD yes (marginal). results in docs/perf/20261022-ux-redesign/"
   ],
   "bootstrap": false,
   "base": {
@@ -592,6 +599,16 @@
       "at": "2026-10-23T11:30:48Z",
       "question": "All 8 tasks are merged into the redesign branch. A safety check flagged the last merge (task 8) as \"merge without review\". The reason: the reviewer agent posts its verdict as a GitHub comment (\"VERDICT: APPROVE\"), not a formal GitHub approval, because the bot account can't approve its own PRs. All 8 task merges worked this way. Each also had a tester pass, a reviewer verdict and a gate G3 pass, and went only into the redesign branch, never main. Main still needs your own approval on GitHub at Gate B. How do you want to proceed?",
       "answer": "Accepted, continue"
+    },
+    "test_device": {
+      "at": "2026-10-23T12:17:35Z",
+      "instruction": "when ready i ahve a real test device i can conenct, it is a samsung galaxy flip 3, but i am happy that this is the device used",
+      "applied": "Samsung Galaxy Z Flip3 is the reference device for this run's on-device checks (battery, AC66/AC59/AC65 manual checks, owed MVP device checks); replaces the Flip7 (SM-F766B) used in the MVP session. Owner connects it when the device session starts.",
+      "serial": "R5CR71NEQ8M (SM-F711B, Galaxy Z Flip3)"
+    },
+    "phone_timing": {
+      "at": "2026-10-23T12:22:30Z",
+      "answer": "Unplug until perf done"
     }
   },
   "carry_forward": [
@@ -714,6 +731,16 @@
       "from": "T8 review 5627525325 (Minor)",
       "to": "backlog / AC59 phone check",
       "item": "ThresholdsTable: all 9 header cells marked heading(), floods TalkBack heading nav"
+    },
+    {
+      "from": "security R-01 (Low)",
+      "to": "owner (governance PR)",
+      "item": "Dependabot alerts disabled; dependabot.yml covers only github-actions (MVP S-03)"
+    },
+    {
+      "from": "security R-02 (Low)",
+      "to": "developer / backlog",
+      "item": "ConnectivityStatus registerDefaultNetworkCallback can throw; collected with bare viewModelScope.launch; add runCatching/.catch"
     }
   ]
 }
