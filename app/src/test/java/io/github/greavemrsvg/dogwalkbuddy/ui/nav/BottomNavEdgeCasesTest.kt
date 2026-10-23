@@ -110,7 +110,7 @@ class BottomNavEdgeCasesTest {
         tapNav(NAV_WALKS_TAG)
         awaitText("This week")
         tapNav(NAV_DOG_TAG)
-        awaitText("Save profile")
+        awaitText("Save")
         tapNav(NAV_WALKS_TAG)
         awaitText("This week")
         tapNav(NAV_WALKS_TAG)
@@ -130,7 +130,7 @@ class BottomNavEdgeCasesTest {
     fun UX_AC11_after_returning_to_today_by_its_nav_item_system_back_leaves_the_app() {
         showApp()
         tapNav(NAV_DOG_TAG)
-        awaitText("Save profile")
+        awaitText("Save")
         tapNav(NAV_TODAY_TAG)
         awaitText("Good conditions for a walk")
         assertOnlySelected(NAV_TODAY_TAG)
@@ -147,7 +147,7 @@ class BottomNavEdgeCasesTest {
         composeRule.onNodeWithText("Privacy & data").performScrollTo().performClick()
         awaitText("There are no accounts, analytics or tracking.")
         composeRule.onNodeWithContentDescription("Back").performClick()
-        awaitText("Save profile")
+        awaitText("Save")
         assertOnlySelected(NAV_DOG_TAG)
 
         systemBack()
@@ -161,10 +161,10 @@ class BottomNavEdgeCasesTest {
     fun UX_AC53_the_privacy_and_about_tiles_sit_below_save() {
         showApp()
         tapNav(NAV_DOG_TAG)
-        awaitText("Save profile")
+        awaitText("Save")
 
         composeRule.onNodeWithText("About the advice").performScrollTo()
-        val save = composeRule.onNodeWithText("Save profile").fetchSemanticsNode().boundsInRoot
+        val save = composeRule.onNodeWithText("Save").fetchSemanticsNode().boundsInRoot
         val privacy = composeRule.onNodeWithText("Privacy & data").fetchSemanticsNode().boundsInRoot
         val about = composeRule.onNodeWithText("About the advice").fetchSemanticsNode().boundsInRoot
 

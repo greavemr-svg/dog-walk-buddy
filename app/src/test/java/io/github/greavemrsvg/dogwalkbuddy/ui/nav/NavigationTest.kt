@@ -29,7 +29,7 @@ class NavigationTest {
     @Test
     fun AC41_home_opens_the_dog_profile_and_back_returns_home() {
         composeRule.onNodeWithTag(NAV_DOG_TAG).performClick()
-        composeRule.onNodeWithText("Save profile").assertIsDisplayed()
+        composeRule.onNodeWithText("Save").assertIsDisplayed()
         composeRule.onNodeWithTag(NAV_DOG_TAG).assertIsSelected()
         composeRule.onNodeWithTag(NAV_DOG_TAG).assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
 

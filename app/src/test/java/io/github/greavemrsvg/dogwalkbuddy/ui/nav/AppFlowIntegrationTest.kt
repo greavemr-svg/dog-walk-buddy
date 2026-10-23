@@ -164,7 +164,7 @@ class AppFlowIntegrationTest {
         tapNav(NAV_DOG_TAG)
         composeRule.waitUntil(WAIT_MS) { composeRule.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isNotEmpty() }
         composeRule.onAllNodes(hasSetTextAction())[0].performTextInput("Biscuit")
-        tap("Save profile")
+        tap("Save")
         awaitText("Profile saved")
         systemBack()
         openPrivacy()

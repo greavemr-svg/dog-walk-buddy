@@ -13,6 +13,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -28,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.github.greavemrsvg.dogwalkbuddy.data.db.AppDatabase
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.PhotoStore
 import io.github.greavemrsvg.dogwalkbuddy.data.repo.ProfileRepository
+import io.github.greavemrsvg.dogwalkbuddy.domain.rating.HeatSensitivity
 import io.github.greavemrsvg.dogwalkbuddy.testutil.SyntheticImages
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertAccessibleScreen
 import io.github.greavemrsvg.dogwalkbuddy.ui.a11y.assertTouchTargetIsAtLeast
@@ -114,7 +116,7 @@ class ProfileScreenTest {
 
     private fun typeBreed(text: String) = composeRule.onAllNodes(hasSetTextAction())[1].performTextInput(text)
 
-    private fun save() = composeRule.onNodeWithText("Save profile").performClick()
+    private fun save() = composeRule.onNodeWithText("Save").performClick()
 
     private fun photoFiles() = File(filesDir, "profile").list().orEmpty().toList()
 
@@ -309,16 +311,53 @@ class ProfileScreenTest {
 
     @Test
     fun AC41_the_sensitivity_hint_only_says_what_the_setting_changes() {
-        composeRule.onNodeWithText("Sensitive uses stricter heat and pavement limits.").assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                "Sensitive makes the heat and hot-pavement warnings start 4°C sooner. Rain, wind and cold stay the same.",
+            ).assertIsDisplayed()
     }
 
     @Test
     fun AC51_the_controls_are_at_least_48dp_high_and_save_is_larger() {
         composeRule.assertAccessibleScreen()
         composeRule.onNodeWithText("Choose photo").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
-        composeRule.onNodeWithText("Save profile").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+        composeRule.onNodeWithText("Save").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
         composeRule.onNodeWithText("Normal").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
         composeRule.onNodeWithText("Privacy & data").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
         composeRule.onNodeWithText("About the advice").assertTouchTargetIsAtLeast(composeRule, 48.dp, 48.dp)
+    }
+
+    @Test
+    fun UX_AC52_tapping_a_radio_card_saves_that_sensitivity_end_to_end() {
+        typeName("Biscuit")
+        composeRule.onNodeWithText("Sensitive").performClick()
+        composeRule.onNodeWithText("Sensitive").assertIsSelected()
+        composeRule.onNodeWithText("Normal").assertIsNotSelected()
+        save()
+        composeRule.onNodeWithText("Profile saved").assertIsDisplayed()
+        assertEquals(HeatSensitivity.SENSITIVE, runBlocking { repository.observeProfile().first() }!!.heatSensitivity)
+
+        composeRule.onNodeWithText("Normal").performClick()
+        composeRule.onNodeWithText("Normal").assertIsSelected()
+        composeRule.onNodeWithText("Sensitive").assertIsNotSelected()
+        save()
+        assertEquals(HeatSensitivity.NORMAL, runBlocking { repository.observeProfile().first() }!!.heatSensitivity)
+    }
+
+    @Test
+    fun UX_AC67_a_photo_that_cannot_be_read_shows_the_exact_message_end_to_end() {
+        composeRule.runOnUiThread { viewModel!!.onPhotoPicked { null } }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("Couldn't read that photo. Try another one.").assertIsDisplayed()
+        assertTrue(photoFiles().isEmpty())
+    }
+
+    @Test
+    fun UX_AC67_a_file_that_is_not_an_image_shows_the_exact_message_end_to_end() {
+        composeRule.runOnUiThread { viewModel!!.onPhotoPicked { ByteArrayInputStream("not an image".toByteArray()) } }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("That file isn't a photo the app can use. Choose a different one.").assertIsDisplayed()
     }
 }

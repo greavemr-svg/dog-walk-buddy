@@ -154,7 +154,7 @@ class BottomNavTest {
         assertOnlySelected(NAV_WALKS_TAG)
 
         tapNav(NAV_DOG_TAG)
-        awaitText("Save profile")
+        awaitText("Save")
         assertOnlySelected(NAV_DOG_TAG)
 
         tapNav(NAV_TODAY_TAG)
@@ -194,7 +194,7 @@ class BottomNavTest {
         showApp()
         tapNav(NAV_WALKS_TAG)
         tapNav(NAV_DOG_TAG)
-        awaitText("Save profile")
+        awaitText("Save")
 
         systemBack()
 
@@ -222,7 +222,7 @@ class BottomNavTest {
         composeRule.onNodeWithText("There are no accounts, analytics or tracking.").assertExists()
         composeRule.onNodeWithTag(NAV_DOG_TAG).assertDoesNotExist()
         composeRule.onNodeWithContentDescription("Back").performClick()
-        awaitText("Save profile")
+        awaitText("Save")
         assertOnlySelected(NAV_DOG_TAG)
     }
 
@@ -240,7 +240,7 @@ class BottomNavTest {
         composeRule.onNodeWithText("About the advice").performScrollTo().performClick()
         composeRule.onNodeWithText("Rating thresholds").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("Back").performClick()
-        awaitText("Save profile")
+        awaitText("Save")
         assertOnlySelected(NAV_DOG_TAG)
     }
 
@@ -252,7 +252,7 @@ class BottomNavTest {
         tapNav(NAV_DOG_TAG)
         composeRule.waitUntil(WAIT_MS) { composeRule.onAllNodes(hasSetTextAction()).fetchSemanticsNodes().isNotEmpty() }
         composeRule.onAllNodes(hasSetTextAction())[0].performTextInput("Biscuit")
-        composeRule.onNodeWithText("Save profile").performScrollTo().performClick()
+        composeRule.onNodeWithText("Save").performScrollTo().performClick()
         awaitText("Profile saved")
         composeRule.waitUntil(WAIT_MS) {
             navItems()
@@ -358,9 +358,9 @@ class BottomNavTest {
         composeRule.assertHeadingsMarked("Walks")
 
         tapNav(NAV_DOG_TAG)
-        awaitText("Save profile")
+        awaitText("Save")
         composeRule.assertAccessibleScreen()
-        composeRule.assertHeadingsMarked("Dog profile")
+        composeRule.assertHeadingsMarked("Your dog")
     }
 
     @Test

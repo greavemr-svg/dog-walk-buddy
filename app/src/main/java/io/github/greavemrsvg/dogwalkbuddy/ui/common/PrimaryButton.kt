@@ -44,3 +44,26 @@ fun StartWalkButton(
 }
 
 private val StartIconSize = 26.dp
+
+/**
+ * The full-width primary action, such as the dog tab's Save (AC53): at least 56 dp high, radius 18, `primary` fill and
+ * `onPrimary` text. Disabled, it uses the Material 3 disabled colours.
+ */
+@Composable
+fun PrimaryButton(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    val colors = FieldKit.colors
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.fillMaxWidth().heightIn(min = FieldKitSizes.primaryButtonHeight),
+        shape = FieldKitShapes.button,
+        colors = ButtonDefaults.buttonColors(containerColor = colors.primary, contentColor = colors.onPrimary),
+    ) {
+        Text(text = label, style = FieldKit.typography.button, textAlign = TextAlign.Center)
+    }
+}
